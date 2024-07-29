@@ -24,9 +24,11 @@
     <tr>
         <td>@Html.LabelFor(m => m.Description)</td>
         <td>@Html.DisplayFor(m => m.Description)</td>
-    </tr> 
+    </tr>  
     <tr>
-        <td>@Html.LabelFor(m => m.StatusDescription)</td>
-        <td>@Html.DisplayFor(m => m.StatusDescription)</td>
+        <td>@Html.LabelFor(m => m.Status)</td>
+        <td>
+            @Html.DropDownListFor(m => m.Status,
+                     new SelectList(Enum.GetValues(typeof(CFTenantPortal.Enums.IssueStatuses))))
     </tr>
 </table>

@@ -55,6 +55,7 @@ namespace CFTenantPortal.Controllers
                 IssueTypeId = issue.IssueTypeId,
                 IssueTypeDescription = issueType.Description,
                 PropertyDescription = property == null ? "" : property.Address.ToSummary(),
+                Status = issue.Status,
                 StatusDescription = issue.Status.ToString(),     // TODO: Set correctly                                  
                 IssueTypeList = _issueTypeService.GetAll().Result.Select(it =>
                 {
@@ -103,7 +104,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult PropertyList(string? propertyGroupId)
+        public IActionResult PropertyList(string? propertyGroupId, string? propertyOwnerId)
         {
             var model = new PropertyListModel() { HeaderText = "Property List" };   // Default header
 
@@ -111,15 +112,24 @@ namespace CFTenantPortal.Controllers
             var propertyGroups = _propertyGroupService.GetAll().Result;
             var propertyOwners = _propertyOwnerService.GetAll().Result;
 
-            // Get properties (All properties/Specific group)
-            var properties = String.IsNullOrEmpty(propertyGroupId) ?
-                    _propertyService.GetAll().Result :
-                    _propertyService.GetByPropertyGroup(propertyGroupId).Result;
-
-            var propertyGroupMain = String.IsNullOrEmpty(propertyGroupId) ?
-                                null :
-                                _propertyGroupService.GetById(propertyGroupId).Result;
-            if (propertyGroupMain != null) model.HeaderText = $"Property List : {propertyGroupMain.Name}";
+            // Get properties (All properties/Specific group/Specific owner)
+            List<Property> properties = null;            
+            if (!String.IsNullOrEmpty(propertyGroupId))   // Properties by group
+            {
+                properties = _propertyService.GetByPropertyGroup(propertyGroupId).Result;
+                var propertyGroupMain = propertyGroups.First(pg => pg.Id == propertyGroupId);
+                model.HeaderText = $"Property List : {propertyGroupMain.Name}";
+            }
+            else if (!String.IsNullOrEmpty(propertyOwnerId))  // Properties by owner
+            {
+                properties = _propertyService.GetAll().Result.Where(p => p.OwnerId == propertyOwnerId).ToList();
+                var propertyOwnerMain = propertyOwners.First(po => po.Id == propertyOwnerId);
+                model.HeaderText = $"Property List : {propertyOwnerMain.Name}";
+            }
+            else    // All properties
+            {
+                properties = _propertyService.GetAll().Result;
+            }                        
 
             model.Properties = properties.Select(p =>
             {
@@ -132,6 +142,23 @@ namespace CFTenantPortal.Controllers
                     AddressDescription = p.Address.ToSummary(),
                     PropertyGroupName = propertyGroup.Name,
                     PropertyOwnerName = propertyOwner.Name
+                };
+            }).ToList();
+
+            return View(model);
+        }
+
+        public IActionResult PropertyOwnerList()
+        {
+            var model = new PropertyOwnerListModel() { HeaderText = "Property Owner List" };
+
+            model.PropertyOwners = _propertyOwnerService.GetAll().Result.Select(po =>
+            {
+                return new PropertyOwnerModel()
+                {
+                    Id = po.Id,
+                    Email = po.Email,
+                    Name = po.Name
                 };
             }).ToList();
 

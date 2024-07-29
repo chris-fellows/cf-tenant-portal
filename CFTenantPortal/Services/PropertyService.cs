@@ -101,6 +101,20 @@ namespace CFTenantPortal.Services
                 OwnerId = "5",
             });
 
+            properties.Add(new Property()
+            {
+                Id = "6",
+                Address = new Address()
+                {
+                    Line1 = "52 Church Street",
+                    County = "Berkshire",
+                    Town = "Cookham",
+                    Postcode = "SL3 9YT",
+                },
+                GroupId = "2",
+                OwnerId = "5",   // Owns multiple properties
+            });
+
             return properties;
 
         }
