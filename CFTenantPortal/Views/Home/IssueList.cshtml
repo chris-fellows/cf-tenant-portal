@@ -1,0 +1,60 @@
+﻿@model CFTenantPortal.Models.IssueListModel
+
+@{
+    ViewData["Title"] = "Issue List";
+}
+
+<h1>@Model.HeaderText</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Issues[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issues[0].IssueTypeDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issues[0].Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issues[0].PropertyDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Issues)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IssueTypeDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PropertyDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StatusDescription)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
