@@ -1,0 +1,32 @@
+﻿@model CFTenantPortal.Models.IssueModel
+
+@{
+    ViewData["Title"] = "Property";
+}
+
+<h3>Issue</h3>
+
+<table>    
+    <tr>
+        <td>@Html.LabelFor(m => m.IssueTypeDescription)</td>
+        <td>@Html.DropDownListFor(m => m.IssueTypeDescription, 
+                new SelectList(Model.IssueTypeList.Select(it => it.Description)))
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(m => m.IssueTypeDescription)</td>
+        <td>@Html.DropDownListFor(m => m.IssueTypeId,
+                     new SelectList(Model.IssueTypeList.Select(it => new SelectListItem() { Value = it.Id, Text = it.Description })).ToList())
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(m => m.PropertyDescription)</td>
+        <td>@Html.DisplayFor(m => m.PropertyDescription)</td>
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(m => m.Description)</td>
+        <td>@Html.DisplayFor(m => m.Description)</td>
+    </tr> 
+    <tr>
+        <td>@Html.LabelFor(m => m.StatusDescription)</td>
+        <td>@Html.DisplayFor(m => m.StatusDescription)</td>
+    </tr>
+</table>

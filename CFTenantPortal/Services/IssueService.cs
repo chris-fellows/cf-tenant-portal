@@ -12,12 +12,18 @@ namespace CFTenantPortal.Services
 
         public Task<Issue> GetById(string id)
         {
-            return null;
+            return Task.FromResult(GetAllInternal().FirstOrDefault(i => i.Id == id));
         }
 
         public Task<List<Issue>> GetByProperty(string propertyId)
         {
             var issues = GetAllInternal().Where(i => i.PropertyId == propertyId).ToList();
+            return Task.FromResult(issues);
+        }
+
+        public Task<List<Issue>> GetByIssueType(string issueTypeId)
+        {
+            var issues = GetAllInternal().Where(i => i.IssueTypeId == issueTypeId).ToList();
             return Task.FromResult(issues);
         }
 

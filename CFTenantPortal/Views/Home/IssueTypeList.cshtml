@@ -1,7 +1,7 @@
-﻿@model CFTenantPortal.Models.PropertyGroupListModel
+﻿@model CFTenantPortal.Models.IssueTypeListModel
 
 @{
-    ViewData["Title"] = "Property Groups";
+    ViewData["Title"] = "Issue Type";
 }
 
 <h3>@Model.HeaderText</h3>
@@ -13,35 +13,29 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.PropertyGroups[0].Id)
+                @Html.DisplayNameFor(model => model.IssueTypes[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IssueTypes[0].Description)
             </th>            
-            <th>
-                @Html.DisplayNameFor(model => model.PropertyGroups[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PropertyGroups[0].Description)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.PropertyGroups)
+        @foreach (var item in Model.IssueTypes)
         {
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Description)
-                </td>
+                </td>              
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                     @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                     @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Properties", "PropertyList", new { propertyGroupId = item.Id })
+                    @Html.ActionLink("Issues", "IssueList", new { issueTypeId=item.Id })
                 </td>
             </tr>
         }

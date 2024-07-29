@@ -10,6 +10,8 @@ namespace CFTenantPortal.Interfaces
 
         Task<List<Issue>> GetByProperty(string propertyId);
 
+        Task<List<Issue>> GetByIssueType(string issueTypeId);
+
         Task Update(Issue issue);
     }
 }

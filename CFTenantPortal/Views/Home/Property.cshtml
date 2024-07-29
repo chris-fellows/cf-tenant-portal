@@ -1,14 +1,27 @@
-﻿@model CFTenantPortal.Models.IssueListModel
+﻿@model CFTenantPortal.Models.PropertyModel2
 
 @{
-    ViewData["Title"] = "Issue List";
+    ViewData["Title"] = "Property";
 }
 
-<h3>@Model.HeaderText</h3>
+<h3>Property</h3>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<table>
+    <tr>
+        <td>@Html.LabelFor(m => m.PropertyGroupName)</td>
+        <td>@Html.DisplayFor(m => m.PropertyGroupName)</td>
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(m => m.AddressDescription)</td>
+        <td>@Html.DisplayFor(m => m.AddressDescription)</td>
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(m => m.PropertyOwnerName)</td>
+        <td>@Html.DisplayFor(m => m.PropertyOwnerName)</td>
+    </tr>
+</table>
+
+<h2>Issues</h2>
 <table class="table">
     <thead>
         <tr>
@@ -51,7 +64,7 @@
                 </td>
                 <td>
                     @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Issue", new { id=item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                     @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
                 </td>
             </tr>

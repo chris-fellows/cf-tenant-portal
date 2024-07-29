@@ -2,6 +2,7 @@ using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
 using CFTenantPortal.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Abstractions;
 using System.Diagnostics;
 
 namespace CFTenantPortal.Controllers
@@ -39,11 +40,72 @@ namespace CFTenantPortal.Controllers
         {
             return View();
         }
+        public IActionResult Issue(string id)
+        {
+            var issue = _issueService.GetById(id).Result;
+            var issueType = _issueTypeService.GetById(issue.IssueTypeId).Result;
+            var property = String.IsNullOrEmpty(issue.PropertyId) ?
+                           null :
+                           _propertyService.GetById(issue.PropertyId).Result;
+
+            var model = new IssueModel()
+            {
+                Id = issue.Id,
+                Description = issue.Description,
+                IssueTypeId = issue.IssueTypeId,
+                IssueTypeDescription = issueType.Description,
+                PropertyDescription = property == null ? "" : property.Address.ToSummary(),
+                StatusDescription = issue.Status.ToString(),     // TODO: Set correctly                                  
+                IssueTypeList = _issueTypeService.GetAll().Result.Select(it =>
+                {
+                    return new IssueTypeModel()
+                    {
+                        Id = it.Id,
+                        Description = it.Description
+                    };
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        public IActionResult Property(string id)
+        {
+            var property = _propertyService.GetById(id).Result;
+            var propertyGroup = _propertyGroupService.GetById(property.GroupId).Result;
+            var propertyOwner = _propertyOwnerService.GetById(property.OwnerId).Result;
+
+            var issueTypes = _issueTypeService.GetAll().Result;
+
+            var model = new PropertyModel2()
+            {
+                Id = property.Id,
+                PropertyGroupName = propertyGroup.Name,
+                AddressDescription = property.Address.ToSummary(),
+                PropertyOwnerName = propertyOwner.Name                
+            };
+
+            // Load issues
+            model.Issues = _issueService.GetByProperty(property.Id).Result.Select(i =>
+            {
+                var issueType = issueTypes.First(it => it.Id == i.IssueTypeId);
+
+                return new IssueModel()
+                {
+                    Id = i.Id,
+                    Description = i.Description, 
+                    IssueTypeDescription = issueType.Description,
+                    PropertyDescription = property.Address.ToSummary(),
+                    StatusDescription = i.Status.ToString()     // TODO: Set properly
+                };
+            }).ToList();
+
+            return View(model);
+        }
 
         public IActionResult PropertyList(string? propertyGroupId)
         {
-            //return View();
-            //
+            var model = new PropertyListModel() { HeaderText = "Property List" };   // Default header
 
             // TODO: Make this more efficient
             var propertyGroups = _propertyGroupService.GetAll().Result;
@@ -54,7 +116,12 @@ namespace CFTenantPortal.Controllers
                     _propertyService.GetAll().Result :
                     _propertyService.GetByPropertyGroup(propertyGroupId).Result;
 
-            var propertyModels = properties.Select(p =>
+            var propertyGroupMain = String.IsNullOrEmpty(propertyGroupId) ?
+                                null :
+                                _propertyGroupService.GetById(propertyGroupId).Result;
+            if (propertyGroupMain != null) model.HeaderText = $"Property List : {propertyGroupMain.Name}";
+
+            model.Properties = properties.Select(p =>
             {
                 var propertyGroup = propertyGroups.First(pg => pg.Id == p.GroupId);
                 var propertyOwner = propertyOwners.First(po => po.Id == p.OwnerId);
@@ -64,16 +131,18 @@ namespace CFTenantPortal.Controllers
                     Id = p.Id,
                     AddressDescription = p.Address.ToSummary(),
                     PropertyGroupName = propertyGroup.Name,
-                    PropertyOwnerName = propertyOwner.Name                    
+                    PropertyOwnerName = propertyOwner.Name
                 };
-            });
+            }).ToList();
 
-            return View(propertyModels);
+            return View(model);
         }
 
         public IActionResult PropertyGroupList()
-        {                           
-            var propertyGroups = _propertyGroupService.GetAll().Result.Select(p =>
+        {
+            var model = new PropertyGroupListModel() { HeaderText = "Property Groups " };   // Default header
+
+            model.PropertyGroups = _propertyGroupService.GetAll().Result.Select(p =>
             {
                 return new PropertyGroupModel()
                 {
@@ -81,29 +150,52 @@ namespace CFTenantPortal.Controllers
                     Name = p.Name,
                     Description = p.Description
                 };
-            });
+            }).ToList();
 
-            return View(propertyGroups);
+            return View(model);
         }
 
-        public IActionResult IssueList(string? propertyId)
+        public IActionResult IssueTypeList()
+        {
+            var model = new IssueTypeListModel() { HeaderText = "Issue Types" };   // Default header
+
+            model.IssueTypes = _issueTypeService.GetAll().Result.Select(it =>
+            {
+                return new IssueTypeModel()
+                {
+                    Id = it.Id,
+                    Description = it.Description
+                };
+            }).ToList();
+
+            return View(model);
+        }
+
+        public IActionResult IssueList(string? issueTypeId, string? propertyId)
         {
             var model = new IssueListModel() { HeaderText = "Issue List" };   // Default header
 
             // Get properties (All properties/Specific group)            
             var issueTypes = _issueTypeService.GetAll().Result;
 
-            // Get issues (All issues/Property issues)
-            var issues = String.IsNullOrEmpty(propertyId) ?
-                        _issueService.GetAll().Result :
-                        _issueService.GetByProperty(propertyId).Result;
+            // Get issues (All issues/Issue type issues/Property issues)
+            List<Issue> issues = null;
+            if (!String.IsNullOrEmpty(issueTypeId)) issues = _issueService.GetByIssueType(issueTypeId).Result;
+            if (!String.IsNullOrEmpty(propertyId)) issues = _issueService.GetByProperty(propertyId).Result;
+            if (issues == null) issues = _issueService.GetAll().Result;
+
+            // Get issue type if set
+            var issueTypeMain = String.IsNullOrEmpty(issueTypeId) ?
+                        null :
+                        issueTypes.First(it => it.Id == issueTypeId);
+            if (issueTypeMain != null) model.HeaderText = $"Issue List : {issueTypeMain.Description}";
 
             // Get property if set
             var propertyMain = String.IsNullOrEmpty(propertyId) ?
                         null :
                         _propertyService.GetById(propertyId).Result;                        
             if (propertyMain != null) model.HeaderText = $"Issue List : {propertyMain.Address.ToSummary()}";
-
+           
             var properties = _propertyService.GetAll().Result;
 
             // Get issue models

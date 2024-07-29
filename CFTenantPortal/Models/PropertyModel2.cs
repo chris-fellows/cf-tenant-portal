@@ -2,7 +2,7 @@
 
 namespace CFTenantPortal.Models
 {
-    public class PropertyModel
+    public class PropertyModel2
     {
         public string Id { get; set; } = String.Empty;
 
@@ -14,5 +14,7 @@ namespace CFTenantPortal.Models
 
         [Display(Name = "Owner")]
         public string PropertyOwnerName { get; set; } = String.Empty;
+
+        public List<IssueModel> Issues { get; set; }
     }
 }

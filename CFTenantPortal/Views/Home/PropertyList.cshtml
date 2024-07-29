@@ -1,10 +1,10 @@
-﻿@model IEnumerable<CFTenantPortal.Models.PropertyModel>
+﻿@model CFTenantPortal.Models.PropertyListModel
 
 @{
     ViewData["Title"] = "Property List";
 }
 
-<h1>Property List</h1>
+<h3>@Model.HeaderText</h3>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,22 +13,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Id)
+                @Html.DisplayNameFor(model => model.Properties[0].Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.AddressDescription)
+                @Html.DisplayNameFor(model => model.Properties[0].AddressDescription)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PropertyOwnerName)
+                @Html.DisplayNameFor(model => model.Properties[0].PropertyOwnerName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PropertyGroupName)
+                @Html.DisplayNameFor(model => model.Properties[0].PropertyGroupName)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Properties) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Id)
@@ -44,8 +44,8 @@
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Details", "Property", new { id=item.Id }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Issues", "IssueList", new { propertyId = item.Id })
             </td>
         </tr>
