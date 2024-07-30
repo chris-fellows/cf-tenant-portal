@@ -21,9 +21,15 @@ namespace CFTenantPortal.Services
             return Task.FromResult(issues);
         }
 
+        public Task<List<Issue>> GetByPropertyGroup(string propertyGroupId)
+        {
+            var issues = GetAllInternal().Where(i => i.PropertyGroupId == propertyGroupId).ToList();
+            return Task.FromResult(issues);
+        }
+
         public Task<List<Issue>> GetByIssueType(string issueTypeId)
         {
-            var issues = GetAllInternal().Where(i => i.IssueTypeId == issueTypeId).ToList();
+            var issues = GetAllInternal().Where(i => i.TypeId == issueTypeId).ToList();
             return Task.FromResult(issues);
         }
 
@@ -41,9 +47,9 @@ namespace CFTenantPortal.Services
                 Id = "1",
                 Description = "Issue 1",
                 CreatedDateTime = DateTime.Now,
-                IssueTypeId = "1",
+                TypeId = "1",
                 PropertyId = "1",
-                Status = Enums.IssueStatuses.New
+                StatusId = "1"
             });
 
             issues.Add(new Issue()
@@ -51,9 +57,9 @@ namespace CFTenantPortal.Services
                 Id = "2",
                 Description = "Issue 2",
                 CreatedDateTime = DateTime.Now,
-                IssueTypeId = "1",
+                TypeId = "1",
                 PropertyId = "1",
-                Status = Enums.IssueStatuses.New
+                StatusId = "1"
             });
 
             issues.Add(new Issue()
@@ -61,20 +67,41 @@ namespace CFTenantPortal.Services
                 Id = "3",
                 Description = "Issue 3",
                 CreatedDateTime = DateTime.Now,
-                IssueTypeId = "2",
+                TypeId = "2",
                 PropertyId = "2",
-                Status = Enums.IssueStatuses.New
+                StatusId = "1"
             });
 
             issues.Add(new Issue()
             {
-                Id = "3",
+                Id = "4",
                 Description = "Issue 4",
                 CreatedDateTime = DateTime.Now,
-                IssueTypeId = "2",
+                TypeId = "2",
                 PropertyId = "3",
-                Status = Enums.IssueStatuses.New
+                StatusId = "1"
             });
+
+            issues.Add(new Issue()
+            {
+                Id = "5",
+                Description = "Issue 5 for property group",
+                CreatedDateTime = DateTime.Now,
+                TypeId = "2",
+                PropertyGroupId = "1",
+                StatusId = "2"
+            });
+
+            issues.Add(new Issue()
+            {
+                Id = "6",
+                Description = "Issue 6 for property group",
+                CreatedDateTime = DateTime.Now,
+                TypeId = "2",
+                PropertyGroupId = "2",
+                StatusId = "2"
+            });
+
 
             return issues;
         }

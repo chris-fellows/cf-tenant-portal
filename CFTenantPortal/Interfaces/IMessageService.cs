@@ -8,6 +8,8 @@ namespace CFTenantPortal.Interfaces
 
         Task<Message> GetById(string id);
 
+        Task<List<Message>> GetByPropertyOwner(string propertyOwnerId);
+
         Task Update(Message message);
     }
 }

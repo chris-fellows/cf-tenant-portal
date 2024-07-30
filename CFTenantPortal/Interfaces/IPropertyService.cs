@@ -10,6 +10,8 @@ namespace CFTenantPortal.Interfaces
 
         Task<List<Property>> GetByPropertyGroup(string propertyGroupId);
 
+        Task<List<Property>> GetByPropertyOwner(string propertyOwnerId);
+
         Task Update(Property property);
     }
 }

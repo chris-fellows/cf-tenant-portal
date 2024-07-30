@@ -15,6 +15,11 @@ namespace CFTenantPortal.Services
             return Task.FromResult(GetAllInternal().FirstOrDefault(it => it.Id == id));
         }
 
+        public Task<List<Message>> GetByPropertyOwner(string propertyOwnerId)
+        {
+            return Task.FromResult(GetAllInternal().Where(m => m.PropertyOwnerId == propertyOwnerId).ToList());
+        }
+
         public Task Update(Message message)
         {
             return Task.CompletedTask;

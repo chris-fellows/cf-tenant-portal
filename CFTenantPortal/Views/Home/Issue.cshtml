@@ -1,34 +1,45 @@
-﻿@model CFTenantPortal.Models.IssueModel
+﻿@model CFTenantPortal.Models.IssueVM
 
 @{
     ViewData["Title"] = "Property";
 }
 
-<h3>Issue</h3>
+<h3>@Model.HeaderText</h3>
 
-<table>    
-    <tr>
-        <td>@Html.LabelFor(m => m.IssueTypeDescription)</td>
-        <td>@Html.DropDownListFor(m => m.IssueTypeDescription, 
-                new SelectList(Model.IssueTypeList.Select(it => it.Description)))
-    </tr>
-    <tr>
-        <td>@Html.LabelFor(m => m.IssueTypeDescription)</td>
-        <td>@Html.DropDownListFor(m => m.IssueTypeId,
-                     new SelectList(Model.IssueTypeList.Select(it => new SelectListItem() { Value = it.Id, Text = it.Description })).ToList())
-    </tr>
-    <tr>
-        <td>@Html.LabelFor(m => m.PropertyDescription)</td>
-        <td>@Html.DisplayFor(m => m.PropertyDescription)</td>
-    </tr>
-    <tr>
-        <td>@Html.LabelFor(m => m.Description)</td>
-        <td>@Html.DisplayFor(m => m.Description)</td>
-    </tr>  
-    <tr>
-        <td>@Html.LabelFor(m => m.Status)</td>
-        <td>
-            @Html.DropDownListFor(m => m.Status,
-                     new SelectList(Enum.GetValues(typeof(CFTenantPortal.Enums.IssueStatuses))))
-    </tr>
-</table>
+<form asp-action="CreateEditIssueForm">
+    @Html.LabelFor(m => m.TypeId)
+    @Html.DropDownListFor(m => m.TypeId,
+            new SelectList(@Model.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br/>
+
+    @Html.LabelFor(m => m.IssueStatusId)
+    @Html.DropDownListFor(m => m.IssueStatusId,
+            new SelectList(@Model.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br/>
+
+    @Html.LabelFor(m => m.PropertyId)
+    @Html.DropDownListFor(m => m.PropertyId,
+            new SelectList(@Model.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br/>
+
+    @Html.LabelFor(m => m.PropertyGroupId)
+    @Html.DropDownListFor(m => m.PropertyGroupId,
+            new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br />
+
+    @Html.LabelFor(m => m.CreatedEmployeeId)
+    @Html.DropDownListFor(m => m.CreatedEmployeeId,
+            new SelectList(@Model.EmployeeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br />
+
+    @Html.LabelFor(m => m.CreatedPropertyOwnerId)
+    @Html.DropDownListFor(m => m.CreatedPropertyOwnerId,
+            new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br />
+        
+    @Html.LabelFor(m => m.Description)
+    <input class="form-control" type="text" asp-for="@Model.Description" />
+
+    <button class="btn btn-primary" type="submit">Save</button>
+</form>
+    

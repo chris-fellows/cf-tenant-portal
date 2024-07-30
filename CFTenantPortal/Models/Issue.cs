@@ -14,12 +14,17 @@ namespace CFTenantPortal.Models
         /// <summary>
         /// Issue type
         /// </summary>
-        public string IssueTypeId { get; set; } = String.Empty;
+        public string TypeId { get; set; } = String.Empty;
 
         /// <summary>
-        /// Property related to issue
+        /// Property (if any) related to issue
         /// </summary>
         public string PropertyId { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Property group (if any) related to issue
+        /// </summary>
+        public string PropertyGroupId { get; set; } = String.Empty;
 
         /// <summary>
         /// Issue description
@@ -29,7 +34,17 @@ namespace CFTenantPortal.Models
         /// <summary>
         /// Issue status
         /// </summary>
-        public IssueStatuses Status { get; set; } = IssueStatuses.New;
+        public string StatusId { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Employee (if any) that created issue
+        /// </summary>
+        public string CreatedEmployeeId { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Property owner (if any) that created issue
+        /// </summary>
+        public string CreatedPropertyOwnerId { get; set; } = String.Empty;
 
         /// <summary>
         /// Created date and time

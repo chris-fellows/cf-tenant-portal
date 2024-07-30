@@ -1,73 +1,97 @@
-﻿@model CFTenantPortal.Models.PropertyModel2
+﻿@model CFTenantPortal.Models.PropertyVM
 
 @{
     ViewData["Title"] = "Property";
 }
 
-<h3>Property</h3>
+<h3>@Model.HeaderText</h3>
 
-<table>
-    <tr>
-        <td>@Html.LabelFor(m => m.PropertyGroupName)</td>
-        <td>@Html.DisplayFor(m => m.PropertyGroupName)</td>
-    </tr>
-    <tr>
-        <td>@Html.LabelFor(m => m.AddressDescription)</td>
-        <td>@Html.DisplayFor(m => m.AddressDescription)</td>
-    </tr>
-    <tr>
-        <td>@Html.LabelFor(m => m.PropertyOwnerName)</td>
-        <td>@Html.DisplayFor(m => m.PropertyOwnerName)</td>
-    </tr>
-</table>
+<form asp-action="CreateEditPropertyForm">    
+    @Html.LabelFor(m => m.PropertyGroupId)
+    @Html.DropDownListFor(m => m.PropertyGroupId,
+            new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br />
 
-<h2>Issues</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].IssueTypeDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].PropertyDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Issues)
-        {
+    @Html.LabelFor(m => m.PropertyOwnerId)
+    @Html.DropDownListFor(m => m.PropertyOwnerId,
+            new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+    <br />    
+
+    <h5>Address</h5>
+    @Html.LabelFor(m => m.Address.Line1)
+    <input class="form-control" type="text" asp-for="@Model.Address.Line1" />    
+    @Html.LabelFor(m => m.Address.Line2)
+    <input class="form-control" type="text" asp-for="@Model.Address.Line2" />
+    @Html.LabelFor(m => m.Address.Town)
+    <input class="form-control" type="text" asp-for="@Model.Address.Town" />
+    @Html.LabelFor(m => m.Address.County)
+    <input class="form-control" type="text" asp-for="@Model.Address.County" />
+    @Html.LabelFor(m => m.Address.Postcode)
+    <input class="form-control" type="text" asp-for="@Model.Address.Postcode" />    
+
+    <button class="btn btn-primary" type="submit">Save</button> 
+</form>
+
+    <h4>Issues</h4>
+<p>
+    <a asp-action="Issue">Create New</a>
+</p>
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IssueTypeDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PropertyDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StatusDescription)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].PropertyOrBuilderDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Issues)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeDescription)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @if (item.PropertyId != "")
+                        {
+                            @Html.ActionLink(item.PropertyOrBuilderDescription, "Property", new { id = item.PropertyId })
+                        }
+                        else
+                        {
+                            @Html.ActionLink(item.PropertyOrBuilderDescription, "PropertyGroup", new { id = item.PropertyGroupId })
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StatusDescription)
+                    </td>
+                    <td>                        
+                        @Html.ActionLink("Details", "Issue", new { id=item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+<iframe>
+    Property on map here
+</iframe>

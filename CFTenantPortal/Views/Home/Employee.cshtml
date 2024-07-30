@@ -1,0 +1,18 @@
+﻿@model CFTenantPortal.Models.EmployeeVM
+
+@{
+    ViewData["Title"] = "Employee";
+}
+
+<h3>@Model.HeaderText</h3>
+
+<form asp-action="CreateEditEmployeeForm">
+    @Html.LabelFor(m => m.Name)
+    <input class="form-control" type="text" asp-for="@Model.Name" />
+    @Html.LabelFor(m => m.Email)
+    <input class="form-control" type="text" asp-for="@Model.Email" />
+    @Html.LabelFor(m => m.Active)
+    <input class="form-control" type="checkbox" asp-for="@Model.Active" />
+
+    <button class="btn btn-primary" type="submit">Save</button>
+</form>

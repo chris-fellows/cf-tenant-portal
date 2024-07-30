@@ -1,4 +1,4 @@
-﻿@model CFTenantPortal.Models.PropertyGroupListModel
+﻿@model CFTenantPortal.Models.PropertyGroupListVM
 
 @{
     ViewData["Title"] = "Property Groups";
@@ -7,7 +7,7 @@
 <h3>@Model.HeaderText</h3>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="PropertyGroup">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -37,11 +37,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Properties", "PropertyList", new { propertyGroupId = item.Id })
+                <td>                    
+                    @Html.ActionLink("Details", "PropertyGroup", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })                    
                 </td>
             </tr>
         }

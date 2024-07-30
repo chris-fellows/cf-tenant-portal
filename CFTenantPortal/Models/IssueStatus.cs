@@ -1,9 +1,8 @@
-﻿namespace CFTenantPortal.Models
+﻿using System.Security.Permissions;
+
+namespace CFTenantPortal.Models
 {
-    /// <summary>
-    /// Message type
-    /// </summary>
-    public class MessageType
+    public class IssueStatus
     {
         public string Id { get; set; } = String.Empty;
 

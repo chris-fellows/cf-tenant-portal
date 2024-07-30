@@ -1,6 +1,6 @@
 ﻿namespace CFTenantPortal.Models
 {
-    public class IssueTypeModel
+    public class IssueTypeVM
     {
         public string Id { get; set; } = String.Empty;
 

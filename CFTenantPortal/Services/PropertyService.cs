@@ -22,6 +22,12 @@ namespace CFTenantPortal.Services
             return items;
         }
 
+        public async Task<List<Property>> GetByPropertyOwner(string propertyOwnerId)
+        {
+            var items = GetAllInternal().Where(pg => pg.OwnerId == propertyOwnerId).ToList();
+            return items;
+        }
+
         public Task Update(Property property)
         {
             return Task.CompletedTask;

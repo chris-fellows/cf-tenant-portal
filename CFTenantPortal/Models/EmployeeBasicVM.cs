@@ -2,14 +2,17 @@
 
 namespace CFTenantPortal.Models
 {
-    public class PropertyOwnerModel
-    { 
+    public class EmployeeBasicVM
+    {
         public string Id { get; set; } = String.Empty;
 
-        [Display(Name = "Name")]
+        [Display(Name="Name")]
         public string Name { get; set; } = String.Empty;
 
         [Display(Name = "Email")]
         public string Email { get; set; } = String.Empty;
+
+        [Display(Name = "Active")]
+        public bool Active { get; set; }
     }
 }

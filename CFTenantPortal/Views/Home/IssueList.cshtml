@@ -1,4 +1,4 @@
-﻿@model CFTenantPortal.Models.IssueListModel
+﻿@model CFTenantPortal.Models.IssueListVM
 
 @{
     ViewData["Title"] = "Issue List";
@@ -7,7 +7,7 @@
 <h3>@Model.HeaderText</h3>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Issue">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -16,13 +16,13 @@
                 @Html.DisplayNameFor(model => model.Issues[0].Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Issues[0].IssueTypeDescription)
+                @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Issues[0].Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Issues[0].PropertyDescription)
+                @Html.DisplayNameFor(model => model.Issues[0].PropertyOrBuilderDescription)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
@@ -38,19 +38,25 @@
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IssueTypeDescription)
+                    @Html.DisplayFor(modelItem => item.TypeDescription)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PropertyDescription)
+                <td>                                        
+                    @if (item.PropertyId != "")
+                    {
+                        @Html.ActionLink(item.PropertyOrBuilderDescription, "Property", new { id = item.PropertyId })
+                    }
+                    else
+                    {
+                        @Html.ActionLink(item.PropertyOrBuilderDescription, "PropertyGroup", new { id = item.PropertyGroupId })
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.StatusDescription)
                 </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                <td>                    
                     @Html.ActionLink("Details", "Issue", new { id=item.Id }) |
                     @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
                 </td>

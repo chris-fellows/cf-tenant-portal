@@ -3,7 +3,6 @@ using CFTenantPortal.Interfaces;
 using CFTenantPortal.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,6 +18,7 @@ builder.Services.AddControllersWithViews();
 // Add services for data
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IIssueService, IssueService>();
+builder.Services.AddScoped<IIssueStatusService, IssueStatusService>();
 builder.Services.AddScoped<IIssueTypeService, IssueTypeService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageTypeService, MessageTypeService>();

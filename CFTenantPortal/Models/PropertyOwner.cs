@@ -21,8 +21,18 @@
         public string Email { get; set; } = String.Empty;
 
         /// <summary>
+        /// Phone number
+        /// </summary>
+        public string Phone { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Address for communications
+        /// </summary>
+        public Address Address { get; set; }
+
+        /// <summary>
         /// Password
         /// </summary>
-        public string Password { get; set; } = String.Empty;            
+        public string Password { get; set; } = String.Empty;
     }
 }

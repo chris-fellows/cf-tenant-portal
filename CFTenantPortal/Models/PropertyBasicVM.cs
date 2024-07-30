@@ -2,7 +2,10 @@
 
 namespace CFTenantPortal.Models
 {
-    public class PropertyModel2
+    /// <summary>
+    /// Property basic details for view model
+    /// </summary>
+    public class PropertyBasicVM
     {
         public string Id { get; set; } = String.Empty;
 
@@ -12,9 +15,11 @@ namespace CFTenantPortal.Models
         [Display(Name = "Group")]
         public string PropertyGroupName { get; set; } = String.Empty;
 
+        public string PropertyGroupId { get; set; } = String.Empty;
+
         [Display(Name = "Owner")]
         public string PropertyOwnerName { get; set; } = String.Empty;
 
-        public List<IssueModel> Issues { get; set; }
+        public string PropertyOwnerId { get; set; } = String.Empty;
     }
 }

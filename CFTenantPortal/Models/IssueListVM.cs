@@ -3,10 +3,10 @@
     /// <summary>
     /// Model for issue list
     /// </summary>
-    public class IssueListModel
+    public class IssueListVM
     {
         public string HeaderText { get; set; } = String.Empty;
 
-        public List<IssueModel> Issues { get; set; } = new List<IssueModel>();
+        public List<IssueBasicVM> Issues { get; set; } = new List<IssueBasicVM>();
     }
 }
