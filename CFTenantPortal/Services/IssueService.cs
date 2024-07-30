@@ -45,6 +45,7 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "1",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 1",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "1",
@@ -55,6 +56,7 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "2",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 2",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "1",
@@ -65,6 +67,7 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "3",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 3",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
@@ -75,6 +78,7 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "4",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 4",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
@@ -85,6 +89,7 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "5",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 5 for property group",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
@@ -95,13 +100,13 @@ namespace CFTenantPortal.Services
             issues.Add(new Issue()
             {
                 Id = "6",
+                Reference = Guid.NewGuid().ToString(),
                 Description = "Issue 6 for property group",
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
                 PropertyGroupId = "2",
                 StatusId = "2"
             });
-
 
             return issues;
         }

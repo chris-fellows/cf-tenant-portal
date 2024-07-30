@@ -9,7 +9,15 @@ namespace CFTenantPortal.Models
     /// </summary>
     public class Issue
     {
+        /// <summary>
+        /// Unique Id
+        /// </summary>
         public string Id { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Unique reference. This is publicly visible and would be quoted in communications.
+        /// </summary>
+        public string Reference { get; set; } = String.Empty;
 
         /// <summary>
         /// Issue type

@@ -7,6 +7,9 @@
 <h3>@Model.HeaderText</h3>
 
 <form asp-action="CreateEditIssueForm">
+    @Html.LabelFor(m => m.Reference)
+    <input class="form-control" type="text" asp-for="@Model.Reference" />
+
     @Html.LabelFor(m => m.TypeId)
     @Html.DropDownListFor(m => m.TypeId,
             new SelectList(@Model.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))

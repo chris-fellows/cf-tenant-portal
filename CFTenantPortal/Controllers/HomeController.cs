@@ -76,6 +76,7 @@ namespace CFTenantPortal.Controllers
                 var model = new IssueVM()
                 {
                     HeaderText = "New Issue",
+                    Reference = Guid.NewGuid().ToString(),
                     Description = "New",
                     TypeId = issueType.Id,
                     PropertyId = entityReferenceNone.Id,
@@ -154,6 +155,7 @@ namespace CFTenantPortal.Controllers
                 {
                     HeaderText = "Issue",
                     Id = issue.Id,
+                    Reference = issue.Reference,
                     Description = issue.Description,
                     TypeId = issue.TypeId,
                     PropertyId = issue.PropertyId,
@@ -309,6 +311,7 @@ namespace CFTenantPortal.Controllers
                     return new IssueBasicVM()
                     {
                         Id = i.Id,
+                        Reference = i.Reference,
                         Description = i.Description,
                         TypeDescription = issueType.Description,
                         PropertyOrBuilderDescription = property.Address.ToSummary(),
@@ -562,6 +565,7 @@ namespace CFTenantPortal.Controllers
                     return new IssueBasicVM()
                     {
                         Id = i.Id,
+                        Reference = i.Reference,
                         Description = i.Description,
                         TypeDescription = issueType.Description,
                         PropertyOrBuilderDescription = propertyGroup.Name,
@@ -652,6 +656,7 @@ namespace CFTenantPortal.Controllers
                 return new IssueBasicVM()
                 {
                     Id = i.Id,
+                    Reference = i.Reference,
                     TypeDescription = issueType.Description,
                     Description = i.Description,
                     PropertyOrBuilderDescription = (property == null ? propertyGroup.Name : property.Address.ToSummary()),

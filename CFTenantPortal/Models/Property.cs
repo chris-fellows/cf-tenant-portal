@@ -24,5 +24,10 @@
         /// Property address
         /// </summary>
         public Address Address { get; set; }        
+
+        /// <summary>
+        /// Property features. E.g. Allocated parking space.
+        /// </summary>
+        public List<string> FeatureTypeIds { get; set; }
     }
 }

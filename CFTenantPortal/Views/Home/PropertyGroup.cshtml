@@ -73,6 +73,9 @@
                 @Html.DisplayNameFor(model => model.Issues[0].Id)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Issues[0].Reference)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
             </th>
             <th>
@@ -93,6 +96,9 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Reference)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TypeDescription)

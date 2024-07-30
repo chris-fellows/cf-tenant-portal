@@ -11,6 +11,9 @@ namespace CFTenantPortal.Models
 
         public string HeaderText { get; set; } = String.Empty;
 
+        [Display(Name = "Reference")]
+        public string Reference { get; set; } = String.Empty;
+
         [Display(Name = "Description")]
         public string Description { get; set; } = String.Empty;
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace CFTenantPortal.Models
 {
@@ -8,6 +9,9 @@ namespace CFTenantPortal.Models
     public class IssueBasicVM
     {
         public string Id { get; set; } = String.Empty;
+
+        [Display(Name = "Reference")]
+        public string Reference { get; set; } = String.Empty;
 
         [Display(Name = "Description")]
         public string Description { get; set; } = String.Empty;

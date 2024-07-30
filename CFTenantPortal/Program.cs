@@ -16,12 +16,14 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 builder.Services.AddControllersWithViews();
 
 // Add services for data
+builder.Services.AddScoped<IAccountTransactionTypeService, AccountTransactionTypeService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IIssueService, IssueService>();
 builder.Services.AddScoped<IIssueStatusService, IssueStatusService>();
 builder.Services.AddScoped<IIssueTypeService, IssueTypeService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageTypeService, MessageTypeService>();
+builder.Services.AddScoped<IPropertyFeatureTypeService, PropertyFeatureTypeService>();
 builder.Services.AddScoped<IPropertyGroupService, PropertyGroupService>();
 builder.Services.AddScoped<IPropertyOwnerService, PropertyOwnerService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();

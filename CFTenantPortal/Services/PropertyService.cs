@@ -49,6 +49,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "1",
                 OwnerId = "1",
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             properties.Add(new Property()
@@ -63,6 +64,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "1",
                 OwnerId = "2",
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             properties.Add(new Property()
@@ -77,6 +79,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "1",
                 OwnerId = "3",
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             properties.Add(new Property()
@@ -91,6 +94,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "2",
                 OwnerId = "4",
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             properties.Add(new Property()
@@ -105,6 +109,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "2",
                 OwnerId = "5",
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             properties.Add(new Property()
@@ -119,6 +124,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "2",
                 OwnerId = "5",   // Owns multiple properties
+                FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
             return properties;
