@@ -37,7 +37,8 @@ namespace CFTenantPortal.Services
                     County = "Berkshire",
                     Town = "Maidenhead",
                     Postcode = "SL1 8AX",
-                }
+                },
+                DocumentIds = new List<string>() { "2", "3" }
             });
 
             propertyOwners.Add(new PropertyOwner()
@@ -52,7 +53,8 @@ namespace CFTenantPortal.Services
                     County = "Berkshire",
                     Town = "Maidenhead",
                     Postcode = "SL1 8AX",
-                }
+                },
+                DocumentIds = new List<string>() { "2", "3" }
             });
 
             propertyOwners.Add(new PropertyOwner()

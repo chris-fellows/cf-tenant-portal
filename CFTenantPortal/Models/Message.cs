@@ -1,10 +1,17 @@
 ﻿namespace CFTenantPortal.Models
 {
     /// <summary>
-    /// Message for property owner
+    /// Message for property owner.
+    /// 
+    /// Message can relate to the following:
+    /// - Property.
+    /// - Issue. E.g. Notification of status changed.
     /// </summary>
     public class Message
     {
+        /// <summary>
+        /// Unique Id
+        /// </summary>
         public string Id { get; set; } = String.Empty;
 
         /// <summary>
@@ -18,17 +25,24 @@
         public string PropertyOwnerId { get; set; } = String.Empty;
 
         /// <summary>
-        /// Property (if any) that message relates to. It's possible to send the message to the owner for
-        /// all properties.
+        /// Issue (if any) that message relates to. E.g. Progress notification.
+        /// </summary>
+        public string IssueId { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Property (if any) that message relates to
         /// </summary>
         public string PropertyId { get; set; } = String.Empty;
 
+        /// <summary>
+        /// Message text
+        /// </summary>
         public string Text { get; set; } = String.Empty;
 
         /// <summary>
-        /// Documents
+        /// Documents. E.g. Invoice for management fees.
         /// </summary>
-        public List<string> DocumentIds { get; set; }
+        public List<string>? DocumentIds { get; set; }
 
         public DateTimeOffset CreatedDateTime { get; set; } = DateTimeOffset.Now;
     }

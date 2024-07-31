@@ -23,11 +23,16 @@
         /// <summary>
         /// Property address
         /// </summary>
-        public Address Address { get; set; }        
+        public Address Address { get; set; } = new Address();
+
+        /// <summary>
+        /// Documents associated with property
+        /// </summary>
+        public List<string> DocumentIds { get; set; } = new List<string>();
 
         /// <summary>
         /// Property features. E.g. Allocated parking space.
         /// </summary>
-        public List<string> FeatureTypeIds { get; set; }
+        public List<string>? FeatureTypeIds { get; set; }
     }
 }

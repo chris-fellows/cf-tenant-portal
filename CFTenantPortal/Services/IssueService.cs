@@ -50,7 +50,8 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTime.Now,
                 TypeId = "1",
                 PropertyId = "1",
-                StatusId = "1"
+                StatusId = "1",
+                DocumentIds = new List<string>() { "1", "2" }
             });
 
             issues.Add(new Issue()
@@ -72,7 +73,8 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
                 PropertyId = "2",
-                StatusId = "1"
+                StatusId = "1",
+                DocumentIds = new List<string>() { "3" }
             });
 
             issues.Add(new Issue()
@@ -94,7 +96,8 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTime.Now,
                 TypeId = "2",
                 PropertyGroupId = "1",
-                StatusId = "2"
+                StatusId = "2",
+                DocumentIds = new List<string>() { "4" }
             });
 
             issues.Add(new Issue()

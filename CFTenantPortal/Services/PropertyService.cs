@@ -49,6 +49,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "1",
                 OwnerId = "1",
+                DocumentIds = new List<string>() { "3", "4" },
                 FeatureTypeIds = new List<string>() { "1", "3" }
             });
 
@@ -79,6 +80,7 @@ namespace CFTenantPortal.Services
                 },
                 GroupId = "1",
                 OwnerId = "3",
+                DocumentIds = new List<string>() { "3", "4" },
                 FeatureTypeIds = new List<string>() { "1", "3" }
             });
 

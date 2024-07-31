@@ -35,7 +35,8 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTimeOffset.Now,
                 MessageTypeId = "1",
                 PropertyOwnerId = "1", 
-                Text = "Test message"                
+                Text = "Test message",
+                DocumentIds = new List<string>() { "1" }
             });
 
             messages.Add(new Message()
@@ -44,7 +45,7 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTimeOffset.Now,
                 MessageTypeId = "2",
                 PropertyOwnerId = "1",
-                Text = "Test message"
+                Text = "Test message",
             });
 
             messages.Add(new Message()
@@ -53,7 +54,8 @@ namespace CFTenantPortal.Services
                 CreatedDateTime = DateTimeOffset.Now,
                 MessageTypeId = "2",
                 PropertyOwnerId = "3",
-                Text = "Test message"
+                Text = "Test message",
+                DocumentIds = new List<string>() { "2", "3" }
             });
 
             messages.Add(new Message()

@@ -6,124 +6,180 @@
 
 <h3>@Model.HeaderText</h3>
 
-<form asp-action="CreateEditPropertyGroupForm">
-    @Html.LabelFor(m => m.Name)
-    <input class="form-control" type="text" asp-for="@Model.Name" />
-    @Html.LabelFor(m => m.Description)
-    <input class="form-control" type="text" asp-for="@Model.Description" />    
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="propertiestabtablink" class="pagetablinks" onclick="openPageTab('propertiestabtablink', 'propertiestab')">Properties</button>
+    <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
+    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+</div>
 
-    <button class="btn btn-primary" type="submit">Save</button>
-</form>
+<div id="maintab" class="pagetabcontent">
+    <form asp-action="CreateEditPropertyGroupForm">
+        @Html.LabelFor(m => m.Name)
+        <input class="form-control" type="text" asp-for="@Model.Name" />
+        @Html.LabelFor(m => m.Description)
+        <input class="form-control" type="text" asp-for="@Model.Description" />    
 
-<h4>Properties</h4>
-<p>
-    <a asp-action="Property">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Properties[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Properties[0].AddressDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Properties[0].PropertyOwnerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Properties[0].PropertyGroupName)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Properties)
-        {
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+</div>
+
+<div id="propertiestab" class="pagetabcontent">
+    <h4>Properties</h4>
+    <p>
+        <a asp-action="Property">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AddressDescription)
-                </td>
-                <td>                    
-                    @Html.ActionLink(item.PropertyOwnerName, "PropertyOwner", new { id = item.PropertyOwnerId })
-                </td>
-                <td>                    
-                    @Html.ActionLink(item.PropertyGroupName, "PropertyGroup", new { id = item.PropertyGroupId })
-                </td>
-                <td>
-                    @Html.ActionLink("Details", "Property", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Properties[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Properties[0].AddressDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Properties[0].PropertyOwnerName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Properties[0].PropertyGroupName)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Properties)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AddressDescription)
+                    </td>
+                    <td>                    
+                        @Html.ActionLink(item.PropertyOwnerName, "PropertyOwner", new { id = item.PropertyOwnerId })
+                    </td>
+                    <td>                    
+                        @Html.ActionLink(item.PropertyGroupName, "PropertyGroup", new { id = item.PropertyGroupId })
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Property", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-<h4>Issues</h4>
-<p>
-    <a asp-action="Issue">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].Id)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].Reference)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].PropertyOrBuilderDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Issues)
-        {
+<div id="issuestab" class="pagetabcontent">
+    <h4>Issues</h4>
+    <p>
+        <a asp-action="Issue">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Reference)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TypeDescription)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @if (item.PropertyId != "")
-                    {
-                        @Html.ActionLink(item.PropertyOrBuilderDescription, "Property", new { id = item.PropertyId })
-                    }
-                    else
-                    {
-                        @Html.ActionLink(item.PropertyOrBuilderDescription, "PropertyGroup", new { id = item.PropertyGroupId })
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StatusDescription)
-                </td>
-                <td>
-                    @Html.ActionLink("Details", "Issue", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].Reference)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].PropertyOrBuilderDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Issues)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Reference)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeDescription)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @if (item.PropertyId != "")
+                        {
+                            @Html.ActionLink(item.PropertyOrBuilderDescription, "Property", new { id = item.PropertyId })
+                        }
+                        else
+                        {
+                            @Html.ActionLink(item.PropertyOrBuilderDescription, "PropertyGroup", new { id = item.PropertyGroupId })
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StatusDescription)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Issue", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="documentstab" class="pagetabcontent">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Documents[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Documents[0].Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Documents)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Document", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts
+                            {
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

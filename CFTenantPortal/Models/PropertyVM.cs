@@ -20,7 +20,15 @@ namespace CFTenantPortal.Models
         [Display(Name = "Owner")]
         public string PropertyOwnerId { get; set; } = String.Empty;
 
+        [Display(Name = "Account Balance")]
+        public double AccountBalance { get; set; }
+
+        [Display(Name = "Documents")]
+        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
+
         public List<IssueBasicVM> Issues { get; set; }
+
+        public List<AccountTransactionBasicVM> AccountingTransactions { get; set; }
 
         public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
 

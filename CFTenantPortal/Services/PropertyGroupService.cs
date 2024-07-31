@@ -29,35 +29,40 @@ namespace CFTenantPortal.Services
             {
                 Id = "1",
                 Name = "Building 1",
-                Description = "Maidenhead, Berkshire"
+                Description = "Maidenhead, Berkshire",
+                DocumentIds = new List<string>() { "1" }
             });
 
             propertyGroups.Add(new PropertyGroup()
             {
                 Id = "2",
                 Name = "Building 2",
-                Description = "Maidenhead, Berkshire"
+                Description = "Maidenhead, Berkshire",
+                DocumentIds = new List<string>() { "1" }
             });
 
             propertyGroups.Add(new PropertyGroup()
             {
                 Id = "3",
                 Name = "Building 3",
-                Description = "Maidenhead, Berkshire"
+                Description = "Maidenhead, Berkshire",
+                DocumentIds = new List<string>() { "1" }
             });
 
             propertyGroups.Add(new PropertyGroup()
             {
                 Id = "4",
                 Name = "Building 4",
-                Description = "Cookham, Berkshire"
+                Description = "Cookham, Berkshire",
+                DocumentIds = new List<string>() { "2" }
             });
 
             propertyGroups.Add(new PropertyGroup()
             {
                 Id = "5",
                 Name = "Building 5",
-                Description = "Cookham, Berkshire"
+                Description = "Cookham, Berkshire",
+                DocumentIds = new List<string>() { "2" }
             });
 
             return propertyGroups;

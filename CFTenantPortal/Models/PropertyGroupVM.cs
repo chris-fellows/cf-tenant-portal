@@ -19,7 +19,10 @@ namespace CFTenantPortal.Models
         public string Description { get; set; } = String.Empty;
 
         public List<PropertyBasicVM> Properties { get; set; } = new List<PropertyBasicVM>();
+        
+        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
 
         public List<IssueBasicVM> Issues { get; set; } = new List<IssueBasicVM>();
+
     }
 }

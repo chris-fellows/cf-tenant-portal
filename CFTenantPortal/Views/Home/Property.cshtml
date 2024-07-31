@@ -6,32 +6,43 @@
 
 <h3>@Model.HeaderText</h3>
 
-<form asp-action="CreateEditPropertyForm">    
-    @Html.LabelFor(m => m.PropertyGroupId)
-    @Html.DropDownListFor(m => m.PropertyGroupId,
-            new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br />
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
+    <button id="accountingtablink" class="pagetablinks" onclick="openPageTab('accountingtablink', 'accountingtab')">Accounting</button>
+    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+</div>
 
-    @Html.LabelFor(m => m.PropertyOwnerId)
-    @Html.DropDownListFor(m => m.PropertyOwnerId,
-            new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br />    
+<div id="maintab" class="pagetabcontent">
+    <form asp-action="CreateEditPropertyForm">    
+        @Html.LabelFor(m => m.PropertyGroupId)
+        @Html.DropDownListFor(m => m.PropertyGroupId,
+                new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
 
-    <h5>Address</h5>
-    @Html.LabelFor(m => m.Address.Line1)
-    <input class="form-control" type="text" asp-for="@Model.Address.Line1" />    
-    @Html.LabelFor(m => m.Address.Line2)
-    <input class="form-control" type="text" asp-for="@Model.Address.Line2" />
-    @Html.LabelFor(m => m.Address.Town)
-    <input class="form-control" type="text" asp-for="@Model.Address.Town" />
-    @Html.LabelFor(m => m.Address.County)
-    <input class="form-control" type="text" asp-for="@Model.Address.County" />
-    @Html.LabelFor(m => m.Address.Postcode)
-    <input class="form-control" type="text" asp-for="@Model.Address.Postcode" />    
+        @Html.LabelFor(m => m.PropertyOwnerId)
+        @Html.DropDownListFor(m => m.PropertyOwnerId,
+                new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />    
 
-    <button class="btn btn-primary" type="submit">Save</button> 
-</form>
+        <h5>Address</h5>
+        @Html.LabelFor(m => m.Address.Line1)
+        <input class="form-control" type="text" asp-for="@Model.Address.Line1" />    
+        @Html.LabelFor(m => m.Address.Line2)
+        <input class="form-control" type="text" asp-for="@Model.Address.Line2" />
+        @Html.LabelFor(m => m.Address.Town)
+        <input class="form-control" type="text" asp-for="@Model.Address.Town" />
+        @Html.LabelFor(m => m.Address.County)
+        <input class="form-control" type="text" asp-for="@Model.Address.County" />
+        @Html.LabelFor(m => m.Address.Postcode)
+        <input class="form-control" type="text" asp-for="@Model.Address.Postcode" />    
 
+        <button class="btn btn-primary" type="submit">Save</button> 
+    </form>
+</div>
+
+<div id="issuestab" class="pagetabcontent">
     <h4>Issues</h4>
 <p>
     <a asp-action="Issue">Create New</a>
@@ -97,7 +108,94 @@
             }
         </tbody>
     </table>
+</div>
 
-<iframe>
-    Property on map here
-</iframe>
+<div id="accountingtab" class="pagetabcontent">
+    <h4>Accounting</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Reference)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].TypeDescription)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Value)
+                </th>            
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.AccountingTransactions)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Reference)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeDescription)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Value)
+                    </td>               
+                    <td>
+                        @Html.ActionLink("Details", "AccountingTransaction", new { id = item.Id })                    
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @Html.LabelFor(m => m.AccountBalance)
+    @Html.DisplayFor(m => m.AccountBalance)
+</div>
+
+<div id="documentstab" class="pagetabcontent">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Documents[0].Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Documents[0].Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Documents)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Details", "Document", new { id = item.Id }) |
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts
+{    
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

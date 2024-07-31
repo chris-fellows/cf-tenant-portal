@@ -3,9 +3,7 @@
 namespace CFTenantPortal.Models
 {
     /// <summary>
-    /// Issue related to property
-    /// 
-    /// TODO: Consider expanding to allow link to property group (E.g. Whole building)
+    /// Issue related to property or property group    
     /// </summary>
     public class Issue
     {
@@ -58,5 +56,10 @@ namespace CFTenantPortal.Models
         /// Created date and time
         /// </summary>
         public DateTimeOffset CreatedDateTime { get; set; } = DateTimeOffset.Now;
+
+        /// <summary>
+        /// Documents associated with issue
+        /// </summary>
+        public List<string> DocumentIds { get; set; } = new List<string>();
     }
 }

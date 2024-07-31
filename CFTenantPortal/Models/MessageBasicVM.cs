@@ -16,5 +16,7 @@ namespace CFTenantPortal.Models
         public string PropertyOwnerName { get; set; } = String.Empty;
 
         public string PropertyOwnerId { get; set; } = String.Empty;
+
+        public string IssueReference { get; set; } = String.Empty;
     }
 }

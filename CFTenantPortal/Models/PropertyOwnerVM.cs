@@ -25,5 +25,7 @@ namespace CFTenantPortal.Models
 
         [Display(Name = "Messages")]
         public List<MessageBasicVM> Messages { get; set; }
+
+        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
     }
 }

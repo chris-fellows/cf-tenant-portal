@@ -28,31 +28,43 @@ namespace CFTenantPortal.Services
             messageTypes.Add(new MessageType()
             {
                 Id = "1",
-                Description = "Message type 1"
+                Description = "Message type 1",
+                DefaultTemplateId = "1"
             });
 
             messageTypes.Add(new MessageType()
             {
                 Id = "2",
-                Description = "Message type 2"
+                Description = "Message type 2",
+                DefaultTemplateId = "2"
             });
 
             messageTypes.Add(new MessageType()
             {
                 Id = "3",
-                Description = "Message type 3"
+                Description = "Message type 3",
+                DefaultTemplateId = "2"
             });
 
             messageTypes.Add(new MessageType()
             {
                 Id = "4",
-                Description = "Message type 4"
+                Description = "Message type 4",
+                DefaultTemplateId = "3"
             });
 
             messageTypes.Add(new MessageType()
             {
                 Id = "5",
-                Description = "Message type 5"
+                Description = "Message type 5",
+                DefaultTemplateId = "4"
+            });
+
+            messageTypes.Add(new MessageType()
+            {
+                Id = "6",
+                Description = "Issue completed",
+                DefaultTemplateId = "4"
             });
 
             return messageTypes;

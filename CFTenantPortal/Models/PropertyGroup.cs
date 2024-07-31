@@ -13,5 +13,10 @@
         public string Name { get; set; } = String.Empty;
 
         public string Description { get; set; } = String.Empty;
+ 
+        /// <summary>
+        /// Documents associated with property group
+        /// </summary>
+        public List<string> DocumentIds { get; set; } = new List<string>();
     }
 }

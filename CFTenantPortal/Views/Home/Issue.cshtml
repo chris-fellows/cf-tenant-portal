@@ -6,43 +6,92 @@
 
 <h3>@Model.HeaderText</h3>
 
-<form asp-action="CreateEditIssueForm">
-    @Html.LabelFor(m => m.Reference)
-    <input class="form-control" type="text" asp-for="@Model.Reference" />
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+</div>
 
-    @Html.LabelFor(m => m.TypeId)
-    @Html.DropDownListFor(m => m.TypeId,
-            new SelectList(@Model.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br/>
+<div id="maintab" class="pagetabcontent">
+    <form asp-action="CreateEditIssueForm">
+        @Html.LabelFor(m => m.Reference)
+        <input class="form-control" type="text" asp-for="@Model.Reference" />
 
-    @Html.LabelFor(m => m.IssueStatusId)
-    @Html.DropDownListFor(m => m.IssueStatusId,
-            new SelectList(@Model.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br/>
+        @Html.LabelFor(m => m.TypeId)
+        @Html.DropDownListFor(m => m.TypeId,
+                new SelectList(@Model.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br/>
 
-    @Html.LabelFor(m => m.PropertyId)
-    @Html.DropDownListFor(m => m.PropertyId,
-            new SelectList(@Model.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br/>
+        @Html.LabelFor(m => m.IssueStatusId)
+        @Html.DropDownListFor(m => m.IssueStatusId,
+                new SelectList(@Model.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br/>
 
-    @Html.LabelFor(m => m.PropertyGroupId)
-    @Html.DropDownListFor(m => m.PropertyGroupId,
-            new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br />
+        @Html.LabelFor(m => m.PropertyId)
+        @Html.DropDownListFor(m => m.PropertyId,
+                new SelectList(@Model.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br/>
 
-    @Html.LabelFor(m => m.CreatedEmployeeId)
-    @Html.DropDownListFor(m => m.CreatedEmployeeId,
-            new SelectList(@Model.EmployeeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br />
+        @Html.LabelFor(m => m.PropertyGroupId)
+        @Html.DropDownListFor(m => m.PropertyGroupId,
+                new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
 
-    @Html.LabelFor(m => m.CreatedPropertyOwnerId)
-    @Html.DropDownListFor(m => m.CreatedPropertyOwnerId,
-            new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
-    <br />
+        @Html.LabelFor(m => m.CreatedEmployeeId)
+        @Html.DropDownListFor(m => m.CreatedEmployeeId,
+                new SelectList(@Model.EmployeeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.CreatedPropertyOwnerId)
+        @Html.DropDownListFor(m => m.CreatedPropertyOwnerId,
+                new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
         
-    @Html.LabelFor(m => m.Description)
-    <input class="form-control" type="text" asp-for="@Model.Description" />
+        @Html.LabelFor(m => m.Description)
+        <input class="form-control" type="text" asp-for="@Model.Description" />
 
-    <button class="btn btn-primary" type="submit">Save</button>
-</form>
+        <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+</div>
     
+<div id="documentstab" class="pagetabcontent">    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Documents[0].Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Documents[0].Name)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Documents)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.ActionLink("Details", "Document", new { id = item.Id }) |
+                            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>    
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

@@ -35,6 +35,8 @@ namespace CFTenantPortal.Models
 
         [Display(Name = "Created by Owner")]
         public string CreatedPropertyOwnerId { get; set; } = String.Empty;
+        
+        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
 
         public List<EntityReference> IssueTypeList { get; set; } = new List<EntityReference>();
 

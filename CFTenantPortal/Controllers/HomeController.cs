@@ -11,6 +11,9 @@ namespace CFTenantPortal.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IAccountTransactionService _accountTransactionService;
+        private readonly IAccountTransactionTypeService _accountTransactionTypeService;
+        private readonly IDocumentService _documentService;
         private readonly IEmployeeService _employeeService;
         private readonly IIssueService _issueService;
         private readonly IIssueStatusService _issueStatusService;
@@ -23,6 +26,9 @@ namespace CFTenantPortal.Controllers
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger,
+                IAccountTransactionService accountTransactionService,
+                IAccountTransactionTypeService accountTransactionTypeService,
+                IDocumentService documentService,
                 IEmployeeService employeeService,
                 IIssueService issueService,
                 IIssueStatusService issueStatusService,
@@ -34,6 +40,9 @@ namespace CFTenantPortal.Controllers
                 IPropertyService propertyService) 
         {
             _logger = logger;
+            _accountTransactionService = accountTransactionService;
+            _accountTransactionTypeService = accountTransactionTypeService;
+            _documentService = documentService;
             _employeeService = employeeService;
             _issueService = issueService;
             _issueStatusService = issueStatusService;
@@ -82,7 +91,8 @@ namespace CFTenantPortal.Controllers
                     PropertyId = entityReferenceNone.Id,
                     PropertyGroupId = entityReferenceNone.Id,
                     CreatedEmployeeId = entityReferenceNone.Id,
-                    CreatedPropertyOwnerId = entityReferenceNone.Id,
+                    CreatedPropertyOwnerId = entityReferenceNone.Id,     
+                    Documents = new List<DocumentBasicVM>(),
                     EmployeeList = employees.Select(e =>
                     {
                         return new EntityReference()
@@ -151,6 +161,15 @@ namespace CFTenantPortal.Controllers
                                null :
                                _propertyService.GetById(issue.PropertyId).Result;
 
+                var documents = issue.DocumentIds == null ?
+                           new List<DocumentBasicVM>() :
+                           issue.DocumentIds.Select(documentId => _documentService.GetById(documentId).Result)
+                           .Select(document => new DocumentBasicVM()
+                           {
+                               Id = document.Id,
+                               Name = document.Name
+                           }).ToList();
+                           
                 var model = new IssueVM()
                 {
                     HeaderText = "Issue",
@@ -161,7 +180,8 @@ namespace CFTenantPortal.Controllers
                     PropertyId = issue.PropertyId,
                     PropertyGroupId = issue.PropertyGroupId,
                     CreatedEmployeeId = issue.CreatedEmployeeId,
-                    CreatedPropertyOwnerId = issue.CreatedPropertyOwnerId,
+                    CreatedPropertyOwnerId = issue.CreatedPropertyOwnerId,                    
+                    Documents = documents,                   
                     EmployeeList = employees.Select(e =>
                     {
                         return new EntityReference()
@@ -237,7 +257,9 @@ namespace CFTenantPortal.Controllers
                     {
 
                     },
+                    Documents = new List<DocumentBasicVM>(),
                     Issues = new List<IssueBasicVM>(),
+                    AccountingTransactions = new List<AccountTransactionBasicVM>(),
                     PropertyGroupId = propertyGroups.OrderBy(pg => pg.Name).First().Id,
                     PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
@@ -265,9 +287,20 @@ namespace CFTenantPortal.Controllers
                 var property = _propertyService.GetById(id).Result;
                 var propertyGroup = _propertyGroupService.GetById(property.GroupId).Result;
                 var propertyOwner = _propertyOwnerService.GetById(property.OwnerId).Result;
-                
+
+                var accountTransactionTypes = _accountTransactionTypeService.GetAll().Result;
+
                 var issueStatuses = _issueStatusService.GetAll().Result;
                 var issueTypes = _issueTypeService.GetAll().Result;
+
+                var documents = property.DocumentIds == null ?
+                   new List<DocumentBasicVM>() :
+                   property.DocumentIds.Select(documentId => _documentService.GetById(documentId).Result)
+                   .Select(document => new DocumentBasicVM()
+                   {
+                       Id = document.Id,
+                       Name = document.Name
+                   }).ToList();
 
                 // TODO: Use auto mapping
                 var model = new PropertyVM()
@@ -284,6 +317,7 @@ namespace CFTenantPortal.Controllers
                     },
                     PropertyGroupId = property.GroupId,
                     PropertyOwnerId = property.OwnerId,
+                    Documents = documents,
                     PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
                         return new EntityReference()
@@ -301,6 +335,22 @@ namespace CFTenantPortal.Controllers
                         };
                     }).ToList()
                 };
+
+                // Load accounting transactions
+                model.AccountingTransactions = _accountTransactionService.GetByProperty(property.Id).Result.OrderBy(at => at.CreatedDateTime).Select(at =>
+                {
+                    var accountTransactionType = accountTransactionTypes.First(att => att.Id == at.TypeId);
+
+                    return new AccountTransactionBasicVM()
+                    {
+                        Id = at.Id,
+                        CreatedDateTime = at.CreatedDateTime,
+                        Reference = at.Reference,
+                        TypeDescription = accountTransactionType.Description,
+                        Value = at.Value
+                    };
+                }).ToList();
+                model.AccountBalance = model.AccountingTransactions.Sum(at => at.Value);
 
                 // Load issues
                 model.Issues = _issueService.GetByProperty(property.Id).Result.Select(i =>
@@ -429,6 +479,7 @@ namespace CFTenantPortal.Controllers
                     HeaderText = "New Property Owner",
                     Name = "New",                    
                     Address = new AddressVM(),
+                    Documents = new List<DocumentBasicVM>(),
                     Properties = new List<PropertyBasicVM>(),
                     Messages = new List<MessageBasicVM>()
                 };
@@ -441,6 +492,15 @@ namespace CFTenantPortal.Controllers
                 var messageTypes = _messageTypeService.GetAll().Result;
 
                 var propertyGroups = _propertyGroupService.GetAll().Result;
+
+                var documents = propertyOwner.DocumentIds == null ?
+                new List<DocumentBasicVM>() :
+                propertyOwner.DocumentIds.Select(documentId => _documentService.GetById(documentId).Result)
+                .Select(document => new DocumentBasicVM()
+                {
+                    Id = document.Id,
+                    Name = document.Name
+                }).ToList();
 
                 var model = new PropertyOwnerVM()
                 {
@@ -457,6 +517,7 @@ namespace CFTenantPortal.Controllers
                         County = propertyOwner.Address.County,
                         Postcode = propertyOwner.Address.Postcode
                     },
+                    Documents = documents
                 };
 
                 // Load properties
@@ -519,6 +580,7 @@ namespace CFTenantPortal.Controllers
                     HeaderText = "New Property Group",
                     Name = "New",
                     Description = "New",
+                    Documents = new List<DocumentBasicVM>(),
                     Issues = new List<IssueBasicVM>(),
                     Properties = new List<PropertyBasicVM>()
                 };
@@ -533,12 +595,22 @@ namespace CFTenantPortal.Controllers
                 var issueStatuses = _issueStatusService.GetAll().Result;
                 var issueTypes = _issueTypeService.GetAll().Result;
 
+                var documents = propertyGroup.DocumentIds == null ?
+                      new List<DocumentBasicVM>() :
+                      propertyGroup.DocumentIds.Select(documentId => _documentService.GetById(documentId).Result)
+                      .Select(document => new DocumentBasicVM()
+                      {
+                          Id = document.Id,
+                          Name = document.Name
+                      }).ToList();
+
                 var model = new PropertyGroupVM()
                 {
                     HeaderText = "Property Group",
                     Id = propertyGroup.Id,
                     Name = propertyGroup.Name,
-                    Description = propertyGroup.Description
+                    Description = propertyGroup.Description,
+                    Documents = documents
                 };
 
                 // Load properties               
