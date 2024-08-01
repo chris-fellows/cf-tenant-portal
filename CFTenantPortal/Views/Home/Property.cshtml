@@ -43,152 +43,15 @@
 </div>
 
 <div id="issuestab" class="pagetabcontent">
-    <h4>Issues</h4>
-<p>
-    <a asp-action="Issue">Create New</a>
-</p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].Reference)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].TypeDescription)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].Description)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].PropertyOrBuilderDescription)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Issues[0].StatusDescription)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Issues)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Reference)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TypeDescription)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
-                    <td>
-                        @if (item.PropertyId != "")
-                        {
-                            @Html.ActionLink(item.PropertyOrBuilderDescription, "Property", new { id = item.PropertyId })
-                        }
-                        else
-                        {
-                            @Html.ActionLink(item.PropertyOrBuilderDescription, "PropertyGroup", new { id = item.PropertyGroupId })
-                        }
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StatusDescription)
-                    </td>
-                    <td>                        
-                        @Html.ActionLink("Details", "Issue", new { id=item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @(await Component.InvokeAsync("IssueListX", new { issues = Model.Issues }))    
 </div>
 
 <div id="accountingtab" class="pagetabcontent">
-    <h4>Accounting</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Reference)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].TypeDescription)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.AccountingTransactions[0].Value)
-                </th>            
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.AccountingTransactions)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Reference)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TypeDescription)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Value)
-                    </td>               
-                    <td>
-                        @Html.ActionLink("Details", "AccountingTransaction", new { id = item.Id })                    
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    @Html.LabelFor(m => m.AccountBalance)
-    @Html.DisplayFor(m => m.AccountBalance)
+    @(await Component.InvokeAsync("AccountTransactionListX", new { accountTransactions = Model.AccountTransactions }))    
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Documents[0].Id)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Documents[0].Name)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Documents)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.ActionLink("Details", "Document", new { id = item.Id }) |
-                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @(await Component.InvokeAsync("DocumentListX", new { documents = Model.Documents }))    
 </div>
 
 @section Scripts

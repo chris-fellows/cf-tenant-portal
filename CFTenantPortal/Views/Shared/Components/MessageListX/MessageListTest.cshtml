@@ -1,0 +1,38 @@
+﻿@model CFTenantPortal.Models.MessageListVM
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Messages[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Messages[0].TypeDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Messages[0].PropertyOwnerName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Messages)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TypeDescription)
+                </td>
+                <td>
+                    @Html.ActionLink(item.PropertyOwnerName, "PropertyOwner", new { id = item.PropertyOwnerId })
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "Message", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

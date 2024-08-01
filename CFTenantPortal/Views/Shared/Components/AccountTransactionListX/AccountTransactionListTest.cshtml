@@ -1,0 +1,46 @@
+﻿@model CFTenantPortal.Models.AccountTransactionListVM
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountTransactions[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountTransactions[0].Reference)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountTransactions[0].TypeDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountTransactions[0].Value)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.AccountTransactions)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Reference)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TypeDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Value)
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "AccountingTransaction", new { id = item.Id })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@Html.LabelFor(m => m.AccountBalance)
+@Html.DisplayFor(m => m.AccountBalance)

@@ -61,10 +61,10 @@ builder.Services.AddSingleton((scope) =>
 });
 
 // Add service for executing tasks
-builder.Services.AddHostedService<TaskBackgroundService>();
+//builder.Services.AddHostedService<TaskBackgroundService>();
 
 // Add tasks
-builder.Services.RegisterAllTypes<ITaskObject>(new[] { typeof(Program).Assembly }, ServiceLifetime.Scoped);
+//builder.Services.RegisterAllTypes<ITaskObject>(new[] { typeof(Program).Assembly }, ServiceLifetime.Scoped);
 
 var app = builder.Build();
 

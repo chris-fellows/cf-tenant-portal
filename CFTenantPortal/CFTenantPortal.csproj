@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Home\Message.cshtml" />
     <Content Remove="wwwroot\js\pagetab.js" />
   </ItemGroup>
 
@@ -16,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Views\Home\Message.cshtml" />
     <None Include="wwwroot\js\pagetab.js" />
   </ItemGroup>
 

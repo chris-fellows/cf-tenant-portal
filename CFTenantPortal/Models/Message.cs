@@ -42,7 +42,7 @@
         /// <summary>
         /// Documents. E.g. Invoice for management fees.
         /// </summary>
-        public List<string>? DocumentIds { get; set; }
+        public List<string> DocumentIds { get; set; } = new List<string>();
 
         public DateTimeOffset CreatedDateTime { get; set; } = DateTimeOffset.Now;
     }

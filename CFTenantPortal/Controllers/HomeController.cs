@@ -259,7 +259,7 @@ namespace CFTenantPortal.Controllers
                     },
                     Documents = new List<DocumentBasicVM>(),
                     Issues = new List<IssueBasicVM>(),
-                    AccountingTransactions = new List<AccountTransactionBasicVM>(),
+                    AccountTransactions = new List<AccountTransactionBasicVM>(),
                     PropertyGroupId = propertyGroups.OrderBy(pg => pg.Name).First().Id,
                     PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
@@ -337,7 +337,7 @@ namespace CFTenantPortal.Controllers
                 };
 
                 // Load accounting transactions
-                model.AccountingTransactions = _accountTransactionService.GetByProperty(property.Id).Result.OrderBy(at => at.CreatedDateTime).Select(at =>
+                model.AccountTransactions = _accountTransactionService.GetByProperty(property.Id).Result.OrderBy(at => at.CreatedDateTime).Select(at =>
                 {
                     var accountTransactionType = accountTransactionTypes.First(att => att.Id == at.TypeId);
 
@@ -349,8 +349,7 @@ namespace CFTenantPortal.Controllers
                         TypeDescription = accountTransactionType.Description,
                         Value = at.Value
                     };
-                }).ToList();
-                model.AccountBalance = model.AccountingTransactions.Sum(at => at.Value);
+                }).ToList();                
 
                 // Load issues
                 model.Issues = _issueService.GetByProperty(property.Id).Result.Select(i =>
@@ -403,6 +402,112 @@ namespace CFTenantPortal.Controllers
                     Roles = employee.Roles,                    
                 };
                
+                return View(model);
+            }
+        }
+
+        public IActionResult Message(string id)
+        {
+            var messageTypes = _messageTypeService.GetAll().Result;
+            var properties = _propertyService.GetAll().Result;
+            var propertyOwners = _propertyOwnerService.GetAll().Result;
+
+            if (String.IsNullOrEmpty(id))   // New message
+            {
+                var model = new MessageVM()
+                {
+                    DocumentIds = new List<string>(),
+                    Documents = new List<DocumentBasicVM>(),
+                    IssueList= new List<EntityReference>(),        
+                    MessageTypeList = messageTypes.Select(mt =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = mt.Id,
+                            Name = mt.Description
+                        };
+                    }).ToList(),
+                    PropertyList = properties.Select(p =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = p.Id,
+                            Name = p.Address.ToSummary()
+                        };
+                    }).ToList(),
+                    PropertyOwnerList = propertyOwners.Select(po =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = po.Id,
+                            Name = po.Name
+                        };
+                    }).ToList(),
+                };
+
+                // Add None for optional properties
+                model.IssueList.Insert(0, EntityReference.None);
+                model.PropertyList.Insert(0, EntityReference.None);
+                model.PropertyOwnerList.Insert(0, EntityReference.None);
+
+                return View(model);
+            }
+            else    // Display or edit property
+            {
+                var message = _messageService.GetById(id).Result;
+
+                var documents = message.DocumentIds == null ?
+                       new List<DocumentBasicVM>() :
+                       message.DocumentIds.Select(documentId => _documentService.GetById(documentId).Result)
+                       .Select(document => new DocumentBasicVM()
+                       {
+                           Id = document.Id,
+                           Name = document.Name
+                       }).ToList();
+
+                var model = new MessageVM()
+                {
+                    CreatedDateTime = message.CreatedDateTime,
+                    DocumentIds = message.DocumentIds,
+                    Documents = documents,
+                    Id = message.Id,
+                    IssueId = message.IssueId,
+                    IssueList  = new List<EntityReference>(),
+                    MessageTypeId = message.MessageTypeId,
+                    MessageTypeList = messageTypes.Select(mt =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = mt.Id,
+                            Name = mt.Description
+                        };
+                    }).ToList(),
+                    PropertyId = message.PropertyId,
+                    PropertyList = properties.Select(p =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = p.Id,
+                            Name = p.Address.ToSummary()
+                        };
+                    }).ToList(),
+                    PropertyOwnerId = message.PropertyOwnerId,
+                    PropertyOwnerList = propertyOwners.Select(po =>
+                    {
+                        return new EntityReference()
+                        {
+                            Id = po.Id,
+                            Name = po.Name
+                        };
+                    }).ToList(),
+                    Text = message.Text
+                };
+
+                // Add None for optional properties
+                model.IssueList.Insert(0, EntityReference.None);
+                model.PropertyList.Insert(0, EntityReference.None);
+                model.PropertyOwnerList.Insert(0, EntityReference.None);
+
                 return View(model);
             }
         }
@@ -739,7 +844,15 @@ namespace CFTenantPortal.Controllers
             }).ToList();
 
             return View(model);
-        }       
+        }
+
+        public IActionResult CreateEditMessageForm(MessageVM message)
+        {
+            // TODO: Save message
+
+            // Display updated message
+            return RedirectToAction("Message", new { id = message.Id });
+        }
 
         public IActionResult CreateEditIssueForm(IssueVM issue)
         {

@@ -1,0 +1,55 @@
+﻿@model CFTenantPortal.Models.MessageVM
+
+@{
+    ViewData["Title"] = "Message";
+}
+
+<h3>@Model.HeaderText</h3>
+
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+</div>
+
+<div id="maintab" class="pagetabcontent">
+    <form asp-action="CreateEditMessageForm">
+
+        @Html.LabelFor(m => m.MessageTypeId)
+        @Html.DropDownListFor(m => m.MessageTypeId,
+                 new SelectList(@Model.MessageTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.IssueId)
+        @Html.DropDownListFor(m => m.IssueId,
+                 new SelectList(@Model.IssueList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.PropertyId)
+        @Html.DropDownListFor(m => m.PropertyId,
+                 new SelectList(@Model.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.PropertyOwnerId)
+        @Html.DropDownListFor(m => m.PropertyOwnerId,
+                 new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Text)
+        <input class="form-control" type="text" asp-for="@Model.Text" />
+
+    </form>
+</div>
+
+<div id="documentstab" class="pagetabcontent">
+    @(await Component.InvokeAsync("DocumentListX", new { documents = Model.Documents }))
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}
