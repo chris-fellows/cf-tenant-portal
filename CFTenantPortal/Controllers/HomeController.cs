@@ -51,7 +51,7 @@ namespace CFTenantPortal.Controllers
             _messageTypeService = messageTypeService;
             _propertyGroupService = propertyGroupService;
             _propertyOwnerService = propertyOwnerService;
-            _propertyService = propertyService;
+            _propertyService = propertyService;            
         }
 
         public IActionResult Index()
@@ -512,10 +512,11 @@ namespace CFTenantPortal.Controllers
             }
         }
 
-        public IActionResult PropertyList(string? propertyGroupId, string? propertyOwnerId)
+        public IActionResult AllPropertyList()  //string? propertyGroupId, string? propertyOwnerId)
         {
             var model = new PropertyListVM() { HeaderText = "Property List" };   // Default header
 
+            /*
             // TODO: Make this more efficient
             var propertyGroups = _propertyGroupService.GetAll().Result;
             var propertyOwners = _propertyOwnerService.GetAll().Result;
@@ -537,7 +538,12 @@ namespace CFTenantPortal.Controllers
             else    // All properties
             {
                 properties = _propertyService.GetAll().Result;
-            }                        
+            } 
+            */
+
+            var propertyGroups = _propertyGroupService.GetAll().Result;
+            var propertyOwners = _propertyOwnerService.GetAll().Result;
+            var properties = _propertyService.GetAll().Result;
 
             model.Properties = properties.Select(p =>
             {
@@ -558,7 +564,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult PropertyOwnerList()
+        public IActionResult AllPropertyOwnerList()
         {
             var model = new PropertyOwnerListVM() { HeaderText = "Property Owner List" };
 
@@ -659,7 +665,7 @@ namespace CFTenantPortal.Controllers
             }
         }
 
-        public IActionResult PropertyGroupList()
+        public IActionResult AllPropertyGroupList()
         {
             var model = new PropertyGroupListVM() { HeaderText = "Property Groups " };   // Default header
 
@@ -755,7 +761,7 @@ namespace CFTenantPortal.Controllers
             }
         }
 
-        public IActionResult IssueTypeList()
+        public IActionResult AllIssueTypeList()
         {
             var model = new IssueTypeListVM() { HeaderText = "Issue Types" };   // Default header
 
@@ -771,7 +777,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult EmployeeList()
+        public IActionResult AllEmployeeList()
         {
             var model = new EmployeeListVM();
 
@@ -789,7 +795,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult IssueList(string? issueTypeId, string? propertyId)
+        public IActionResult AllIssueList(string? issueTypeId)  //, string? propertyId)
         {
             var model = new IssueListVM() { HeaderText = "Issue List" };   // Default header
 
@@ -802,7 +808,7 @@ namespace CFTenantPortal.Controllers
             // Get issues (All issues/Issue type issues/Property issues)
             List<Issue> issues = null;
             if (!String.IsNullOrEmpty(issueTypeId)) issues = _issueService.GetByIssueType(issueTypeId).Result;
-            if (!String.IsNullOrEmpty(propertyId)) issues = _issueService.GetByProperty(propertyId).Result;
+            //if (!String.IsNullOrEmpty(propertyId)) issues = _issueService.GetByProperty(propertyId).Result;
             if (issues == null) issues = _issueService.GetAll().Result;
 
             // Get issue type if set
@@ -811,11 +817,11 @@ namespace CFTenantPortal.Controllers
                         issueTypes.First(it => it.Id == issueTypeId);
             if (issueTypeMain != null) model.HeaderText = $"Issue List : {issueTypeMain.Description}";
 
-            // Get property if set
-            var propertyMain = String.IsNullOrEmpty(propertyId) ?
-                        null :
-                        _propertyService.GetById(propertyId).Result;                        
-            if (propertyMain != null) model.HeaderText = $"Issue List : {propertyMain.Address.ToSummary()}";
+            //// Get property if set
+            //var propertyMain = String.IsNullOrEmpty(propertyId) ?
+            //            null :
+            //            _propertyService.GetById(propertyId).Result;                        
+            //if (propertyMain != null) model.HeaderText = $"Issue List : {propertyMain.Address.ToSummary()}";
            
             var properties = _propertyService.GetAll().Result;
 
@@ -851,7 +857,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save message
 
             // Display updated message
-            return RedirectToAction("Message", new { id = message.Id });
+            return RedirectToAction(nameof(HomeController.Message), new { id = message.Id });
         }
 
         public IActionResult CreateEditIssueForm(IssueVM issue)
@@ -859,7 +865,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save issue
 
             // Display updated issue details
-            return RedirectToAction("Issue", new { id = issue.Id });
+            return RedirectToAction(nameof(HomeController.Issue), new { id = issue.Id });
         }
       
         public IActionResult CreateEditPropertyForm(PropertyVM property)
@@ -867,7 +873,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save property
 
             // Display updated property details
-            return RedirectToAction("Property", new { id=property.Id } );            
+            return RedirectToAction(nameof(HomeController.Property), new { id=property.Id } );            
         }
 
         public IActionResult CreateEditPropertyGroupForm(PropertyGroupVM propertyGroup)
@@ -875,7 +881,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save property group
 
             // Display updated property details
-            return RedirectToAction("PropertyGroup", new { id = propertyGroup.Id });
+            return RedirectToAction(nameof(HomeController.PropertyGroup), new { id = propertyGroup.Id });
         }
 
         public IActionResult CreateEditPropertyOwnerForm(PropertyOwnerVM propertyOwner)
@@ -883,7 +889,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save property owner
 
             // Display updated details
-            return RedirectToAction("PropertyOwner", new { id=propertyOwner.Id });
+            return RedirectToAction(nameof(HomeController.PropertyOwner), new { id=propertyOwner.Id });
         }
 
         public IActionResult CreateEditEmployeeForm(EmployeeVM employee)
@@ -891,7 +897,7 @@ namespace CFTenantPortal.Controllers
             // TODO: Save employee
 
             // Display updated employee details
-            return RedirectToAction("Employee", new { id = employee.Id });
+            return RedirectToAction(nameof(HomeController.Employee), new { id = employee.Id });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
