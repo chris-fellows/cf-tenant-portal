@@ -43,15 +43,15 @@
 </div>
 
 <div id="issuestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("IssueListX", new { issues = Model.Issues }))    
+    @(await Component.InvokeAsync("IssueListComp", new { issues = Model.Issues }))    
 </div>
 
 <div id="accountingtab" class="pagetabcontent">
-    @(await Component.InvokeAsync("AccountTransactionListX", new { accountTransactions = Model.AccountTransactions }))    
+    @(await Component.InvokeAsync("AccountTransactionListComp", new { accountTransactions = Model.AccountTransactions }))    
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListX", new { documents = Model.Documents }))    
+    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))    
 </div>
 
 @section Scripts

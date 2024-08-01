@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CFTenantPortal.Views.Components
 {
-    public class AccountTransactionListXViewComponent : ViewComponent
+    public class AccountTransactionListCompViewComponent : ViewComponent
     {
-        public AccountTransactionListXViewComponent()
+        public AccountTransactionListCompViewComponent()
         {
             int xxx = 1000;
         }
@@ -17,7 +17,7 @@ namespace CFTenantPortal.Views.Components
                 AccountBalance = accountTransactions.Sum(at => at.Value),
                 AccountTransactions = accountTransactions               
             };
-            return await Task.FromResult((IViewComponentResult)View("AccountTransactionListTest", model));
+            return await Task.FromResult((IViewComponentResult)View("AccountTransactionList", model));
         }
     }
 }

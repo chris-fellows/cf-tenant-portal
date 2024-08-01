@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CFTenantPortal.Views.Components
 {
-    public class PropertyListXViewComponent : ViewComponent
+    public class PropertyListCompViewComponent : ViewComponent
     {        
-        public PropertyListXViewComponent()
+        public PropertyListCompViewComponent()
         {            
             int xxx = 1000;
         }      
@@ -16,7 +16,7 @@ namespace CFTenantPortal.Views.Components
             {
                 Properties = properties
             };
-            return await Task.FromResult((IViewComponentResult)View("PropertyListTest", model));
+            return await Task.FromResult((IViewComponentResult)View("PropertyList", model));
         }
     }
 }

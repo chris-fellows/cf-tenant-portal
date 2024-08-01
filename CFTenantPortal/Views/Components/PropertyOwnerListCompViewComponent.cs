@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CFTenantPortal.Views.Components
 {
-    public class PropertyOwnerListXViewComponent : ViewComponent
+    public class PropertyOwnerListCompViewComponent : ViewComponent
     {
-        public PropertyOwnerListXViewComponent()
+        public PropertyOwnerListCompViewComponent()
         {
             int xxx = 1000;
         }
@@ -16,7 +16,7 @@ namespace CFTenantPortal.Views.Components
             {
                 PropertyOwners = propertyOwners
             };
-            return await Task.FromResult((IViewComponentResult)View("PropertyOwnerListTest", model));
+            return await Task.FromResult((IViewComponentResult)View("PropertyOwnerList", model));
         }
     }
 }

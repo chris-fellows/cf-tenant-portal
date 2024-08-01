@@ -42,7 +42,7 @@
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListX", new { documents = Model.Documents }))
+    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))
 </div>
 
 @section Scripts

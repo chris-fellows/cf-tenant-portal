@@ -40,15 +40,15 @@
 </div>
 
 <div id="propertiestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("PropertyListX", new { properties = Model.Properties }))
+    @(await Component.InvokeAsync("PropertyListComp", new { properties = Model.Properties }))
 </div>
 
 <div id="messagestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("MessageListX", new { messages = Model.Messages }))
+    @(await Component.InvokeAsync("MessageListComp", new { messages = Model.Messages }))
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListX", new { documents = Model.Documents }))
+    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))
 </div>
 
 @section Scripts
