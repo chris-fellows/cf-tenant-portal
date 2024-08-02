@@ -1,3 +1,4 @@
+using CFTenantPortal.Enums;
 using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
 using CFTenantPortal.Services;
@@ -13,6 +14,8 @@ namespace CFTenantPortal.Controllers
     {
         private readonly IAccountTransactionService _accountTransactionService;
         private readonly IAccountTransactionTypeService _accountTransactionTypeService;
+        private readonly IAuditEventService _auditEventService;
+        private readonly IAuditEventTypeService _auditEventTypeService;
         private readonly IDocumentService _documentService;
         private readonly IEmployeeService _employeeService;
         private readonly IIssueService _issueService;
@@ -23,11 +26,14 @@ namespace CFTenantPortal.Controllers
         private readonly IPropertyGroupService _propertyGroupService;
         private readonly IPropertyOwnerService _propertyOwnerService;
         private readonly IPropertyService _propertyService;
+        private readonly ISystemValueTypeService _systemValueTypeService;
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger,
                 IAccountTransactionService accountTransactionService,
                 IAccountTransactionTypeService accountTransactionTypeService,
+                IAuditEventService auditEventService,
+                IAuditEventTypeService auditEventTypeService,
                 IDocumentService documentService,
                 IEmployeeService employeeService,
                 IIssueService issueService,
@@ -37,11 +43,14 @@ namespace CFTenantPortal.Controllers
                 IMessageTypeService messageTypeService,
                 IPropertyGroupService propertyGroupService,
                 IPropertyOwnerService propertyOwnerService,
-                IPropertyService propertyService) 
+                IPropertyService propertyService,
+                ISystemValueTypeService systemValueTypeService) 
         {
             _logger = logger;
             _accountTransactionService = accountTransactionService;
             _accountTransactionTypeService = accountTransactionTypeService;
+            _auditEventService = auditEventService;
+            _auditEventTypeService = auditEventTypeService;
             _documentService = documentService;
             _employeeService = employeeService;
             _issueService = issueService;
@@ -51,7 +60,8 @@ namespace CFTenantPortal.Controllers
             _messageTypeService = messageTypeService;
             _propertyGroupService = propertyGroupService;
             _propertyOwnerService = propertyOwnerService;
-            _propertyService = propertyService;            
+            _propertyService = propertyService;
+            _systemValueTypeService = systemValueTypeService;
         }
 
         public IActionResult Index()
@@ -852,9 +862,48 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Adds audit event
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        private Task<AuditEvent> AddAuditEvent(AuditEventTypes eventType, params object[] values)
+        {
+            // Create audit event
+            var auditEventType = _auditEventTypeService.GetByEnum(eventType).Result;
+            var auditEvent = new AuditEvent()
+            {
+                EventTypeId = auditEventType.Id,
+                Parameters = new List<AuditEventParameter>()
+            };
+
+            // Add parameters
+            for (int index =0; index < values.Length; index = index + 2)
+            {
+                SystemValueTypes valueType = (SystemValueTypes)values[index];
+                var systemValueType = _systemValueTypeService.GetByEnum(valueType).Result;
+
+                auditEvent.Parameters.Add(new AuditEventParameter()
+                {
+                    SystemValueTypeId = systemValueType.Id,
+                    Value  = values[index + 1]
+                });
+            }
+
+            _auditEventService.Add(auditEvent).Wait();
+
+            return Task.FromResult(auditEvent);
+        }
+
         public IActionResult CreateEditMessageForm(MessageVM message)
         {
             // TODO: Save message
+
+            // Add audit event
+            var auditEventType = String.IsNullOrEmpty(message.Id) ? 
+                        AuditEventTypes.MessageAdded : AuditEventTypes.MessageUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.MessageId, message.Id);
 
             // Display updated message
             return RedirectToAction(nameof(HomeController.Message), new { id = message.Id });
@@ -864,6 +913,11 @@ namespace CFTenantPortal.Controllers
         {
             // TODO: Save issue
 
+            // Add audit event
+            var auditEventType = String.IsNullOrEmpty(issue.Id) ? 
+                        AuditEventTypes.IssueAdded : AuditEventTypes.IssueUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.IssueId, issue.Id);
+
             // Display updated issue details
             return RedirectToAction(nameof(HomeController.Issue), new { id = issue.Id });
         }
@@ -871,6 +925,11 @@ namespace CFTenantPortal.Controllers
         public IActionResult CreateEditPropertyForm(PropertyVM property)
         {
             // TODO: Save property
+
+            // Add audit event
+            var auditEventType = String.IsNullOrEmpty(property.Id) ? 
+                        AuditEventTypes.PropertyAdded : AuditEventTypes.PropertyUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.PropertyId, property.Id);         
 
             // Display updated property details
             return RedirectToAction(nameof(HomeController.Property), new { id=property.Id } );            
@@ -880,6 +939,11 @@ namespace CFTenantPortal.Controllers
         {
             // TODO: Save property group
 
+            // Add audit event
+            var auditEventType = String.IsNullOrEmpty(propertyGroup.Id) ? 
+                        AuditEventTypes.PropertyGroupAdded : AuditEventTypes.PropertyGroupUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.PropertyGroupId, propertyGroup.Id);
+
             // Display updated property details
             return RedirectToAction(nameof(HomeController.PropertyGroup), new { id = propertyGroup.Id });
         }
@@ -888,6 +952,11 @@ namespace CFTenantPortal.Controllers
         {
             // TODO: Save property owner
 
+            // Add audit event           
+            var auditEventType = String.IsNullOrEmpty(propertyOwner.Id) ? 
+                        AuditEventTypes.PropertyOwnerAdded : AuditEventTypes.PropertyOwnerUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.PropertyOwnerId, propertyOwner.Id);
+
             // Display updated details
             return RedirectToAction(nameof(HomeController.PropertyOwner), new { id=propertyOwner.Id });
         }
@@ -895,6 +964,11 @@ namespace CFTenantPortal.Controllers
         public IActionResult CreateEditEmployeeForm(EmployeeVM employee)
         {
             // TODO: Save employee
+
+            // Add audit event
+            var auditEventType = String.IsNullOrEmpty(employee.Id) ? 
+                        AuditEventTypes.EmployeeAdded : AuditEventTypes.EmployeeUpdated;
+            var auditEvent = AddAuditEvent(auditEventType, SystemValueTypes.EmployeeId, employee.Id);          
 
             // Display updated employee details
             return RedirectToAction(nameof(HomeController.Employee), new { id = employee.Id });

@@ -9,8 +9,7 @@ namespace CFTenantPortal.Models
     public class IssueType
     {
         public string Id { get; set; } = String.Empty;
-
-        [Display(Name = "Description")]
+        
         public string Description { get; set; } = String.Empty;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace CFTenantPortal.Models
+﻿using CFTenantPortal.Enums;
+
+namespace CFTenantPortal.Models
 {
     /// <summary>
     /// Account transaction type. E.g. Management fees request
@@ -7,11 +9,12 @@
     {
         public string Id { get; set; } = String.Empty;
 
-        public string Description { get; set; } = String.Empty;
+        public string Description { get; set; } = String.Empty;        
 
         /// <summary>
-        /// Internal name for lookup
+        /// Transaction type enum. Typically for finding a specific AccountTransactionType instance where the Id
+        /// isn't known
         /// </summary>
-        public string InternalName { get; set; } = String.Empty;
+        public AccountTransactionTypes TransactionType { get; set; }
     }
 }

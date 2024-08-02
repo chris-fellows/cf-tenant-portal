@@ -1,5 +1,4 @@
-﻿using CFTenantPortal.Constants;
-using CFTenantPortal.Interfaces;
+﻿using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Services

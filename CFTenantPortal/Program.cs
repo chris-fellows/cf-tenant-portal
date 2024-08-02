@@ -22,6 +22,8 @@ builder.Services.AddControllersWithViews();
 // Add services for data
 builder.Services.AddScoped<IAccountTransactionService, AccountTransactionService>();
 builder.Services.AddScoped<IAccountTransactionTypeService, AccountTransactionTypeService>();
+builder.Services.AddScoped<IAuditEventService, AuditEventService>();
+builder.Services.AddScoped<IAuditEventTypeService, AuditEventTypeService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IIssueService, IssueService>();
@@ -34,6 +36,7 @@ builder.Services.AddScoped<IPropertyFeatureTypeService, PropertyFeatureTypeServi
 builder.Services.AddScoped<IPropertyGroupService, PropertyGroupService>();
 builder.Services.AddScoped<IPropertyOwnerService, PropertyOwnerService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
+builder.Services.AddScoped<ISystemValueTypeService, SystemValueTypeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 // Add task schedules

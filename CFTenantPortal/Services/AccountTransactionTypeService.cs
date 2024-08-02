@@ -1,4 +1,4 @@
-﻿using CFTenantPortal.Constants;
+﻿using CFTenantPortal.Enums;
 using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
 
@@ -54,7 +54,7 @@ namespace CFTenantPortal.Services
             {
                 Id = "5",
                 Description = "Opening transaction (Rollup)",
-                InternalName = AccountTransactionTypeInternalNames.Rollup
+                TransactionType = AccountTransactionTypes.Rollup
             });
 
             return accountTransactionTypes;
