@@ -16,6 +16,7 @@
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditPropertyOwnerForm">
+        @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.Name)
         <input class="form-control" type="text" asp-for="@Model.Name" />
         @Html.LabelFor(m => m.Email)

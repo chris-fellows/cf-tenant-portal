@@ -14,7 +14,7 @@
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditMessageForm">
-
+        @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.MessageTypeId)
         @Html.DropDownListFor(m => m.MessageTypeId,
                  new SelectList(@Model.MessageTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))

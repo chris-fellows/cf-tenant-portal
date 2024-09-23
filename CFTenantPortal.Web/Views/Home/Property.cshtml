@@ -15,7 +15,8 @@
 </div>
 
 <div id="maintab" class="pagetabcontent">
-    <form asp-action="CreateEditPropertyForm">    
+    <form asp-action="CreateEditPropertyForm">
+        @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.PropertyGroupId)
         @Html.DropDownListFor(m => m.PropertyGroupId,
                 new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))

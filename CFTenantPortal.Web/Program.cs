@@ -8,11 +8,15 @@ using CFUtilities.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Set data location. For testing then we might want to set it to in-memory data
 var dataLocationType = DataLocationTypes.MongoDB;
+
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

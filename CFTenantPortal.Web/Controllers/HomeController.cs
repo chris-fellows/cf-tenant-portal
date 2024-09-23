@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.IdentityModel.Abstractions;
 using System.Diagnostics;
 using System.Net.WebSockets;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace CFTenantPortal.Controllers
 {
@@ -21,6 +23,7 @@ namespace CFTenantPortal.Controllers
         private readonly IIssueService _issueService;
         private readonly IIssueStatusService _issueStatusService;
         private readonly IIssueTypeService _issueTypeService;
+        private readonly IMapper _mapper;
         private readonly IMessageService _messageService;
         private readonly IMessageTypeService _messageTypeService;
         private readonly IPropertyGroupService _propertyGroupService;
@@ -39,6 +42,7 @@ namespace CFTenantPortal.Controllers
                 IIssueService issueService,
                 IIssueStatusService issueStatusService,
                 IIssueTypeService issueTypeService,
+                IMapper mapper,
                 IMessageService messageService,
                 IMessageTypeService messageTypeService,
                 IPropertyGroupService propertyGroupService,
@@ -56,6 +60,7 @@ namespace CFTenantPortal.Controllers
             _issueService = issueService;
             _issueStatusService = issueStatusService;
             _issueTypeService = issueTypeService;
+            _mapper = mapper;
             _messageService = messageService;
             _messageTypeService = messageTypeService;
             _propertyGroupService = propertyGroupService;
@@ -73,6 +78,12 @@ namespace CFTenantPortal.Controllers
         {
             return View();
         }
+
+        /// <summary>
+        /// Returns view to add or update issue
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult Issue(string id)
         {
             var employees = _employeeService.GetAll();
@@ -253,6 +264,11 @@ namespace CFTenantPortal.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns view to add or update property
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult Property(string id)
         {
             var propertyGroups = _propertyGroupService.GetAll();
@@ -383,6 +399,11 @@ namespace CFTenantPortal.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns view to add or update employee
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult Employee(string id)
         {            
             if (String.IsNullOrEmpty(id))   // New employee
@@ -416,6 +437,11 @@ namespace CFTenantPortal.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns view to add or update message
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult Message(string id)
         {
             var messageTypes = _messageTypeService.GetAll();
@@ -591,6 +617,11 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Returns view to add or update property owner
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult PropertyOwner(string? id)
         {
             if (String.IsNullOrEmpty(id))   // New property owner
@@ -692,6 +723,11 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Returns view to add or update property group
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public IActionResult PropertyGroup(string? id)
         {            
             if (String.IsNullOrEmpty(id))   // New property group
@@ -896,9 +932,24 @@ namespace CFTenantPortal.Controllers
             return Task.FromResult(auditEvent);
         }
 
+        /// <summary>
+        /// Processes form to add or update message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditMessageForm(MessageVM message)
         {
-            // TODO: Save message
+            // Get message from DB if updating
+            var messageDB = String.IsNullOrEmpty(message.Id) ? null : _messageService.GetByIdAsync(message.Id);
+            if (!String.IsNullOrEmpty(message.Id) && messageDB == null)
+            {
+                throw new ArgumentException("Invalid message");
+            }
+
+            // Map VM to message
+            var messageUpdate = _mapper.Map<Message>(message);
+            //_messageService.UpdateAsync(messageUpdate).Wait();
 
             // Add audit event
             var auditEventType = String.IsNullOrEmpty(message.Id) ? 
@@ -909,9 +960,24 @@ namespace CFTenantPortal.Controllers
             return RedirectToAction(nameof(HomeController.Message), new { id = message.Id });
         }
 
+        /// <summary>
+        /// Processes form to add or update issue
+        /// </summary>
+        /// <param name="issue"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditIssueForm(IssueVM issue)
         {
-            // TODO: Save issue
+            // Get issue from DB if updating
+            var issueDB = String.IsNullOrEmpty(issue.Id) ? null : _issueService.GetByIdAsync(issue.Id).Result;
+            if (!String.IsNullOrEmpty(issue.Id) && issueDB == null)
+            {
+                throw new ArgumentException("Invalid issue");
+            }
+
+            // Map VM to issue
+            var issueUpdated = _mapper.Map<Issue>(issue);
+            //_issueService.UpdateAsync(issueUpdated).Wait();
 
             // Add audit event
             var auditEventType = String.IsNullOrEmpty(issue.Id) ? 
@@ -921,10 +987,25 @@ namespace CFTenantPortal.Controllers
             // Display updated issue details
             return RedirectToAction(nameof(HomeController.Issue), new { id = issue.Id });
         }
-      
+
+        /// <summary>
+        /// Processes form to add or update property
+        /// </summary>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyForm(PropertyVM property)
         {
-            // TODO: Save property
+            // Get property from DB if updating
+            var properyDB = String.IsNullOrEmpty(property.Id) ? null : _propertyService.GetByIdAsync(property.Id).Result;
+            if (!String.IsNullOrEmpty(property.Id) && properyDB == null)
+            {
+                throw new ArgumentException("Invalid property");
+            }
+
+            // Map VM to property
+            var propertyUpdated = _mapper.Map<Property>(property);
+            //_propertyService.UpdateAsync(propertyUpdated).Wait();
 
             // Add audit event
             var auditEventType = String.IsNullOrEmpty(property.Id) ? 
@@ -935,9 +1016,24 @@ namespace CFTenantPortal.Controllers
             return RedirectToAction(nameof(HomeController.Property), new { id=property.Id } );            
         }
 
+        /// <summary>
+        /// Processes form to add or update property group
+        /// </summary>
+        /// <param name="propertyGroup"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyGroupForm(PropertyGroupVM propertyGroup)
         {
-            // TODO: Save property group
+            // Get property group from DB if updating
+            var propertyGroupDB = String.IsNullOrEmpty(propertyGroup.Id) ? null : _propertyGroupService.GetByIdAsync(propertyGroup.Id).Result;
+            if (!String.IsNullOrEmpty(propertyGroup.Id) && propertyGroupDB == null)
+            {
+                throw new ArgumentException("Invalid property group");
+            }
+
+            // Map VM to property group
+            var propertyGroupUpdated = _mapper.Map<PropertyGroup>(propertyGroup);
+            //_propertyGroupService.UpdateAsync(propertyGroupUpdated).Wait();
 
             // Add audit event
             var auditEventType = String.IsNullOrEmpty(propertyGroup.Id) ? 
@@ -948,9 +1044,24 @@ namespace CFTenantPortal.Controllers
             return RedirectToAction(nameof(HomeController.PropertyGroup), new { id = propertyGroup.Id });
         }
 
+        /// <summary>
+        /// Processes form to add or update property owner
+        /// </summary>
+        /// <param name="propertyOwner"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyOwnerForm(PropertyOwnerVM propertyOwner)
-        {            
-            // TODO: Save property owner
+        {
+            // Get property owner from DB if updating
+            var propertyOwnerDB = String.IsNullOrEmpty(propertyOwner.Id) ? null : _propertyOwnerService.GetByIdAsync(propertyOwner.Id).Result;
+            if (!String.IsNullOrEmpty(propertyOwner.Id) && propertyOwnerDB == null)
+            {
+                throw new ArgumentException("Invalid property owner");
+            }
+
+            // Map VM to employee
+            var propertyOwnerUpdated = _mapper.Map<PropertyOwner>(propertyOwner);
+            //_propertyOwnerService.UpdateAsync(propertyOwnerUpdated).Wait();
 
             // Add audit event           
             var auditEventType = String.IsNullOrEmpty(propertyOwner.Id) ? 
@@ -961,9 +1072,24 @@ namespace CFTenantPortal.Controllers
             return RedirectToAction(nameof(HomeController.PropertyOwner), new { id=propertyOwner.Id });
         }
 
+        /// <summary>
+        /// Processes form to add or update employee
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditEmployeeForm(EmployeeVM employee)
         {
-            // TODO: Save employee
+            // Get employee from DB if updating
+            var employeeDB = String.IsNullOrEmpty(employee.Id) ? null : _employeeService.GetByIdAsync(employee.Id).Result;
+            if (!String.IsNullOrEmpty(employee.Id) && employeeDB == null)
+            {
+                throw new ArgumentException("Invalid employee");
+            }
+
+            // Map VM to employee
+            var employeeUpdate = _mapper.Map<PropertyOwner>(employee);
+            //_employeeService.UpdateAsync(employeeUpdate).Wait();
 
             // Add audit event
             var auditEventType = String.IsNullOrEmpty(employee.Id) ? 
