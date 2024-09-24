@@ -1,0 +1,55 @@
+﻿@model CFTenantPortal.Models.AuditEventListVM
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AuditEvents[0].Id)
+            </th>            
+            <th>
+                @Html.DisplayNameFor(model => model.AuditEvents[0].EventTypeDescription)
+            </th>
+            <th>
+                Entity Type
+            </th>
+            <th>
+                Entity
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuditEvents[0].CreatedDateTime)
+            </th>            
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.AuditEvents)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>                
+                <td>
+                    @Html.DisplayFor(modelItem => item.EventTypeDescription)
+                </td>
+                <td>
+                    @if (@item.FirstParameter != null)
+                    {
+                        @item.FirstParameter.EntityTypeDescription
+                    }
+                </td>
+                <td>
+                    @if (item.FirstParameter != null && !String.IsNullOrEmpty(@item.FirstParameter.EntityId))
+                    {
+                        @Html.ActionLink(item.FirstParameter.EntityDescription, item.FirstParameter.EntityDetailRoute, new { id = item.FirstParameter.EntityId })
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDateTime)
+                </td>              
+                <td>
+                    @Html.ActionLink("Details", "AuditEvent", new { id = item.Id })                
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,46 @@
+﻿@model CFTenantPortal.Models.AuditEventVM
+
+@{
+    ViewData["Title"] = "Audit Event";
+}
+
+<h3>@Model.HeaderText</h3>
+
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>    
+</div>
+
+<div id="maintab" class="pagetabcontent">
+    <form asp-action="CreateEditIssueForm">        
+        @Html.HiddenFor(m => m.Id)                
+
+        @Html.LabelFor(m => m.CreatedDateTime)
+        <input class="form-control" type="text" asp-for="@Model.CreatedDateTime" />
+
+        @Html.LabelFor(m => m.TypeDescription)
+        <input class="form-control" type="text" asp-for="@Model.TypeDescription" />
+
+        @foreach(var parameter in Model.Parameters)
+        {
+            @parameter.EntityTypeDescription
+            @if (!String.IsNullOrEmpty(parameter.EntityDetailRoute))  // Entity link
+            {                           
+                @Html.ActionLink(parameter.EntityDescription, parameter.EntityDetailRoute, new { id = parameter.EntityId })<br/><br/>
+            }
+            else   // Display label
+            {
+                @parameter.EntityDescription
+            }
+        }
+    </form>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

@@ -1,0 +1,9 @@
+﻿@model CFTenantPortal.Models.AuditEventListVM
+
+@{
+    ViewData["Title"] = "Audit Event List";
+}
+
+<h3>Audit Event List</h3>
+
+@(await Component.InvokeAsync("AuditEventListComp", new { auditEventList = Model }))

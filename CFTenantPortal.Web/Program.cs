@@ -132,7 +132,7 @@ app.MapRazorPages();
 
 // Initialise
 using (var scope = app.Services.CreateScope())
-{
+{    
     // Initialise shared DB
     var databaseAdminService = scope.ServiceProvider.GetRequiredService<IDatabaseAdminService>();
     //await databaseAdminService.DeleteSharedData();

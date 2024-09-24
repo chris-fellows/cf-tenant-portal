@@ -10,8 +10,11 @@ using System.Net.WebSockets;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using NuGet.Protocol.Plugins;
+//using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+//using NuGet.Protocol.Plugins;
+using Microsoft.VisualBasic;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Linq.Expressions;
 
 namespace CFTenantPortal.Controllers
 {
@@ -635,6 +638,207 @@ namespace CFTenantPortal.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns view to view audit event
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult AuditEvent(string id)
+        {
+            // Get data
+            var auditEventTypes = _auditEventTypeService.GetAll();
+            //var properties = _propertyService.GetAll();            
+            //var propertyOwners = _propertyOwnerService.GetAll();
+            var systemValueTypes = _systemValueTypeService.GetAll().ToList();
+
+            // Get audit event
+            var auditEvent = _auditEventService.GetByIdAsync(id).Result;
+
+            // Get audit event type
+            var auditEventType = auditEventTypes.First(aet => aet.Id == auditEvent.EventTypeId);
+
+            var model = new AuditEventVM()
+            {
+                Id = auditEvent.Id,
+                HeaderText = "Audit Event",
+                CreatedDateTime = auditEvent.CreatedDateTime,
+                TypeDescription = auditEventType.Description,
+                Parameters = auditEvent.Parameters.Select(p => GetAuditEventParameterVM(p, systemValueTypes)).ToList()
+            };
+       
+            return View(model);            
+        }
+
+        /// <summary>
+        /// Gets AuditEventParameterVM for AuditEventParameter. Parameter will typically be displayed as a link which opens the 
+        /// entity detail. E.g. Link for property address opens property page.
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="systemValueTypes"></param>
+        /// <returns></returns>
+        private AuditEventParameterVM GetAuditEventParameterVM(AuditEventParameter parameter, List<SystemValueType> systemValueTypes)
+        {
+            AuditEventParameterVM parameterVM = new AuditEventParameterVM();
+            var systemValueTypeProperty = systemValueTypes.First(svt => svt.Id == parameter.SystemValueTypeId);                       
+            switch (systemValueTypeProperty.ValueType)
+            {
+                case SystemValueTypes.DocumentId:
+                    var document = _documentService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = document.Id;
+                    parameterVM.EntityDescription = document.Name;
+                    parameterVM.EntityDetailRoute = "Document";
+                    parameterVM.EntityTypeDescription = "Document";
+                    break;
+                case SystemValueTypes.EmployeeId:
+                    var employee = _employeeService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = employee.Id;
+                    parameterVM.EntityDescription = employee.Name;
+                    parameterVM.EntityDetailRoute = nameof(this.Employee);
+                    parameterVM.EntityTypeDescription = "Employee";
+                    break;
+                case SystemValueTypes.IssueId:
+                    var issue = _issueService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = issue.Id;
+                    parameterVM.EntityDescription = issue.Reference;
+                    parameterVM.EntityDetailRoute = nameof(this.Issue);
+                    parameterVM.EntityTypeDescription = "Issue";
+                    break;
+                case SystemValueTypes.IssueTypeId:
+                    var issueType = _issueTypeService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = issueType.Id;
+                    parameterVM.EntityDescription = issueType.Description;
+                    parameterVM.EntityDetailRoute = "IssueType";
+                    parameterVM.EntityTypeDescription = "Issue Type";
+                    break;
+                case SystemValueTypes.MessageId:
+                    var message = _messageService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = message.Id;
+                    parameterVM.EntityDescription = message.Text;
+                    parameterVM.EntityDetailRoute = nameof(this.Message);
+                    parameterVM.EntityTypeDescription = "Message";
+                    break;
+                case SystemValueTypes.MessageTypeId:
+                    var messageType = _messageTypeService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = messageType.Id;
+                    parameterVM.EntityDescription = messageType.Description;
+                    parameterVM.EntityDetailRoute = "MessageType";
+                    parameterVM.EntityTypeDescription = "Message Type";
+                    break;
+                case SystemValueTypes.PropertyGroupId:
+                    var propertyGroup = _propertyGroupService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = propertyGroup.Id;
+                    parameterVM.EntityDescription = propertyGroup.Name;
+                    parameterVM.EntityDetailRoute = nameof(this.PropertyGroup);
+                    parameterVM.EntityTypeDescription = "Property Group";
+                    break;
+                case SystemValueTypes.PropertyId:
+                    var property = _propertyService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = property.Id;
+                    parameterVM.EntityDescription = property.Address.ToSummary();
+                    parameterVM.EntityDetailRoute = nameof(this.Property);
+                    parameterVM.EntityTypeDescription = "Property";
+                    break;
+                case SystemValueTypes.PropertyOwnerId:
+                    var propertyOwner = _propertyOwnerService.GetByIdAsync(parameter.Value.ToString()).Result;
+                    parameterVM.EntityId = propertyOwner.Id;
+                    parameterVM.EntityDescription = propertyOwner.Name;
+                    parameterVM.EntityDetailRoute = nameof(this.PropertyOwner);
+                    parameterVM.EntityTypeDescription = "Owner";
+                    break;
+                default:   // Default to displaying the parameter value
+                    parameterVM.EntityTypeDescription = systemValueTypeProperty.Description;
+                    parameterVM.EntityDescription = parameter.Value.ToString();
+                    break;
+            }
+
+            return parameterVM;
+        }
+
+        //private List<AuditEventParameterVM> GetAuditEventParameterVMs(List<AuditEventParameter> auditEventParameters, List<SystemValueType> systemValueTypes)
+        //{            
+        //    var parameters = new List<AuditEventParameterVM>();
+        //    // Get parameters to display      
+        //    foreach (var parameter in auditEventParameters)
+        //    {
+        //        AuditEventParameterVM parameterVM = new AuditEventParameterVM();
+        //        var systemValueTypeProperty = systemValueTypes.First(svt => svt.Id == parameter.SystemValueTypeId);
+        //        switch (systemValueTypeProperty.ValueType)
+        //        {
+        //            case SystemValueTypes.DocumentId:
+        //                var document = _documentService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = document.Id;
+        //                parameterVM.EntityDescription = document.Name;
+        //                parameterVM.EntityDetailRoute = "Document";
+        //                parameterVM.EntityTypeDescription = "Document";
+        //                break;
+        //            case SystemValueTypes.EmployeeId:
+        //                var employee = _employeeService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = employee.Id;
+        //                parameterVM.EntityDescription = employee.Name;
+        //                parameterVM.EntityDetailRoute = nameof(this.Employee);
+        //                parameterVM.EntityTypeDescription = "Employee";
+        //                break;
+        //            case SystemValueTypes.IssueId:
+        //                var issue = _issueService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = issue.Id;
+        //                parameterVM.EntityDescription = issue.Reference;
+        //                parameterVM.EntityDetailRoute = nameof(this.Issue);
+        //                parameterVM.EntityTypeDescription = "Issue";
+        //                break;
+        //            case SystemValueTypes.IssueTypeId:
+        //                var issueType = _issueTypeService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = issueType.Id;
+        //                parameterVM.EntityDescription = issueType.Description;
+        //                parameterVM.EntityDetailRoute = "IssueType";
+        //                parameterVM.EntityTypeDescription = "Issue Type";
+        //                break;
+        //            case SystemValueTypes.MessageId:
+        //                var message = _messageService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = message.Id;
+        //                parameterVM.EntityDescription = message.Text;
+        //                parameterVM.EntityDetailRoute = nameof(this.Message);
+        //                parameterVM.EntityTypeDescription = "Message";
+        //                break;
+        //            case SystemValueTypes.MessageTypeId:
+        //                var messageType = _messageTypeService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = messageType.Id;
+        //                parameterVM.EntityDescription = messageType.Description;
+        //                parameterVM.EntityDetailRoute = "MessageType";
+        //                parameterVM.EntityTypeDescription = "Message Type";
+        //                break;
+        //            case SystemValueTypes.PropertyGroupId:
+        //                var propertyGroup = _propertyGroupService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = propertyGroup.Id;
+        //                parameterVM.EntityDescription = propertyGroup.Name;
+        //                parameterVM.EntityDetailRoute = nameof(this.PropertyGroup);
+        //                parameterVM.EntityTypeDescription = "Property Group";
+        //                break;
+        //            case SystemValueTypes.PropertyId:
+        //                var property = _propertyService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = property.Id;
+        //                parameterVM.EntityDescription = property.Address.ToSummary();
+        //                parameterVM.EntityDetailRoute = nameof(this.Property);
+        //                parameterVM.EntityTypeDescription = "Property";
+        //                break;
+        //            case SystemValueTypes.PropertyOwnerId:
+        //                var propertyOwner = _propertyOwnerService.GetByIdAsync(parameter.Value.ToString()).Result;
+        //                parameterVM.EntityId = propertyOwner.Id;
+        //                parameterVM.EntityDescription = propertyOwner.Name;
+        //                parameterVM.EntityDetailRoute = nameof(this.PropertyOwner);
+        //                parameterVM.EntityTypeDescription = "Owner";
+        //                break;
+        //        }
+
+        //        // Add VM parameter
+        //        if (!String.IsNullOrEmpty(parameterVM.EntityId))
+        //        {
+        //            parameters.Add(parameterVM);
+        //        }
+        //    }
+
+        //    return parameters;
+        //}
+
         public IActionResult AllPropertyList()  //string? propertyGroupId, string? propertyOwnerId)
         {
             var model = new PropertyListVM() 
@@ -987,6 +1191,53 @@ namespace CFTenantPortal.Controllers
 
                 return View(model);
             }
+        }
+        
+        public IActionResult AllAuditEventList()
+        {
+            var model = new AuditEventListVM()
+            {
+                HeaderText = "Audit Events"
+            };
+
+            var auditEventTypes = _auditEventTypeService.GetAll().ToList();
+            var systemValueTypes = _systemValueTypeService.GetAll().ToList();
+
+            // Set event filter
+            var auditEventFilter = new AuditEventFilter()
+            {
+                AuditEventTypeIds = null,
+                StartCreatedDateTime = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(365 * 2)),
+                EndCreatedDateTime = DateTimeOffset.UtcNow.AddDays(1),
+                PageNo = 1,
+                PageItems = 10000000
+            };            
+
+            // Get audit events
+            var auditEvents = _auditEventService.GetByFilterAsync(auditEventFilter).Result.ToList();
+
+            model.AuditEvents = auditEvents.Select(ae =>
+            {
+                var auditEventType = auditEventTypes.First(et => et.Id == ae.EventTypeId);
+
+                var auditEventBasic = new AuditEventBasicVM()
+                {
+                    Id = ae.Id,
+                    EventTypeId = ae.EventTypeId,
+                    EventTypeDescription = auditEventType.Description,
+                    CreatedDateTime = ae.CreatedDateTime
+                };
+
+                // Add first parameter
+                if (ae.Parameters.Any())
+                {
+                    auditEventBasic.FirstParameter = GetAuditEventParameterVM(ae.Parameters.First(), systemValueTypes);                    
+                }
+            
+                return auditEventBasic;
+            }).ToList();
+
+            return View(model);
         }
 
         public IActionResult AllIssueTypeList()
