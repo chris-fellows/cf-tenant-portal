@@ -9,6 +9,9 @@ using System.Diagnostics;
 using System.Net.WebSockets;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using NuGet.Protocol.Plugins;
 
 namespace CFTenantPortal.Controllers
 {
@@ -89,6 +92,7 @@ namespace CFTenantPortal.Controllers
             var employees = _employeeService.GetAll();
             var issueStatuses = _issueStatusService.GetAll();
             var issueTypes = _issueTypeService.GetAll();
+            var messageTypes = _messageTypeService.GetAll();
             var properties = _propertyService.GetAll();
             var propertyGroups = _propertyGroupService.GetAll();
             var propertyOwners = _propertyOwnerService.GetAll();
@@ -105,6 +109,7 @@ namespace CFTenantPortal.Controllers
 
                 var model = new IssueVM()
                 {
+                    AllowSave = true,
                     HeaderText = "New Issue",
                     Reference = Guid.NewGuid().ToString(),
                     Description = "New",
@@ -113,7 +118,10 @@ namespace CFTenantPortal.Controllers
                     PropertyGroupId = entityReferenceNone.Id,
                     CreatedEmployeeId = entityReferenceNone.Id,
                     CreatedPropertyOwnerId = entityReferenceNone.Id,     
-                    Documents = new List<DocumentBasicVM>(),
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = new List<DocumentBasicVM>()
+                    },
                     EmployeeList = employees.Select(e =>
                     {
                         return new EntityReference()
@@ -139,6 +147,10 @@ namespace CFTenantPortal.Controllers
                             Name = i.Description
                         };
                     }).ToList(),
+                    MessageList = new MessageListVM()
+                    {
+                        Messages= new List<MessageBasicVM>()
+                    },
                     PropertyGroupList = propertyGroups.Select(p =>
                     {
                         return new EntityReference()
@@ -180,19 +192,21 @@ namespace CFTenantPortal.Controllers
                 var issueType = _issueTypeService.GetByIdAsync(issue.TypeId).Result;
                 var property = String.IsNullOrEmpty(issue.PropertyId) ?
                                null :
-                               _propertyService.GetByIdAsync(issue.PropertyId).Result;
-
+                               _propertyService.GetByIdAsync(issue.PropertyId).Result;                
+         
                 var documents = issue.DocumentIds == null ?
                            new List<DocumentBasicVM>() :
                            issue.DocumentIds.Select(documentId => _documentService.GetByIdAsync(documentId).Result)
                            .Select(document => new DocumentBasicVM()
                            {
                                Id = document.Id,
-                               Name = document.Name
+                               Name = document.Name,
+                               AllowDelete = true
                            }).ToList();
                            
                 var model = new IssueVM()
                 {
+                    AllowSave = true,
                     HeaderText = "Issue",
                     Id = issue.Id,
                     Reference = issue.Reference,
@@ -202,7 +216,10 @@ namespace CFTenantPortal.Controllers
                     PropertyGroupId = issue.PropertyGroupId,
                     CreatedEmployeeId = issue.CreatedEmployeeId,
                     CreatedPropertyOwnerId = issue.CreatedPropertyOwnerId,                    
-                    Documents = documents,                   
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = documents
+                    },
                     EmployeeList = employees.Select(e =>
                     {
                         return new EntityReference()
@@ -228,6 +245,10 @@ namespace CFTenantPortal.Controllers
                             Name = i.Description
                         };
                     }).ToList(),
+                    MessageList = new MessageListVM()
+                    {
+
+                    },
                     PropertyGroupList = propertyGroups.Select(p =>
                     {
                         return new EntityReference()
@@ -252,7 +273,27 @@ namespace CFTenantPortal.Controllers
                             Name = po.Name
                         };
                     }).ToList(),
-                };
+                };                
+
+                // Load messages
+                model.MessageList.Messages = _messageService.GetByIssue(issue.Id).Result.Select(m =>
+                {
+                    var messageType = messageTypes.First(mt => mt.Id == m.MessageTypeId);
+                    var messageProperty = String.IsNullOrEmpty(m.PropertyId) ? null : properties.First(p => p.Id == m.PropertyId);
+                    var messagePropertyOwner = String.IsNullOrEmpty(m.PropertyOwnerId) ? null : propertyOwners.First(po => po.Id == m.PropertyOwnerId);
+
+                    return new MessageBasicVM()
+                    {
+                        Id = m.Id,
+                        IssueReference = issue.Reference,
+                        PropertyId = m.PropertyId,
+                        PropertyName = (messageProperty == null ? "" : messageProperty.Address.ToSummary()),
+                        PropertyOwnerName = (messagePropertyOwner == null ? "" : messagePropertyOwner.Name),
+                        PropertyOwnerId = m.PropertyOwnerId,
+                        TypeDescription = messageType.Description,
+                        AllowDelete = true
+                    };
+                }).ToList();
 
                 // Add none for optional
                 model.EmployeeList.Insert(0, EntityReference.None);
@@ -271,6 +312,7 @@ namespace CFTenantPortal.Controllers
         /// <returns></returns>
         public IActionResult Property(string id)
         {
+            var messageTypes = _messageTypeService.GetAll();
             var propertyGroups = _propertyGroupService.GetAll();
             var propertyOwners = _propertyOwnerService.GetAll();
 
@@ -278,13 +320,23 @@ namespace CFTenantPortal.Controllers
             {              
                 var model = new PropertyVM()
                 {
+                    AllowSave = true,
                     HeaderText = "New Property",
                     Address = new AddressVM()
                     {
 
                     },
-                    Documents = new List<DocumentBasicVM>(),
-                    Issues = new List<IssueBasicVM>(),
+                    DocumentList = new DocumentListVM() { Documents = new List<DocumentBasicVM>() },                  
+                    //Issues = new List<IssueBasicVM>(),
+                    IssueList = new IssueListVM()
+                    {
+                        AllowCreate = false,
+                        Issues = new List<IssueBasicVM>()
+                    },
+                    MessageList = new MessageListVM()
+                    {
+                        Messages = new List<MessageBasicVM>()
+                    },
                     AccountTransactions = new List<AccountTransactionBasicVM>(),
                     PropertyGroupId = propertyGroups.OrderBy(pg => pg.Name).First().Id,
                     PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
@@ -325,12 +377,14 @@ namespace CFTenantPortal.Controllers
                    .Select(document => new DocumentBasicVM()
                    {
                        Id = document.Id,
-                       Name = document.Name
+                       Name = document.Name,
+                       AllowDelete = true
                    }).ToList();
 
                 // TODO: Use auto mapping
                 var model = new PropertyVM()
                 {
+                    AllowSave = true,
                     HeaderText = "Property",
                     Id = property.Id,
                     Address = new AddressVM()
@@ -343,7 +397,18 @@ namespace CFTenantPortal.Controllers
                     },
                     PropertyGroupId = property.GroupId,
                     PropertyOwnerId = property.OwnerId,
-                    Documents = documents,
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = documents
+                    },
+                    IssueList = new IssueListVM()
+                    {
+                        AllowCreate = true
+                    },
+                    MessageList = new MessageListVM()
+                    {
+
+                    },
                     PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
                         return new EntityReference()
@@ -378,7 +443,7 @@ namespace CFTenantPortal.Controllers
                 }).ToList();                
 
                 // Load issues
-                model.Issues = _issueService.GetByProperty(property.Id).Result.Select(i =>
+                model.IssueList.Issues = _issueService.GetByProperty(property.Id).Result.Select(i =>
                 {
                     var issueStatus = issueStatuses.First(s => s.Id == i.StatusId);
                     var issueType = issueTypes.First(it => it.Id == i.TypeId);
@@ -391,8 +456,29 @@ namespace CFTenantPortal.Controllers
                         TypeDescription = issueType.Description,
                         PropertyOrBuilderDescription = property.Address.ToSummary(),
                         StatusDescription = issueStatus.Description,
-                        PropertyId = property.Id
+                        PropertyId = property.Id,
+                        AllowDelete = true
                     };
+                }).ToList();
+
+                // Load messages                
+                model.MessageList.Messages = _messageService.GetByProperty(property.Id).Result.Select(m =>
+                {
+                    var messageType = messageTypes.First(mt => mt.Id == m.MessageTypeId);
+                    var messageIssue = String.IsNullOrEmpty(m.IssueId) ? null : _issueService.GetByIdAsync(m.IssueId).Result;
+                    var messagePropertyOwner = String.IsNullOrEmpty(m.PropertyOwnerId) ? null : propertyOwners.First(po => po.Id == m.PropertyOwnerId);
+
+                    return new MessageBasicVM()
+                    {
+                        Id = m.Id,
+                        IssueReference = (messageIssue == null ? "" : messageIssue.Reference),
+                        PropertyId = m.PropertyId,
+                        PropertyName = (property == null ? "" : property.Address.ToSummary()),
+                        PropertyOwnerName = (messagePropertyOwner == null ? "" : messagePropertyOwner.Name),
+                        PropertyOwnerId = m.PropertyOwnerId,
+                        TypeDescription = messageType.Description,
+                        AllowDelete = true
+                    };                 
                 }).ToList();
 
                 return View(model);
@@ -498,7 +584,8 @@ namespace CFTenantPortal.Controllers
                        .Select(document => new DocumentBasicVM()
                        {
                            Id = document.Id,
-                           Name = document.Name
+                           Name = document.Name,
+                           AllowDelete = true
                        }).ToList();
 
                 var model = new MessageVM()
@@ -550,7 +637,11 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllPropertyList()  //string? propertyGroupId, string? propertyOwnerId)
         {
-            var model = new PropertyListVM() { HeaderText = "Property List" };   // Default header
+            var model = new PropertyListVM() 
+            { 
+                AllowCreate = true,
+                HeaderText = "Property List" 
+            };   // Default header
 
             /*
             // TODO: Make this more efficient
@@ -593,7 +684,8 @@ namespace CFTenantPortal.Controllers
                     PropertyGroupName = propertyGroup.Name,
                     PropertyGroupId = propertyGroup.Id,
                     PropertyOwnerName = propertyOwner.Name,
-                    PropertyOwnerId = propertyOwner.Id                    
+                    PropertyOwnerId = propertyOwner.Id,
+                    AllowDelete = true
                 };
             }).ToList();
 
@@ -602,16 +694,31 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllPropertyOwnerList()
         {
-            var model = new PropertyOwnerListVM() { HeaderText = "Property Owner List" };
+            var model = new PropertyOwnerListVM() 
+            { 
+                AllowCreate = true,
+                HeaderText = "Property Owner List" 
+            };
 
             model.PropertyOwners = _propertyOwnerService.GetAll().Select(po =>
             {
+                return new PropertyOwnerBasicVM()
+                {
+                    Id = po.Id,
+                    Email = po.Email,
+                    Name = po.Name,
+                    AllowDelete = true
+                };
+
+                /*
                 return new PropertyOwnerVM()
                 {
                     Id = po.Id,
                     Email = po.Email,
-                    Name = po.Name
+                    Name = po.Name,
+                    AllowDelete = true
                 };
+                */
             }).ToList();
 
             return View(model);
@@ -623,17 +730,29 @@ namespace CFTenantPortal.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         public IActionResult PropertyOwner(string? id)
-        {
+        {            
             if (String.IsNullOrEmpty(id))   // New property owner
             {
                 var model = new PropertyOwnerVM()
-                {                    
+                {
+                    AllowSave = true,
+                    //AllowDelete = false,
                     HeaderText = "New Property Owner",
                     Name = "New",                    
                     Address = new AddressVM(),
-                    Documents = new List<DocumentBasicVM>(),
-                    Properties = new List<PropertyBasicVM>(),
-                    Messages = new List<MessageBasicVM>()
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = new List<DocumentBasicVM>()  
+                    },
+                    PropertyList = new PropertyListVM()
+                    {
+                        AllowCreate = false,
+                        Properties = new List<PropertyBasicVM>()
+                    },
+                    MessageList = new MessageListVM()
+                    {
+                        Messages = new List<MessageBasicVM>()
+                    }
                 };
 
                 return View(model);
@@ -642,6 +761,7 @@ namespace CFTenantPortal.Controllers
             {
                 var propertyOwner = _propertyOwnerService.GetByIdAsync(id).Result;
                 var messageTypes = _messageTypeService.GetAll();
+                var properties = _propertyService.GetAll();
 
                 var propertyGroups = _propertyGroupService.GetAll();
 
@@ -651,11 +771,14 @@ namespace CFTenantPortal.Controllers
                 .Select(document => new DocumentBasicVM()
                 {
                     Id = document.Id,
-                    Name = document.Name
+                    Name = document.Name,
+                    AllowDelete = true
                 }).ToList();
 
                 var model = new PropertyOwnerVM()
                 {
+                    AllowSave = true,
+                    //AllowDelete = false,
                     HeaderText = "Property Owner",
                     Id = propertyOwner.Id,
                     Email = propertyOwner.Email,
@@ -669,11 +792,22 @@ namespace CFTenantPortal.Controllers
                         County = propertyOwner.Address.County,
                         Postcode = propertyOwner.Address.Postcode
                     },
-                    Documents = documents
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = documents
+                    },
+                    PropertyList = new PropertyListVM()
+                    {
+                        AllowCreate = true
+                    },
+                    MessageList = new MessageListVM()
+                    {
+                        
+                    }
                 };
 
                 // Load properties
-                model.Properties = _propertyService.GetByPropertyOwner(propertyOwner.Id).Result.Select(p =>
+                model.PropertyList.Properties = _propertyService.GetByPropertyOwner(propertyOwner.Id).Result.Select(p =>
                 {
                     var propertyGroup = propertyGroups.First(pg => pg.Id == p.GroupId);
 
@@ -684,21 +818,28 @@ namespace CFTenantPortal.Controllers
                         PropertyGroupName = propertyGroup.Name,
                         PropertyGroupId = propertyGroup.Id,
                         PropertyOwnerName = propertyOwner.Name,
-                        PropertyOwnerId = propertyOwner.Id
+                        PropertyOwnerId = propertyOwner.Id,
+                        AllowDelete = true                        
                     };
                 }).ToList();
 
                 // Load messages
-                model.Messages = _messageService.GetByPropertyOwner(propertyOwner.Id).Result.Select(m =>
+                model.MessageList.Messages = _messageService.GetByPropertyOwner(propertyOwner.Id).Result.Select(m =>
                 {
                     var messageType = messageTypes.First(mt => mt.Id == m.MessageTypeId);
+                    var messageIssue = String.IsNullOrEmpty(m.IssueId) ? null : _issueService.GetByIdAsync(m.IssueId).Result;
+                    var messageProperty = String.IsNullOrEmpty(m.PropertyId) ? null : properties.First(p => p.Id == m.PropertyId);
 
                     return new MessageBasicVM()
                     {
                         Id = m.Id,
+                        IssueReference = (messageIssue == null ? "" : messageIssue.Reference),
+                        PropertyId = m.PropertyId,
+                        PropertyName = (messageProperty == null ? "" : messageProperty.Address.ToSummary()),
                         PropertyOwnerName = propertyOwner.Name,
                         PropertyOwnerId = propertyOwner.Id,
-                        TypeDescription = messageType.Description                        
+                        TypeDescription = messageType.Description,
+                        AllowDelete = true
                     };
                 }).ToList();
 
@@ -708,16 +849,28 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllPropertyGroupList()
         {
-            var model = new PropertyGroupListVM() { HeaderText = "Property Groups " };   // Default header
+            var model = new PropertyGroupListVM() 
+            { 
+                AllowCreate = true,
+                HeaderText = "Property Groups" 
+            };   // Default header
 
             model.PropertyGroups = _propertyGroupService.GetAll().Select(p =>
             {
-                return new PropertyGroupVM()
+                return new PropertyGroupBasicVM()
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    Description = p.Description
+                    Description = p.Description, 
+                    AllowDelete = true
                 };
+
+                //return new PropertyGroupVM()
+                //{
+                //    Id = p.Id,
+                //    Name = p.Name,
+                //    Description = p.Description
+                //};
             }).ToList();
 
             return View(model);
@@ -734,12 +887,25 @@ namespace CFTenantPortal.Controllers
             {
                 var model = new PropertyGroupVM()
                 {
+                    AllowSave = true,
+                    //AllowDelete = false,
                     HeaderText = "New Property Group",
                     Name = "New",
                     Description = "New",
-                    Documents = new List<DocumentBasicVM>(),
-                    Issues = new List<IssueBasicVM>(),
-                    Properties = new List<PropertyBasicVM>()
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = new List<DocumentBasicVM>()
+                    },
+                    IssueList = new IssueListVM()
+                    {
+                        AllowCreate = false,
+                        Issues = new List<IssueBasicVM>()
+                    },
+                    PropertyList = new PropertyListVM()
+                    {
+                        AllowCreate = false,
+                        Properties = new List<PropertyBasicVM>()
+                    }
                 };
 
                 return View(model);
@@ -758,20 +924,34 @@ namespace CFTenantPortal.Controllers
                       .Select(document => new DocumentBasicVM()
                       {
                           Id = document.Id,
-                          Name = document.Name
+                          Name = document.Name,
+                          AllowDelete = true
                       }).ToList();
 
                 var model = new PropertyGroupVM()
                 {
+                    AllowSave = true,
+                    //AllowDelete = false,
                     HeaderText = "Property Group",
                     Id = propertyGroup.Id,
                     Name = propertyGroup.Name,
                     Description = propertyGroup.Description,
-                    Documents = documents
+                    DocumentList = new DocumentListVM()
+                    {
+                        Documents = documents
+                    },
+                    IssueList = new IssueListVM()
+                    {
+                        AllowCreate = true
+                    },
+                    PropertyList = new PropertyListVM()
+                    {
+                        AllowCreate = true
+                    }
                 };
 
                 // Load properties               
-                model.Properties = _propertyService.GetByPropertyGroup(propertyGroup.Id).Result.Select(p =>
+                model.PropertyList.Properties = _propertyService.GetByPropertyGroup(propertyGroup.Id).Result.Select(p =>
                 {
                     var propertyOwner = propertyOwners.First(po => po.Id == p.OwnerId);
                     return new PropertyBasicVM()
@@ -781,12 +961,13 @@ namespace CFTenantPortal.Controllers
                         PropertyGroupName = propertyGroup.Name,
                         PropertyGroupId = propertyGroup.Id,
                         PropertyOwnerName = propertyOwner.Name,
-                        PropertyOwnerId = propertyOwner.Id
+                        PropertyOwnerId = propertyOwner.Id,
+                        AllowDelete = true
                     };
                 }).ToList();
 
                 // Load issues
-                model.Issues = _issueService.GetByPropertyGroup(propertyGroup.Id).Result.Select(i =>
+                model.IssueList.Issues = _issueService.GetByPropertyGroup(propertyGroup.Id).Result.Select(i =>
                 {
                     var issueStatus = issueStatuses.First(s => s.Id == i.StatusId);
                     var issueType = issueTypes.First(it => it.Id == i.TypeId);
@@ -799,7 +980,8 @@ namespace CFTenantPortal.Controllers
                         TypeDescription = issueType.Description,
                         PropertyOrBuilderDescription = propertyGroup.Name,
                         StatusDescription = issueStatus.Description,
-                        PropertyGroupId = propertyGroup.Id
+                        PropertyGroupId = propertyGroup.Id,
+                        AllowDelete = true
                     };
                 }).ToList();                
 
@@ -825,7 +1007,11 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllEmployeeList()
         {
-            var model = new EmployeeListVM();
+            var model = new EmployeeListVM()
+            {
+                AllowCreate = true,
+                HeaderText = "Employees"
+            };
 
             model.Employees = _employeeService.GetAll().Select(e =>
             {
@@ -834,7 +1020,8 @@ namespace CFTenantPortal.Controllers
                     Id = e.Id,
                     Name = e.Name,
                     Email = e.Email,
-                    Active = e.Active
+                    Active = e.Active,
+                    AllowDelete = true
                 };
             }).ToList();
 
@@ -843,7 +1030,11 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllIssueList(string? issueTypeId)  //, string? propertyId)
         {
-            var model = new IssueListVM() { HeaderText = "Issue List" };   // Default header
+            var model = new IssueListVM() 
+            {
+                AllowCreate = true,
+                HeaderText = "Issue List"   // Default header
+            };   
 
             // Get properties (All properties/Specific group)
             var issueStatuses = _issueStatusService.GetAll();
@@ -891,7 +1082,8 @@ namespace CFTenantPortal.Controllers
                     PropertyOrBuilderDescription = (property == null ? propertyGroup.Name : property.Address.ToSummary()),
                     StatusDescription = issueStatus.Description,
                     PropertyId = property != null ? property.Id : String.Empty,
-                    PropertyGroupId = propertyGroup != null ? propertyGroup.Id : String.Empty
+                    PropertyGroupId = propertyGroup != null ? propertyGroup.Id : String.Empty,
+                    AllowDelete = true
                 };
             }).ToList();
 
@@ -940,6 +1132,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditMessageForm(MessageVM message)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(message);
+            }
+
             // Get message from DB if updating
             var messageDB = String.IsNullOrEmpty(message.Id) ? null : _messageService.GetByIdAsync(message.Id);
             if (!String.IsNullOrEmpty(message.Id) && messageDB == null)
@@ -968,6 +1165,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditIssueForm(IssueVM issue)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(issue);
+            }
+
             // Get issue from DB if updating
             var issueDB = String.IsNullOrEmpty(issue.Id) ? null : _issueService.GetByIdAsync(issue.Id).Result;
             if (!String.IsNullOrEmpty(issue.Id) && issueDB == null)
@@ -996,6 +1198,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyForm(PropertyVM property)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(property);
+            }
+
             // Get property from DB if updating
             var properyDB = String.IsNullOrEmpty(property.Id) ? null : _propertyService.GetByIdAsync(property.Id).Result;
             if (!String.IsNullOrEmpty(property.Id) && properyDB == null)
@@ -1024,6 +1231,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyGroupForm(PropertyGroupVM propertyGroup)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(propertyGroup);
+            }
+
             // Get property group from DB if updating
             var propertyGroupDB = String.IsNullOrEmpty(propertyGroup.Id) ? null : _propertyGroupService.GetByIdAsync(propertyGroup.Id).Result;
             if (!String.IsNullOrEmpty(propertyGroup.Id) && propertyGroupDB == null)
@@ -1052,6 +1264,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditPropertyOwnerForm(PropertyOwnerVM propertyOwner)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(propertyOwner);
+            }
+
             // Get property owner from DB if updating
             var propertyOwnerDB = String.IsNullOrEmpty(propertyOwner.Id) ? null : _propertyOwnerService.GetByIdAsync(propertyOwner.Id).Result;
             if (!String.IsNullOrEmpty(propertyOwner.Id) && propertyOwnerDB == null)
@@ -1062,7 +1279,7 @@ namespace CFTenantPortal.Controllers
             // Map VM to employee
             var propertyOwnerUpdated = _mapper.Map<PropertyOwner>(propertyOwner);
             //_propertyOwnerService.UpdateAsync(propertyOwnerUpdated).Wait();
-
+            
             // Add audit event           
             var auditEventType = String.IsNullOrEmpty(propertyOwner.Id) ? 
                         AuditEventTypes.PropertyOwnerAdded : AuditEventTypes.PropertyOwnerUpdated;
@@ -1080,6 +1297,11 @@ namespace CFTenantPortal.Controllers
         /// <exception cref="ArgumentException"></exception>
         public IActionResult CreateEditEmployeeForm(EmployeeVM employee)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(employee);
+            }
+
             // Get employee from DB if updating
             var employeeDB = String.IsNullOrEmpty(employee.Id) ? null : _employeeService.GetByIdAsync(employee.Id).Result;
             if (!String.IsNullOrEmpty(employee.Id) && employeeDB == null)

@@ -9,11 +9,13 @@
 <!--Tab list-->
 <div class="pagetab">
     <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="messagestablink" class="pagetablinks" onclick="openPageTab('messagestablink', 'messagestab')">Messages</button>
     <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
 </div>
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditIssueForm">
+        @Html.ValidationSummary("Please correct the errors")
         @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.Reference)
         <input class="form-control" type="text" asp-for="@Model.Reference" />
@@ -51,12 +53,19 @@
         @Html.LabelFor(m => m.Description)
         <input class="form-control" type="text" asp-for="@Model.Description" />
 
-        <button class="btn btn-primary" type="submit">Save</button>
+        @if (Model.AllowSave)
+        {
+            <button class="btn btn-primary" type="submit">Save</button>
+        }
     </form>
+</div>
+
+<div id="messagestab" class="pagetabcontent">
+    @(await Component.InvokeAsync("MessageListComp", new { messageList = Model.MessageList }))
 </div>
     
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))  
+    @(await Component.InvokeAsync("DocumentListComp", new { documentList = Model.DocumentList }))  
 </div>
 
 @section Scripts

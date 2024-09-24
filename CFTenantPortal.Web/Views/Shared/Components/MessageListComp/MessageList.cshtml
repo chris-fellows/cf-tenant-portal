@@ -12,6 +12,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.Messages[0].PropertyOwnerName)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Messages[0].PropertyName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Messages[0].IssueReference)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -26,11 +32,34 @@
                     @Html.DisplayFor(modelItem => item.TypeDescription)
                 </td>
                 <td>
-                    @Html.ActionLink(item.PropertyOwnerName, "PropertyOwner", new { id = item.PropertyOwnerId })
+                    @if (String.IsNullOrEmpty(item.PropertyOwnerId))
+                    {
+                        @Html.DisplayFor(modelItem => item.PropertyOwnerName)
+                    }
+                    else
+                    {
+                        @Html.ActionLink(item.PropertyOwnerName, "PropertyOwner", new { id = item.PropertyOwnerId })
+                    }
+                </td>
+                <td>
+                    @if (String.IsNullOrEmpty(item.PropertyId))
+                    {
+                        @Html.DisplayFor(modelItem => item.PropertyName)
+                    }
+                    else
+                    {
+                        @Html.ActionLink(item.PropertyName, "Property", new { id = item.PropertyId })
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IssueReference)
                 </td>
                 <td>
                     @Html.ActionLink("Details", "Message", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @if (item.AllowDelete)
+                    {
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    }
                 </td>
             </tr>
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace CFTenantPortal.Models
 {
@@ -21,14 +22,24 @@ namespace CFTenantPortal.Models
         public string PropertyOwnerId { get; set; } = String.Empty;
 
         [Display(Name = "Documents")]
-        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
+        //public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();        
+        public DocumentListVM DocumentList { get; set; }
 
-        public List<IssueBasicVM> Issues { get; set; }
+        public MessageListVM MessageList { get; set; }
 
+        [ValidateNever]
+        //public List<IssueBasicVM> Issues { get; set; }
+        public IssueListVM IssueList { get; set; }
+
+        [ValidateNever]
         public List<AccountTransactionBasicVM> AccountTransactions { get; set; }
 
+        [ValidateNever]
         public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
+
+        public bool AllowSave { get; set; }
     }
 }

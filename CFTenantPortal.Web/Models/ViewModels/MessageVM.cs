@@ -1,4 +1,6 @@
-﻿namespace CFTenantPortal.Models
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace CFTenantPortal.Models
 {
     /// <summary>
     /// Message view model
@@ -23,12 +25,16 @@
 
         public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
 
+        [ValidateNever]
         public List<EntityReference> MessageTypeList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> IssueList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
     }
 }

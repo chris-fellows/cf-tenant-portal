@@ -8,20 +8,27 @@
 
 <!--Tab list-->
 <div class="pagetab">
-    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
-    <button id="propertiestablink" class="pagetablinks" onclick="openPageTab('propertiestablink', 'propertiestab')">Properties</button>
-    <button id="messagestablink" class="pagetablinks" onclick="openPageTab('messagestablink', 'messagestab')">Messages</button>
-    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>    
+    @if (!String.IsNullOrEmpty(Model.Id))   // Only for edit
+    {
+        <button id="propertiestablink" class="pagetablinks" onclick="openPageTab('propertiestablink', 'propertiestab')">Properties</button>
+        <button id="messagestablink" class="pagetablinks" onclick="openPageTab('messagestablink', 'messagestab')">Messages</button>
+        <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    }
 </div>
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditPropertyOwnerForm">
+        @Html.ValidationSummary("Please correct the errors")
         @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.Name)
-        <input class="form-control" type="text" asp-for="@Model.Name" />
+        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+        <input class="form-control" type="text" asp-for="@Model.Name" />        
         @Html.LabelFor(m => m.Email)
-        <input class="form-control" type="text" asp-for="@Model.Email" />
+        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+        <input class="form-control" type="text" asp-for="@Model.Email" />        
         @Html.LabelFor(m => m.Phone)
+        @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
         <input class="form-control" type="text" asp-for="@Model.Phone" />
 
         <h5>Address (Correspondence)</h5>
@@ -36,20 +43,23 @@
         @Html.LabelFor(m => m.Address.Postcode)
         <input class="form-control" type="text" asp-for="@Model.Address.Postcode" />
 
-        <button class="btn btn-primary" type="submit">Save</button>
+        @if (Model.AllowSave)
+        {
+            <button class="btn btn-primary" type="submit">Save</button>
+        }
     </form>
 </div>
 
 <div id="propertiestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("PropertyListComp", new { properties = Model.Properties }))
+    @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model.PropertyList }))
 </div>
 
 <div id="messagestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("MessageListComp", new { messages = Model.Messages }))
+    @(await Component.InvokeAsync("MessageListComp", new { messageList = Model.MessageList }))
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))
+    @(await Component.InvokeAsync("DocumentListComp", new { documentList = Model.DocumentList }))
 </div>
 
 @section Scripts
@@ -57,7 +67,7 @@
     <script>
         $(window).on('load', function () {
             $("#maintablink").click();    // Default to first tab
-        });
+        });       
     </script>
 }
 

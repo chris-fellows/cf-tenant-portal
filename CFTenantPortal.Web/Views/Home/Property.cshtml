@@ -9,13 +9,18 @@
 <!--Tab list-->
 <div class="pagetab">
     <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
-    <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
-    <button id="accountingtablink" class="pagetablinks" onclick="openPageTab('accountingtablink', 'accountingtab')">Accounting</button>
-    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    @if (!String.IsNullOrEmpty(Model.Id))   // Only for edit
+    {
+        <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
+        <button id="accountingtablink" class="pagetablinks" onclick="openPageTab('accountingtablink', 'accountingtab')">Accounting</button>
+        <button id="messagestablink" class="pagetablinks" onclick="openPageTab('messagestablink', 'messagestab')">Messages</button>
+        <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    }
 </div>
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditPropertyForm">
+        @Html.ValidationSummary("Please correct the errors")
         @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.PropertyGroupId)
         @Html.DropDownListFor(m => m.PropertyGroupId,
@@ -39,20 +44,27 @@
         @Html.LabelFor(m => m.Address.Postcode)
         <input class="form-control" type="text" asp-for="@Model.Address.Postcode" />    
 
-        <button class="btn btn-primary" type="submit">Save</button> 
+        @if (Model.AllowSave)
+        {
+            <button class="btn btn-primary" type="submit">Save</button>
+        }
     </form>
 </div>
 
 <div id="issuestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("IssueListComp", new { issues = Model.Issues }))    
+    @(await Component.InvokeAsync("IssueListComp", new { issueList = Model.IssueList }))    
 </div>
 
 <div id="accountingtab" class="pagetabcontent">
     @(await Component.InvokeAsync("AccountTransactionListComp", new { accountTransactions = Model.AccountTransactions }))    
 </div>
 
+<div id="messagestab" class="pagetabcontent">
+    @(await Component.InvokeAsync("MessageListComp", new { messageList = Model.MessageList }))
+</div>
+
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))    
+    @(await Component.InvokeAsync("DocumentListComp", new { documentList = Model.DocumentList }))    
 </div>
 
 @section Scripts

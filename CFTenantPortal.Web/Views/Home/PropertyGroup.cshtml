@@ -9,33 +9,40 @@
 <!--Tab list-->
 <div class="pagetab">
     <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
-    <button id="propertiestabtablink" class="pagetablinks" onclick="openPageTab('propertiestabtablink', 'propertiestab')">Properties</button>
-    <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
-    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    @if (!String.IsNullOrEmpty(Model.Id))   // Only for edit
+    {
+        <button id="propertiestabtablink" class="pagetablinks" onclick="openPageTab('propertiestabtablink', 'propertiestab')">Properties</button>
+        <button id="issuestablink" class="pagetablinks" onclick="openPageTab('issuestablink', 'issuestab')">Issues</button>
+        <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
+    }
 </div>
 
 <div id="maintab" class="pagetabcontent">
     <form asp-action="CreateEditPropertyGroupForm">
+        @Html.ValidationSummary("Please correct the errors")
         @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.Name)
         <input class="form-control" type="text" asp-for="@Model.Name" />
         @Html.LabelFor(m => m.Description)
         <input class="form-control" type="text" asp-for="@Model.Description" />    
 
-        <button class="btn btn-primary" type="submit">Save</button>
+        @if (Model.AllowSave)
+        {
+            <button class="btn btn-primary" type="submit">Save</button>
+        }
     </form>
 </div>
 
 <div id="propertiestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("PropertyListComp", new { properties = Model.Properties }))
+    @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model.PropertyList }))
 </div>
 
 <div id="issuestab" class="pagetabcontent">
-    @(await Component.InvokeAsync("IssueListComp", new { issues = Model.Issues }))
+    @(await Component.InvokeAsync("IssueListComp", new { issueList = Model.IssueList }))
 </div>
 
 <div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))  
+    @(await Component.InvokeAsync("DocumentListComp", new { documentList = Model.DocumentList }))  
 </div>
 
 @section Scripts

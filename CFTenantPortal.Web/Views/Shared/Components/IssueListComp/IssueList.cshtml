@@ -1,8 +1,11 @@
 ﻿@model CFTenantPortal.Models.IssueListVM
 
-<p>
-    <a asp-action="Issue">Create New</a>
-</p>
+@if (Model.AllowCreate)
+{
+    <p>
+        <a asp-action="Issue">Create New</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -58,7 +61,10 @@
                 </td>
                 <td>
                     @Html.ActionLink("Details", "Issue", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @if (item.AllowDelete)
+                    {
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    }
                 </td>
             </tr>
         }

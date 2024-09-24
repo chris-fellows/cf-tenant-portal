@@ -1,8 +1,11 @@
 ﻿@model CFTenantPortal.Models.PropertyListVM
 
-<p>
-    <a asp-action="Property">Create New</a>
-</p>
+@if (Model.AllowCreate)
+{
+    <p>
+        <a asp-action="Property">Create New</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -37,9 +40,12 @@
                 <td>
                     @Html.ActionLink(item.PropertyGroupName, "PropertyGroup", new { id = item.PropertyGroupId })
                 </td>
-                <td>
+                <td>                    
                     @Html.ActionLink("Details", "Property", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @if (item.AllowDelete)
+                    {
+                        @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    }
                 </td>
             </tr>
         }

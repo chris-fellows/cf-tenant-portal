@@ -26,21 +26,21 @@ namespace CFTenantPortal.Web
                  .ForMember(p => p.DocumentIds,
                     opt => opt.MapFrom((src, _, _, context) =>
                     {
-                        return src.Documents.Select(d => d.Id).ToList();
+                        return src.DocumentList.Documents.Select(d => d.Id).ToList();
                     }));
 
             CreateMap<PropertyGroupVM, PropertyGroup>()
                  .ForMember(pg => pg.DocumentIds,
                     opt => opt.MapFrom((src, _, _, context) =>
                     {
-                        return src.Documents.Select(d => d.Id).ToList();
+                        return src.DocumentList.Documents.Select(d => d.Id).ToList();
                     }));
 
             CreateMap<PropertyOwnerVM, PropertyOwner>()
                 .ForMember(po => po.DocumentIds,
                     opt => opt.MapFrom((src, _, _, context) =>
                     {
-                        return src.Documents.Select(d => d.Id).ToList();
+                        return src.DocumentList.Documents.Select(d => d.Id).ToList();
                     }));
         }
     }

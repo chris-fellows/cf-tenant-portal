@@ -15,8 +15,15 @@ namespace CFTenantPortal.Models
         [Display(Name = "Owner")]
         public string PropertyOwnerName { get; set; } = String.Empty;
 
-        public string PropertyOwnerId { get; set; } = String.Empty;
+        public string PropertyOwnerId { get; set; } = String.Empty;             
+
+        [Display(Name = "Property")]
+        public string PropertyName { get; set; } = String.Empty;
+
+        public string PropertyId { get; set; } = String.Empty;
 
         public string IssueReference { get; set; } = String.Empty;
+
+        public bool AllowDelete { get; set; }
     }
 }

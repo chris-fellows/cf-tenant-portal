@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace CFTenantPortal.Models
 {
@@ -11,9 +12,11 @@ namespace CFTenantPortal.Models
 
         public string HeaderText { get; set; } = String.Empty;
 
+        [Required]
         [Display(Name = "Reference")]
         public string Reference { get; set; } = String.Empty;
 
+        [Required]
         [Display(Name = "Description")]
         public string Description { get; set; } = String.Empty;
 
@@ -35,19 +38,29 @@ namespace CFTenantPortal.Models
 
         [Display(Name = "Created by Owner")]
         public string CreatedPropertyOwnerId { get; set; } = String.Empty;
-        
-        public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
 
+        public DocumentListVM DocumentList { get; set; } = new DocumentListVM();
+
+        public MessageListVM MessageList { get; set; } = new MessageListVM();
+
+        [ValidateNever]
         public List<EntityReference> IssueTypeList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> IssueStatusList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> EmployeeList { get; set; } = new List<EntityReference>();
 
+        [ValidateNever]
         public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
+
+        public bool AllowSave { get; set; }
     }
 }

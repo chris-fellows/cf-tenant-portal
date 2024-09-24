@@ -10,13 +10,18 @@ namespace CFTenantPortal.Views.Components
             int xxx = 1000;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(List<EmployeeBasicVM> employees)
-        {
-            var model = new EmployeeListVM()
-            {
-                Employees = employees
-            };
-            return await Task.FromResult((IViewComponentResult)View("EmployeeList", model));
+        public async Task<IViewComponentResult> InvokeAsync(EmployeeListVM employeeList)
+        {            
+            return await Task.FromResult((IViewComponentResult)View("EmployeeList", employeeList));
         }
+
+        //public async Task<IViewComponentResult> InvokeAsync(List<EmployeeBasicVM> employees)
+        //{
+        //    var model = new EmployeeListVM()
+        //    {
+        //        Employees = employees
+        //    };
+        //    return await Task.FromResult((IViewComponentResult)View("EmployeeList", model));
+        //}
     }
 }

@@ -8,5 +8,7 @@
         public string HeaderText { get; set; } = String.Empty;
 
         public List<PropertyBasicVM> Properties { get; set; } = new List<PropertyBasicVM>();
+
+        public bool AllowCreate { get; set; }
     }
 }

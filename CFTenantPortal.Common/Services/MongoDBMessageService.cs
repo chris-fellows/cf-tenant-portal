@@ -52,6 +52,16 @@ namespace CFTenantPortal.Services
             return Task.FromResult(GetAll().Where(m => m.PropertyOwnerId == propertyOwnerId).ToList());
         }
 
+        public Task<List<Message>> GetByIssue(string issueId)
+        {
+            return Task.FromResult(GetAll().Where(m => m.IssueId == issueId).ToList());
+        }
+
+        public Task<List<Message>> GetByProperty(string propertyId)
+        {
+            return Task.FromResult(GetAll().Where(m => m.PropertyId == propertyId).ToList());
+        }
+
         //public Task Update(Message message)
         //{
         //    return Task.CompletedTask;

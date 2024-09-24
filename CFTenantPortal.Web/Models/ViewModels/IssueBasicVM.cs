@@ -28,5 +28,7 @@ namespace CFTenantPortal.Models
         public string PropertyId { get; set; } = String.Empty;
 
         public string PropertyGroupId { get; set; } = String.Empty;
+
+        public bool AllowDelete { get; set; }
     }
 }
