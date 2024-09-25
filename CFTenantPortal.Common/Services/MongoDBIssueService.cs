@@ -1,5 +1,6 @@
 ﻿using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
+using CFUtilities.Utilities;
 using MongoDB.Driver;
 
 namespace CFTenantPortal.Services
@@ -63,6 +64,58 @@ namespace CFTenantPortal.Services
         {
             var issues = GetAll().Where(i => i.TypeId == issueTypeId).ToList();
             return Task.FromResult(issues);
+        }
+
+        public async Task<List<Issue>> GetByFilterAsync(IssueFilter issueFilter)
+        {
+            // Get filter definition
+            var filterDefinition = GetFilterDefinition(issueFilter);
+
+            // Get filtered events page
+            var auditEvents = await _entities.Find(filterDefinition)
+                            .SortBy(x => x.CreatedDateTime)
+                            .Skip(NumericUtilities.GetPageSkip(issueFilter.PageItems, issueFilter.PageNo))
+                            .Limit(issueFilter.PageItems)
+                            .ToListAsync();
+
+            //var events = await _eventInstances.FindAsync(filter);
+
+            return auditEvents;
+        }
+
+        /// <summary>
+        /// Returns MongoDB filter definition for AuditEventFilter       
+        /// </summary>
+        /// <param name="auditEventFilter"></param>
+        /// <returns></returns>
+        private static FilterDefinition<Issue> GetFilterDefinition(IssueFilter issueFilter)
+        {
+            // Set date range filter
+            //var filterDefinition = Builders<AuditEvent>.Filter.Gte(x => x.CreatedDateTime, auditEventFilter.StartCreatedDateTime.UtcDateTime);
+            //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
+            var filterDefinition = Builders<Issue>.Filter.Empty;
+
+            // Filter issue references
+            if (issueFilter.References != null && issueFilter.References.Any())
+            {
+                filterDefinition = filterDefinition & Builders<Issue>.Filter.In(x => x.Reference, issueFilter.References.ToArray());
+            }
+
+            // Filter issue statuses
+            if (issueFilter.IssueStatusIds != null && issueFilter.IssueStatusIds.Any())
+            {
+                filterDefinition = filterDefinition & Builders<Issue>.Filter.In(x => x.StatusId, issueFilter.IssueStatusIds.ToArray());
+            }
+
+            // Filter issue types
+            if (issueFilter.IssueTypeIds != null && issueFilter.IssueTypeIds.Any())
+            {
+                filterDefinition = filterDefinition & Builders<Issue>.Filter.In(x => x.TypeId, issueFilter.IssueTypeIds.ToArray());
+            }
+
+            //var sort = Builders<EventInstance>.Sort.Ascending(x => x.CreatedDateTime);
+
+            return filterDefinition;
         }
 
         //public Task Update(Issue issue)

@@ -1,5 +1,6 @@
 ﻿using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
+using CFUtilities.Utilities;
 using MongoDB.Driver;
 using System.Net;
 
@@ -58,6 +59,52 @@ namespace CFTenantPortal.Services
         {
             var items = GetAll().Where(pg => pg.OwnerId == propertyOwnerId).ToList();
             return items;
+        }
+
+        public async Task<List<Property>> GetByFilterAsync(PropertyFilter propertyFilter)
+        {
+            // Get filter definition
+            var filterDefinition = GetFilterDefinition(propertyFilter);
+
+            // Get filtered events page
+            var auditEvents = await _entities.Find(filterDefinition)
+                            //.SortBy(x => x.CreatedDateTime)
+                            .Skip(NumericUtilities.GetPageSkip(propertyFilter.PageItems, propertyFilter.PageNo))
+                            .Limit(propertyFilter.PageItems)
+                            .ToListAsync();
+
+            //var events = await _eventInstances.FindAsync(filter);
+
+            return auditEvents;
+        }
+
+        /// <summary>
+        /// Returns MongoDB filter definition for AuditEventFilter       
+        /// </summary>
+        /// <param name="auditEventFilter"></param>
+        /// <returns></returns>
+        private static FilterDefinition<Property> GetFilterDefinition(PropertyFilter propertyFilter)
+        {
+            // Set date range filter
+            //var filterDefinition = Builders<AuditEvent>.Filter.Gte(x => x.CreatedDateTime, auditEventFilter.StartCreatedDateTime.UtcDateTime);
+            //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
+            var filterDefinition = Builders<Property>.Filter.Empty;
+
+            // Filter property groups
+            if (propertyFilter.PropertyGroupIds != null && propertyFilter.PropertyGroupIds.Any())
+            {
+                filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.GroupId, propertyFilter.PropertyGroupIds.ToArray());
+            }
+
+            // Filter property owners
+            if (propertyFilter.PropertyOwnerIds != null && propertyFilter.PropertyOwnerIds.Any())
+            {
+                filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.OwnerId, propertyFilter.PropertyOwnerIds.ToArray());
+            }
+
+            //var sort = Builders<EventInstance>.Sort.Ascending(x => x.CreatedDateTime);
+
+            return filterDefinition;
         }
 
         //public Task Update(Property property)

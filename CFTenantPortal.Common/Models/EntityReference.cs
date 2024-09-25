@@ -16,7 +16,7 @@
         public string Name { get; set; } = String.Empty;
 
         /// <summary>
-        /// Returns reference for None. This is used for optional properties.
+        /// Returns reference for None. This is used for optional properties
         /// </summary>
         public static EntityReference None
         {

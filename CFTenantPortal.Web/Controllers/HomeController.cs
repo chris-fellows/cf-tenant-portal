@@ -100,7 +100,7 @@ namespace CFTenantPortal.Controllers
             var propertyGroups = _propertyGroupService.GetAll();
             var propertyOwners = _propertyOwnerService.GetAll();
 
-            var entityReferenceNone = EntityReference.None;
+            //var entityRefNone = EntityReference.None;
             
             if (String.IsNullOrEmpty(id))   // Create issue
             {                              
@@ -117,10 +117,10 @@ namespace CFTenantPortal.Controllers
                     Reference = Guid.NewGuid().ToString(),
                     Description = "New",
                     TypeId = issueType.Id,
-                    PropertyId = entityReferenceNone.Id,
-                    PropertyGroupId = entityReferenceNone.Id,
-                    CreatedEmployeeId = entityReferenceNone.Id,
-                    CreatedPropertyOwnerId = entityReferenceNone.Id,     
+                    PropertyId = EntityReference.None.Id,
+                    PropertyGroupId = EntityReference.None.Id,
+                    CreatedEmployeeId = EntityReference.None.Id,
+                    CreatedPropertyOwnerId = EntityReference.None.Id,     
                     DocumentList = new DocumentListVM()
                     {
                         Documents = new List<DocumentBasicVM>()
@@ -839,42 +839,56 @@ namespace CFTenantPortal.Controllers
         //    return parameters;
         //}
 
-        public IActionResult AllPropertyList()  //string? propertyGroupId, string? propertyOwnerId)
+        /// <summary>
+        /// Action to display list of properties. All or filtered list    
+        /// </summary>
+        /// <param name="filterVM"></param>
+        /// <returns></returns>
+        public IActionResult AllPropertyList(PropertyFilterVM filterVM = null)
         {
+            var propertyGroups = _propertyGroupService.GetAll().ToList();
+            var propertyOwners = _propertyOwnerService.GetAll().ToList();
+            
             var model = new PropertyListVM() 
             { 
                 AllowCreate = true,
-                HeaderText = "Property List" 
-            };   // Default header
+                HeaderText = "Properties",
+                Filter = new PropertyFilterVM()
+                {                   
+                    PropertyGroupId = String.IsNullOrEmpty(filterVM.PropertyGroupId) ? EntityReference.None.Id : filterVM.PropertyGroupId,
+                    PropertyGroupList = propertyGroups.Select(pg => new EntityReference()
+                    {
+                        Id = pg.Id,
+                        Name = pg.Name
+                    }).ToList(),
+                    PropertyOwnerId = String.IsNullOrEmpty(filterVM.PropertyOwnerId) ? EntityReference.None.Id : filterVM.PropertyOwnerId,
+                    PropertyOwnerList = propertyOwners.Select(po => new EntityReference()
+                    {
+                        Id = po.Id,
+                        Name = po.Name
+                    }).ToList()
+                }
+            };
 
-            /*
-            // TODO: Make this more efficient
-            var propertyGroups = _propertyGroupService.GetAll().Result;
-            var propertyOwners = _propertyOwnerService.GetAll().Result;
+            // Add None to lists
+            model.Filter.PropertyGroupList.Insert(0, EntityReference.None);            
+            model.Filter.PropertyOwnerList.Insert(0, EntityReference.None);          
 
-            // Get properties (All properties/Specific group/Specific owner)
-            List<Property> properties = null;            
-            if (!String.IsNullOrEmpty(propertyGroupId))   // Properties by group
+            // Set property filter
+            var propertyFilter = new PropertyFilter()
             {
-                properties = _propertyService.GetByPropertyGroup(propertyGroupId).Result;
-                var propertyGroupMain = propertyGroups.First(pg => pg.Id == propertyGroupId);
-                model.HeaderText = $"Property List : {propertyGroupMain.Name}";
-            }
-            else if (!String.IsNullOrEmpty(propertyOwnerId))  // Properties by owner
-            {
-                properties = _propertyService.GetAll().Result.Where(p => p.OwnerId == propertyOwnerId).ToList();
-                var propertyOwnerMain = propertyOwners.First(po => po.Id == propertyOwnerId);
-                model.HeaderText = $"Property List : {propertyOwnerMain.Name}";
-            }
-            else    // All properties
-            {
-                properties = _propertyService.GetAll().Result;
-            } 
-            */
+                PropertyGroupIds = String.IsNullOrWhiteSpace(model.Filter.PropertyGroupId) || 
+                                    model.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ? 
+                            new() : new() { model.Filter.PropertyGroupId },
+                PropertyOwnerIds = String.IsNullOrWhiteSpace(model.Filter.PropertyOwnerId) || 
+                                    model.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                            new() : new() { model.Filter.PropertyOwnerId },
+                PageNo = 1,
+                PageItems = 10000000
+            };
 
-            var propertyGroups = _propertyGroupService.GetAll();
-            var propertyOwners = _propertyOwnerService.GetAll();
-            var properties = _propertyService.GetAll();
+            // Get properties           
+            var properties = _propertyService.GetByFilterAsync(propertyFilter).Result;
 
             model.Properties = properties.Select(p =>
             {
@@ -901,7 +915,7 @@ namespace CFTenantPortal.Controllers
             var model = new PropertyOwnerListVM() 
             { 
                 AllowCreate = true,
-                HeaderText = "Property Owner List" 
+                HeaderText = "Property Owners" 
             };
 
             model.PropertyOwners = _propertyOwnerService.GetAll().Select(po =>
@@ -1193,22 +1207,82 @@ namespace CFTenantPortal.Controllers
             }
         }
         
-        public IActionResult AllAuditEventList()
-        {
+        /// <summary>
+        /// Action to display list of audit events. All or filtered list    
+        /// </summary>
+        /// <param name="filterVM"></param>
+        /// <returns></returns>
+        public IActionResult AllAuditEventList(AuditEventFilterVM? filterVM = null)
+        {            
+            // Load data
+            var auditEventTypes = _auditEventTypeService.GetAll().ToList();
+            var properties = _propertyService.GetAll().ToList();
+            var propertyGroups = _propertyGroupService.GetAll().ToList();
+            var propertyOwners = _propertyOwnerService.GetAll().ToList();
+            var systemValueTypes = _systemValueTypeService.GetAll().ToList();            
+
+            // Set model
             var model = new AuditEventListVM()
             {
-                HeaderText = "Audit Events"
+                HeaderText = "Audit Events",
+                Filter = new AuditEventFilterVM()
+                {
+                    StartCreatedDateTime = filterVM.StartCreatedDateTime == DateTimeOffset.MinValue ?
+                                    DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(14)) :
+                                    filterVM.StartCreatedDateTime,
+                    EndCreatedDateTime = filterVM.EndCreatedDateTime == DateTimeOffset.MinValue ?
+                                    DateTimeOffset.UtcNow.AddDays(1) :
+                                    filterVM.EndCreatedDateTime,
+                    AuditEventTypeId = filterVM.AuditEventTypeId,
+                    AuditEventTypeList = auditEventTypes.Select(aet => new EntityReference()
+                    {
+                        Id = aet.Id,
+                        Name = aet.Description
+                    }).ToList(),
+                    PropertyId = String.IsNullOrEmpty(filterVM.PropertyId) ? EntityReference.None.Id : filterVM.PropertyId,
+                    PropertyList = properties.Select(p => new EntityReference()
+                    {
+                        Id = p.Id,
+                        Name = p.Address.ToSummary()
+                    }).ToList(),
+                    PropertyGroupId = String.IsNullOrEmpty(filterVM.PropertyGroupId) ? EntityReference.None.Id : filterVM.PropertyGroupId,
+                    PropertyGroupList = propertyGroups.Select(pg => new EntityReference()
+                    {
+                        Id = pg.Id,
+                        Name = pg.Name
+                    }).ToList(),
+                    PropertyOwnerId = String.IsNullOrEmpty(filterVM.PropertyOwnerId) ? EntityReference.None.Id : filterVM.PropertyOwnerId,
+                    PropertyOwnerList = propertyOwners.Select(po => new EntityReference()
+                    {
+                        Id= po.Id,
+                        Name = po.Name
+                    }).ToList()
+                }
             };
 
-            var auditEventTypes = _auditEventTypeService.GetAll().ToList();
-            var systemValueTypes = _systemValueTypeService.GetAll().ToList();
+            // Set None for list options
+            model.Filter.AuditEventTypeList.Insert(0, EntityReference.None);
+            model.Filter.PropertyGroupList.Insert(0, EntityReference.None);
+            model.Filter.PropertyList.Insert(0, EntityReference.None);
+            model.Filter.PropertyOwnerList.Insert(0, EntityReference.None);
 
-            // Set event filter
+            // Set event filter            
             var auditEventFilter = new AuditEventFilter()
             {
-                AuditEventTypeIds = null,
-                StartCreatedDateTime = DateTimeOffset.UtcNow.Subtract(TimeSpan.FromDays(365 * 2)),
-                EndCreatedDateTime = DateTimeOffset.UtcNow.AddDays(1),
+                AuditEventTypeIds = String.IsNullOrEmpty(model.Filter.AuditEventTypeId) ||
+                                        model.Filter.AuditEventTypeId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { model.Filter.AuditEventTypeId },
+                PropertyGroupIds = String.IsNullOrEmpty(model.Filter.PropertyGroupId) || 
+                                        model.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { model.Filter.PropertyGroupId },
+                PropertyIds = String.IsNullOrEmpty(model.Filter.PropertyId) ||
+                                        model.Filter.PropertyId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { model.Filter.PropertyId },
+                PropertyOwnerIds = String.IsNullOrEmpty(model.Filter.PropertyOwnerId) || 
+                                        model.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { model.Filter.PropertyOwnerId },
+                StartCreatedDateTime = model.Filter.StartCreatedDateTime,
+                EndCreatedDateTime = model.Filter.EndCreatedDateTime,                
                 PageNo = 1,
                 PageItems = 10000000
             };            
@@ -1279,24 +1353,59 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult AllIssueList(string? issueTypeId)  //, string? propertyId)
+        public IActionResult AllIssueList(IssueFilterVM filterVM = null)     // (string? issueTypeId)
         {
-            var model = new IssueListVM() 
-            {
-                AllowCreate = true,
-                HeaderText = "Issue List"   // Default header
-            };   
-
             // Get properties (All properties/Specific group)
             var issueStatuses = _issueStatusService.GetAll();
             var issueTypes = _issueTypeService.GetAll();
-
+            var properties = _propertyService.GetAll();
             var propertyGroups = _propertyGroupService.GetAll();
 
+            // Set model
+            var model = new IssueListVM() 
+            {
+                AllowCreate = true,
+                HeaderText = "Issues",   // Default header
+                Filter = new IssueFilterVM()
+                {
+                    Reference = filterVM.Reference,
+                    IssueStatusId = String.IsNullOrEmpty(filterVM.IssueStatusId) ? EntityReference.None.Id : filterVM.IssueStatusId,
+                    IssueStatusList = issueStatuses.Select(pg => new EntityReference()
+                    {
+                        Id = pg.Id,
+                        Name = pg.Description
+                    }).ToList(),
+                    IssueTypeId = String.IsNullOrEmpty(filterVM.IssueTypeId) ? EntityReference.None.Id : filterVM.IssueTypeId,
+                    IssueTypeList = issueTypes.Select(po => new EntityReference()
+                    {
+                        Id = po.Id,
+                        Name = po.Description
+                    }).ToList()
+                }
+            };
+
+            // Add None to lists
+            model.Filter.IssueStatusList.Insert(0, EntityReference.None);
+            model.Filter.IssueTypeList.Insert(0, EntityReference.None);
+
+            var issueFilter = new IssueFilter()
+            {
+                References = String.IsNullOrEmpty(model.Filter.Reference) ?
+                                new() : new() { model.Filter.Reference },
+                IssueStatusIds = String.IsNullOrWhiteSpace(model.Filter.IssueStatusId) ||
+                                    model.Filter.IssueStatusId.Equals(EntityReference.None.Id) ?
+                            new() : new() { model.Filter.IssueStatusId },
+                IssueTypeIds = String.IsNullOrWhiteSpace(model.Filter.IssueTypeId) ||
+                                    model.Filter.IssueTypeId.Equals(EntityReference.None.Id) ?
+                            new() : new() { model.Filter.IssueTypeId },
+                PageNo = 1,
+                PageItems = 10000000
+            };
+
+            /*
             // Get issues (All issues/Issue type issues/Property issues)
             List<Issue> issues = null;
-            if (!String.IsNullOrEmpty(issueTypeId)) issues = _issueService.GetByIssueType(issueTypeId).Result;
-            //if (!String.IsNullOrEmpty(propertyId)) issues = _issueService.GetByProperty(propertyId).Result;
+            if (!String.IsNullOrEmpty(issueTypeId)) issues = _issueService.GetByIssueType(issueTypeId).Result;            
             if (issues == null) issues = _issueService.GetAll().ToList();
 
             // Get issue type if set
@@ -1304,15 +1413,11 @@ namespace CFTenantPortal.Controllers
                         null :
                         issueTypes.First(it => it.Id == issueTypeId);
             if (issueTypeMain != null) model.HeaderText = $"Issue List : {issueTypeMain.Description}";
+            */
 
-            //// Get property if set
-            //var propertyMain = String.IsNullOrEmpty(propertyId) ?
-            //            null :
-            //            _propertyService.GetById(propertyId).Result;                        
-            //if (propertyMain != null) model.HeaderText = $"Issue List : {propertyMain.Address.ToSummary()}";
-           
-            var properties = _propertyService.GetAll();
-
+            // Get issues
+            var issues = _issueService.GetByFilterAsync(issueFilter).Result;
+                       
             // Get issue models
             model.Issues = issues.Select(i =>
             {
@@ -1571,6 +1676,66 @@ namespace CFTenantPortal.Controllers
 
             // Display updated employee details
             return RedirectToAction(nameof(HomeController.Employee), new { id = employee.Id });
+        }
+
+        /// <summary>
+        /// Processes form to filter audit events
+        /// </summary>
+        /// <param name="auditEventList"></param>
+        /// <returns></returns>
+        public IActionResult FilterAuditEventsForm(AuditEventListVM auditEventList)
+        {          
+            return RedirectToAction(nameof(HomeController.AllAuditEventList), auditEventList.Filter);            
+        }
+
+        /// <summary>
+        /// Processes form to reset filter for audit events
+        /// </summary>
+        /// <param name="auditEventList"></param>
+        /// <returns></returns>
+        public IActionResult ResetFilterAuditEventsForm()
+        {
+            return RedirectToAction(nameof(HomeController.AllAuditEventList));
+        }
+
+        /// <summary>
+        /// Processes form to filter issues
+        /// </summary>
+        /// <param name="issueList"></param>
+        /// <returns></returns>
+        public IActionResult FilterIssuesForm(IssueListVM issueList)
+        {
+            return RedirectToAction(nameof(HomeController.AllIssueList), issueList.Filter);
+        }
+
+        /// <summary>
+        /// Processes form to reset filter for issues
+        /// </summary>
+        /// <param name="issueList"></param>
+        /// <returns></returns>
+        public IActionResult ResetFilterIssuesForm()
+        {
+            return RedirectToAction(nameof(HomeController.AllIssueList));
+        }
+
+        /// <summary>
+        /// Processes form to filter properties
+        /// </summary>
+        /// <param name="auditEventList"></param>
+        /// <returns></returns>
+        public IActionResult FilterPropertiesForm(PropertyListVM propertyList)
+        {
+            return RedirectToAction(nameof(HomeController.AllPropertyList), propertyList.Filter);
+        }
+
+        /// <summary>
+        /// Processes form to reset filter for properties
+        /// </summary>
+        /// <param name="auditEventList"></param>
+        /// <returns></returns>
+        public IActionResult ResetFilterPropertiesForm()
+        {
+            return RedirectToAction(nameof(HomeController.AllPropertyList));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

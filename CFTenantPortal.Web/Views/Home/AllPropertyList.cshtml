@@ -1,9 +1,43 @@
 ﻿@model CFTenantPortal.Models.PropertyListVM
 
 @{
-    ViewData["Title"] = "Property List";
+    ViewData["Title"] = "Properties";
 }
 
 <h3>@Model.HeaderText</h3>
 
-@(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model }))
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="filtertablink" class="pagetablinks" onclick="openPageTab('filtertablink', 'filtertab')">Filter</button>
+</div>
+
+<div id="maintab" class="pagetabcontent">
+    @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model }))
+</div>
+
+<div id="filtertab" class="pagetabcontent">
+    <form asp-action="FilterPropertiesForm">        
+        @Html.LabelFor(m => m.Filter.PropertyGroupId)
+        @Html.DropDownListFor(m => m.Filter.PropertyGroupId,
+                 new SelectList(@Model.Filter.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Filter.PropertyOwnerId)
+        @Html.DropDownListFor(m => m.Filter.PropertyOwnerId,
+                 new SelectList(@Model.Filter.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        <button class="btn btn-primary" type="submit">Search</button>        
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>
+    </form>    
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

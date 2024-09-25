@@ -1,9 +1,61 @@
 ﻿@model CFTenantPortal.Models.AuditEventListVM
 
 @{
-    ViewData["Title"] = "Audit Event List";
+    ViewData["Title"] = "Audit Events";
 }
 
-<h3>Audit Event List</h3>
+<h3>@Model.HeaderText</h3>
 
-@(await Component.InvokeAsync("AuditEventListComp", new { auditEventList = Model }))
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="filtertablink" class="pagetablinks" onclick="openPageTab('filtertablink', 'filtertab')">Filter</button>
+</div>
+
+<div id="maintab" class="pagetabcontent">
+    @(await Component.InvokeAsync("AuditEventListComp", new { auditEventList = Model }))
+</div>
+
+<div id="filtertab" class="pagetabcontent">
+    <form asp-action="FilterAuditEventsForm">      
+        @Html.LabelFor(m => m.Filter.StartCreatedDateTime)
+        <input type="datetime-local" asp-for="@Model.Filter.StartCreatedDateTime" />
+        <br />
+
+        @Html.LabelFor(m => m.Filter.EndCreatedDateTime)
+        <input type="datetime-local" asp-for="@Model.Filter.EndCreatedDateTime" />
+        <br />
+
+        @Html.LabelFor(m => m.Filter.AuditEventTypeId)
+        @Html.DropDownListFor(m => m.Filter.AuditEventTypeId,
+                 new SelectList(@Model.Filter.AuditEventTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Filter.PropertyId)
+        @Html.DropDownListFor(m => m.Filter.PropertyId,
+                 new SelectList(@Model.Filter.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Filter.PropertyGroupId)
+        @Html.DropDownListFor(m => m.Filter.PropertyGroupId,
+                 new SelectList(@Model.Filter.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Filter.PropertyOwnerId)
+        @Html.DropDownListFor(m => m.Filter.PropertyOwnerId,
+                 new SelectList(@Model.Filter.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+        
+        <button class="btn btn-primary" type="submit">Search</button>        
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterAuditEventsForm")>Reset</button>
+    </form>    
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}

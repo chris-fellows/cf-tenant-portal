@@ -14,6 +14,9 @@ namespace CFTenantPortal.Interfaces
 
         Task<List<Issue>> GetByIssueType(string issueTypeId);
 
+        Task<List<Issue>> GetByFilterAsync(IssueFilter issueFilter);
+
+
         //Task Update(Issue issue);
     }
 }

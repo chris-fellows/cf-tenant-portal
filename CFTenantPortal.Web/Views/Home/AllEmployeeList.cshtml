@@ -1,9 +1,9 @@
 ﻿@model CFTenantPortal.Models.EmployeeListVM
 
 @{
-    ViewData["Title"] = "Employee List";
+    ViewData["Title"] = "Employees";
 }
 
-<h3>Employee List</h3>
+<h3>@Model.HeaderText</h3>
 
 @(await Component.InvokeAsync("EmployeeListComp", new { employeeList = Model }))

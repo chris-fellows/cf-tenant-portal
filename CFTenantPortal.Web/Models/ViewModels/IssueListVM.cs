@@ -9,6 +9,8 @@
 
         public List<IssueBasicVM> Issues { get; set; } = new List<IssueBasicVM>();        
 
+        public IssueFilterVM Filter { get; set; }
+
         public bool AllowCreate { get; set; }
     }
 }

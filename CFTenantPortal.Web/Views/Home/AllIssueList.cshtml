@@ -1,9 +1,47 @@
 ﻿@model CFTenantPortal.Models.IssueListVM
 
 @{
-    ViewData["Title"] = "Issue List";
+    ViewData["Title"] = "Issues";
 }
 
 <h3>@Model.HeaderText</h3>
 
-@(await Component.InvokeAsync("IssueListComp", new { issueList = Model }))
+<!--Tab list-->
+<div class="pagetab">
+    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
+    <button id="filtertablink" class="pagetablinks" onclick="openPageTab('filtertablink', 'filtertab')">Filter</button>
+</div>
+
+<div id="maintab" class="pagetabcontent">
+    @(await Component.InvokeAsync("IssueListComp", new { issueList = Model }))
+</div>
+
+<div id="filtertab" class="pagetabcontent">
+    <form asp-action="FilterIssuesForm">
+        @Html.LabelFor(m => m.Filter.Reference)
+        <input class="form-control" type="text" asp-for="@Model.Filter.Reference" />
+
+        @Html.LabelFor(m => m.Filter.IssueStatusId)
+        @Html.DropDownListFor(m => m.Filter.IssueStatusId,
+                 new SelectList(@Model.Filter.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        @Html.LabelFor(m => m.Filter.IssueTypeId)
+        @Html.DropDownListFor(m => m.Filter.IssueTypeId,
+                 new SelectList(@Model.Filter.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+        <br />
+
+        <button class="btn btn-primary" type="submit">Search</button>
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterIssuesForm")>Reset</button>
+    </form>    
+</div>
+
+@section Scripts
+{
+    <script>
+        $(window).on('load', function () {
+            $("#maintablink").click();    // Default to first tab
+        });
+    </script>
+}
+

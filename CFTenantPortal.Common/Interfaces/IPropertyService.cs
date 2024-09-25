@@ -12,6 +12,8 @@ namespace CFTenantPortal.Interfaces
 
         Task<List<Property>> GetByPropertyOwner(string propertyOwnerId);
 
+        Task<List<Property>> GetByFilterAsync(PropertyFilter propertyFilter);
+
         //Task Update(Property property);
     }
 }

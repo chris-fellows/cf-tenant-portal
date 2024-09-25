@@ -17,6 +17,12 @@ namespace CFTenantPortal.Models
 
         public List<string> AuditEventTypeIds { get; set; }
 
+        public List<string> PropertyGroupIds { get; set; }
+
+        public List<string> PropertyIds { get; set; }
+
+        public List<string> PropertyOwnerIds { get; set; }        
+
         public int PageItems { get; set; }
 
         public int PageNo { get; set; }
