@@ -13,7 +13,9 @@
 </div>
 
 <div id="maintab" class="pagetabcontent">
-    @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model }))
+    <button id="ExportCSVButton" class="btn btn-primary">Export to CSV</button>
+
+    @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model }))    
 </div>
 
 <div id="filtertab" class="pagetabcontent">
@@ -30,6 +32,7 @@
 
         <button class="btn btn-primary" type="submit">Search</button>        
         <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>
+        <button id="ExportCSVButtonHidden" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportPropertiesForm", new { format = "CSV" }) hidden>Export to CSV</button>        
     </form>    
 </div>
 
@@ -38,6 +41,11 @@
     <script>
         $(window).on('load', function () {
             $("#maintablink").click();    // Default to first tab
+        });
+
+        $("#ExportCSVButton").click(function (e) {            
+            e.preventDefault();                        
+            $("#ExportCSVButtonHidden").click();            
         });
     </script>
 }

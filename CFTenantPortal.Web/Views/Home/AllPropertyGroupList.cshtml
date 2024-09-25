@@ -6,4 +6,9 @@
 
 <h3>@Model.HeaderText</h3>
 
+<form asp-action="ExportForm">
+    <button class="btn btn-primary" type="submit" formaction=@Url.Action("ExportPropertyGroupsForm", new { format = "CSV" })>Export to CSV</button>
+</form>
+
 @(await Component.InvokeAsync("PropertyGroupListComp", new { propertyGroupList = Model }))
+

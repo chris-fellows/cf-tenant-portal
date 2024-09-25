@@ -1,4 +1,6 @@
 using CFTenantPortal.Enums;
+using CFTenantPortal.Export;
+using CFTenantPortal.Export.CSV;
 using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
 using CFTenantPortal.Services;
@@ -15,6 +17,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.VisualBasic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Linq.Expressions;
+using Azure;
+using CFTenantPortal.Web.Models;
 
 namespace CFTenantPortal.Controllers
 {
@@ -1736,6 +1740,320 @@ namespace CFTenantPortal.Controllers
         public IActionResult ResetFilterPropertiesForm()
         {
             return RedirectToAction(nameof(HomeController.AllPropertyList));
+        }
+
+        ///// <summary>
+        ///// Processes form to export properties
+        ///// </summary>
+        ///// <param name="propertyList"></param>
+        ///// <param name="format">Export format</param>
+        ///// <returns></returns>
+        //public IActionResult ExportPropertiesV2Form(PropertyFilterVM filterX, string format)
+        //{
+        //    // Set property filter
+        //    var filter = new PropertyFilter()
+        //    {
+        //        //PropertyGroupIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyGroupId) ||
+        //        //                    propertyList.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+        //        //            new() : new() { propertyList.Filter.PropertyGroupId },
+        //        //PropertyOwnerIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyOwnerId) ||
+        //        //                    propertyList.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+        //        //            new() : new() { propertyList.Filter.PropertyOwnerId },
+        //        PageNo = 1,
+        //        PageItems = 10000000
+        //    };
+
+        //    // Get properties           
+        //    var properties = _propertyService.GetByFilterAsync(filter).Result;
+
+        //    int xxx = 1000;
+
+        //    switch (format)
+        //    {
+        //        case "CSV": return ExportPropertiesToCSV(properties);
+        //    }
+
+        //    throw new ArgumentException("Invalid format");
+        //}
+
+        /// <summary>
+        /// Processes form to export audit events
+        /// </summary>
+        /// <param name="propertyList"></param>
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportAuditEventsForm(AuditEventListVM auditEventList, string format)
+        {
+            // Set filter
+            var filter = new AuditEventFilter()
+            { 
+               AuditEventTypeIds = String.IsNullOrEmpty(auditEventList.Filter.AuditEventTypeId) ||
+                                        auditEventList.Filter.AuditEventTypeId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { auditEventList.Filter.AuditEventTypeId },
+                PropertyGroupIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyGroupId) ||
+                                        auditEventList.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { auditEventList.Filter.PropertyGroupId },
+                PropertyIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyId) ||
+                                        auditEventList.Filter.PropertyId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { auditEventList.Filter.PropertyId },
+                PropertyOwnerIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyOwnerId) ||
+                                        auditEventList.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { auditEventList.Filter.PropertyOwnerId },
+                StartCreatedDateTime = auditEventList.Filter.StartCreatedDateTime,
+                EndCreatedDateTime = auditEventList.Filter.EndCreatedDateTime,                
+                PageNo = 1,
+                PageItems = 10000000
+            };
+
+            // Get audit events           
+            var auditEvents = _auditEventService.GetByFilterAsync(filter).Result;
+
+            int xxx = 1000;
+
+            switch (format)
+            {
+                case "CSV": return ExportAuditEventsToCSV(auditEvents);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        /// <summary>
+        /// Processes form to export properties
+        /// </summary>
+        /// <param name="propertyList"></param>
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportPropertiesForm(PropertyListVM propertyList, string format)
+        {
+            // Set property filter
+            var filter = new PropertyFilter()
+            {
+                PropertyGroupIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyGroupId) ||
+                                    propertyList.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+                            new() : new() { propertyList.Filter.PropertyGroupId },
+                PropertyOwnerIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyOwnerId) ||
+                                    propertyList.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                            new() : new() { propertyList.Filter.PropertyOwnerId },
+                PageNo = 1,
+                PageItems = 10000000
+            };
+
+            // Get properties           
+            var properties = _propertyService.GetByFilterAsync(filter).Result;
+
+            int xxx = 1000;
+            
+            switch (format)
+            {
+                case "CSV": return ExportPropertiesToCSV(properties);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        /// <summary>
+        /// Processes form to export properties
+        /// </summary>
+        /// <param name="propertyList"></param>
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportIssuesForm(IssueListVM propertyList, string format)
+        {
+            // Set issue filter
+            var filter = new IssueFilter()
+            {
+                References = String.IsNullOrEmpty(propertyList.Filter.Reference) ?
+                                new() : new() { propertyList.Filter.Reference },
+                IssueStatusIds = String.IsNullOrWhiteSpace(propertyList.Filter.IssueStatusId) ||
+                                    propertyList.Filter.IssueStatusId.Equals(EntityReference.None.Id) ?
+                            new() : new() { propertyList.Filter.IssueStatusId },
+                IssueTypeIds = String.IsNullOrWhiteSpace(propertyList.Filter.IssueTypeId) ||
+                                    propertyList.Filter.IssueTypeId.Equals(EntityReference.None.Id) ?
+                            new() : new() { propertyList.Filter.IssueTypeId },
+                PageNo = 1,
+                PageItems = 10000000
+            };
+
+            // Get properties           
+            var issues = _issueService.GetByFilterAsync(filter).Result;
+
+            int xxx = 1000;
+
+            switch (format)
+            {
+                case "CSV": return ExportIssuesToCSV(issues);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        /// <summary>
+        /// Processes form to export property groups
+        /// </summary>        
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportPropertyGroupsForm(string format)
+        {
+            // Get properties           
+            var propertyGroups = _propertyGroupService.GetAll().ToList();
+            
+            switch (format)
+            {
+                case "CSV": return ExportPropertyGroupsToCSV(propertyGroups);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        /// <summary>
+        /// Processes form to export property owners
+        /// </summary>        
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportPropertyOwnersForm(string format)
+        {
+            // Get property owners         
+            var propertyOwners = _propertyOwnerService.GetAll().ToList();
+
+            switch (format)
+            {
+                case "CSV": return ExportPropertyOwnersToCSV(propertyOwners);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        /// <summary>
+        /// Processes form to export employees
+        /// </summary>        
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportEmployeesForm(string format)
+        {
+            // Get employees
+            var employees = _employeeService.GetAll().ToList();
+
+            switch (format)
+            {
+                case "CSV": return ExportEmployeesToCSV(employees);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+        private IActionResult ExportAuditEventsToCSV(List<AuditEvent> auditEvents)
+        {
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new AuditEventCSVExport();
+            export.WriteAsync(auditEvents, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "AuditEvents.csv");
+        }
+
+        private IActionResult ExportEmployeesToCSV(List<Employee> employees)
+        {
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new EmployeeCSVExport();
+            export.WriteAsync(employees, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "Employees.csv");
+        }
+
+        private IActionResult ExportPropertyGroupsToCSV(List<PropertyGroup> propertyGroups)
+        {
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new PropertyGroupCSVExport();
+            export.WriteAsync(propertyGroups, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "PropertyGroups.csv");
+        }
+
+        private IActionResult ExportPropertyOwnersToCSV(List<PropertyOwner> propertyOwners)
+        {
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new PropertyOwnerCSVExport();
+            export.WriteAsync(propertyOwners, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "PropertyOwners.csv");
+        }
+
+        private IActionResult ExportPropertiesToCSV(List<Property> properties)
+        {           
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new PropertyCSVExport();
+            export.WriteAsync(properties, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "Properties.csv");
+        }
+
+        private IActionResult ExportIssuesToCSV(List<Issue> issues)
+        {
+            // Set CSV settings
+            var exportSettings = new CSVExportSettings()
+            {
+                File = Path.GetTempFileName(),
+                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
+            };
+
+            // Export
+            var export = new IssueCSVExport();
+            export.WriteAsync(issues, exportSettings).Wait();
+
+            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+            System.IO.File.Delete(exportSettings.File);
+            return File(fileContent, "text/csv", "Issues.csv");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
