@@ -1,5 +1,9 @@
 ﻿@model CFTenantPortal.Models.DocumentListVM
 
+<form asp-action="XXExportDocumentsForm">
+    <button id="ExportDocumentsButton" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportDocumentsForm", Model.Filter )>Export</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

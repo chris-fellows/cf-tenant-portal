@@ -44,22 +44,22 @@ namespace CFTenantPortal.Models
         public MessageListVM MessageList { get; set; } = new MessageListVM();
 
         [ValidateNever]
-        public List<EntityReference> IssueTypeList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> IssueTypeRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> IssueStatusList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> IssueStatusRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyGroupRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> EmployeeList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> EmployeeRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyOwnerRefList { get; set; } = new List<EntityReference>();
 
         public bool AllowSave { get; set; }
     }

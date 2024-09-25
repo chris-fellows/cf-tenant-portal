@@ -15,10 +15,14 @@ namespace CFTenantPortal.Models
         [Display(Name = "Type")]
         public string IssueTypeId { get; set; } = String.Empty;
 
-        [ValidateNever]
-        public List<EntityReference> IssueStatusList { get; set; } = new List<EntityReference>();
+        public string TestPropertyId { get; set; } = String.Empty;        
+
+        public string TestPropertyGroupId { get; set; } = String.Empty;
 
         [ValidateNever]
-        public List<EntityReference> IssueTypeList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> IssueStatusRefList { get; set; } = new List<EntityReference>();
+
+        [ValidateNever]
+        public List<EntityReference> IssueTypeRefList { get; set; } = new List<EntityReference>();
     }
 }

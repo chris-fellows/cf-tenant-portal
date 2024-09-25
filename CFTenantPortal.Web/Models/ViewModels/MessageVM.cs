@@ -26,15 +26,15 @@ namespace CFTenantPortal.Models
         public List<DocumentBasicVM> Documents { get; set; } = new List<DocumentBasicVM>();
 
         [ValidateNever]
-        public List<EntityReference> MessageTypeList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> MessageTypeRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> IssueList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> IssueRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyOwnerRefList { get; set; } = new List<EntityReference>();
     }
 }

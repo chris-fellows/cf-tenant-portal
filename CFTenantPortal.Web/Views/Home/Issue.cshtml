@@ -22,32 +22,32 @@
 
         @Html.LabelFor(m => m.TypeId)
         @Html.DropDownListFor(m => m.TypeId,
-                new SelectList(@Model.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.IssueTypeRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br/>
 
         @Html.LabelFor(m => m.IssueStatusId)
         @Html.DropDownListFor(m => m.IssueStatusId,
-                new SelectList(@Model.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.IssueStatusRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br/>
 
         @Html.LabelFor(m => m.PropertyId)
         @Html.DropDownListFor(m => m.PropertyId,
-                new SelectList(@Model.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.PropertyRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br/>
 
         @Html.LabelFor(m => m.PropertyGroupId)
         @Html.DropDownListFor(m => m.PropertyGroupId,
-                new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.PropertyGroupRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.CreatedEmployeeId)
         @Html.DropDownListFor(m => m.CreatedEmployeeId,
-                new SelectList(@Model.EmployeeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.EmployeeRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.CreatedPropertyOwnerId)
         @Html.DropDownListFor(m => m.CreatedPropertyOwnerId,
-                new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.PropertyOwnerRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
         
         @Html.LabelFor(m => m.Description)

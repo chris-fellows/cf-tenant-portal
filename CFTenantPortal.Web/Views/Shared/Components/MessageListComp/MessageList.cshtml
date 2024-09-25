@@ -1,5 +1,9 @@
 ﻿@model CFTenantPortal.Models.MessageListVM
 
+<form asp-action="XXExportMessagesForm">
+    <button id="ExportMessagesButton" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportMessagesForm", Model.Filter )>Export</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

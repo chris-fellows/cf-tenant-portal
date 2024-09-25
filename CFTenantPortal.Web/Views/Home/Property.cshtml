@@ -24,12 +24,12 @@
         @Html.HiddenFor(m => m.Id)
         @Html.LabelFor(m => m.PropertyGroupId)
         @Html.DropDownListFor(m => m.PropertyGroupId,
-                new SelectList(@Model.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.PropertyGroupRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.PropertyOwnerId)
         @Html.DropDownListFor(m => m.PropertyOwnerId,
-                new SelectList(@Model.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                new SelectList(@Model.PropertyOwnerRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />    
 
         <h5>Address</h5>

@@ -1,27 +1,29 @@
 using CFTenantPortal.Enums;
-using CFTenantPortal.Export;
 using CFTenantPortal.Export.CSV;
 using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
-using CFTenantPortal.Services;
+using CFUtilities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.IdentityModel.Abstractions;
 using System.Diagnostics;
-using System.Net.WebSockets;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-//using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-//using NuGet.Protocol.Plugins;
-using Microsoft.VisualBasic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Linq.Expressions;
-using Azure;
 using CFTenantPortal.Web.Models;
+using CFUtilities.Utilities;
+using Microsoft.SqlServer.Server;
 
 namespace CFTenantPortal.Controllers
 {
+    /*
+     * 
+     * Q) If we wanted to add an "Export to CSV" button on the list components (E.g. Property list) then how would it work?
+
+    A)
+    - When we pass the model to the component then we need to set the filter properties. Currently they're only set
+      from the "All Properties" component.
+    - If we were displaying the page for a property and we wanted an Export button the issue list then we'd set
+      PropertyVM.IssueListVM.Filter.PropertyId = PropertyVM.PropertyId. When the Export button is clicked then the
+      issue list component would pass Model.Filter
+    */
     public class HomeController : Controller
     {
         private readonly IAccountTransactionService _accountTransactionService;
@@ -127,68 +129,46 @@ namespace CFTenantPortal.Controllers
                     CreatedPropertyOwnerId = EntityReference.None.Id,     
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = new List<DocumentBasicVM>()
+                        Documents = new List<DocumentBasicVM>(),
+                        Filter = new DocumentFilterVM()                                  
                     },
-                    EmployeeList = employees.Select(e =>
+                    EmployeeRefList = employees.Select(e =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = e.Id,
-                            Name = e.Name
-                        };
+                        return _mapper.Map<EntityReference>(e);
                     }).ToList(),
                     IssueStatusId = issueStatus.Id,
-                    IssueStatusList = issueStatuses.Select(i =>
+                    IssueStatusRefList = issueStatuses.Select(i =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = i.Id,
-                            Name = i.Description
-                        };
+                        return _mapper.Map<EntityReference>(i);
                     }).ToList(),
-                    IssueTypeList = issueTypes.Select(i =>
+                    IssueTypeRefList = issueTypes.Select(i =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = i.Id,
-                            Name = i.Description
-                        };
+                        return _mapper.Map<EntityReference>(i);
                     }).ToList(),
                     MessageList = new MessageListVM()
                     {
-                        Messages= new List<MessageBasicVM>()
+                        Messages= new List<MessageBasicVM>(),
+                        Filter = new MessageFilterVM()
                     },
-                    PropertyGroupList = propertyGroups.Select(p =>
+                    PropertyGroupRefList = propertyGroups.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Name
-                        };
+                        return _mapper.Map<EntityReference>(p);                        
                     }).ToList(),
-                    PropertyList = properties.Select(p =>
+                    PropertyRefList = properties.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Address.ToSummary()
-                        };
+                        return _mapper.Map<EntityReference>(p);
                     }).ToList(),
-                    PropertyOwnerList = propertyOwners.Select(po =>
+                    PropertyOwnerRefList = propertyOwners.Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = po.Name
-                        };
+                        return _mapper.Map<EntityReference>(po);
                     }).ToList(),
                 };
 
                 // Add none for optional
-                model.EmployeeList.Insert(0, EntityReference.None);
-                model.PropertyGroupList.Insert(0, EntityReference.None);
-                model.PropertyList.Insert(0, EntityReference.None);                
-                model.PropertyOwnerList.Insert(0, EntityReference.None);
+                model.EmployeeRefList.Insert(0, EntityReference.None);
+                model.PropertyGroupRefList.Insert(0, EntityReference.None);
+                model.PropertyRefList.Insert(0, EntityReference.None);                
+                model.PropertyOwnerRefList.Insert(0, EntityReference.None);
 
                 return View(model);
             }
@@ -225,60 +205,43 @@ namespace CFTenantPortal.Controllers
                     CreatedPropertyOwnerId = issue.CreatedPropertyOwnerId,                    
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = documents
-                    },
-                    EmployeeList = employees.Select(e =>
-                    {
-                        return new EntityReference()
+                        Documents = documents,
+                        Filter = new DocumentFilterVM()
                         {
-                            Id = e.Id,
-                            Name = e.Name
-                        };
+                            IssueId = issue.Id
+                        }
+                    },
+                    EmployeeRefList = employees.Select(e =>
+                    {
+                        return _mapper.Map<EntityReference>(e);                        
                     }).ToList(),
                     IssueStatusId = issue.StatusId,
-                    IssueStatusList = issueStatuses.Select(i =>
+                    IssueStatusRefList = issueStatuses.Select(i =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = i.Id,
-                            Name = i.Description
-                        };
+                        return _mapper.Map<EntityReference>(i);                        
                     }).ToList(),
-                    IssueTypeList = issueTypes.Select(i =>
+                    IssueTypeRefList = issueTypes.Select(i =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = i.Id,
-                            Name = i.Description
-                        };
+                        return _mapper.Map<EntityReference>(i);
                     }).ToList(),
                     MessageList = new MessageListVM()
                     {
-
+                        Filter = new MessageFilterVM()
+                        {
+                            IssueId = issue.Id
+                        }
                     },
-                    PropertyGroupList = propertyGroups.Select(p =>
+                    PropertyGroupRefList = propertyGroups.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Name
-                        };
+                        return _mapper.Map<EntityReference>(p);                        
                     }).ToList(),
-                    PropertyList  = properties.Select(p =>
+                    PropertyRefList  = properties.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Address.ToSummary()
-                        };
+                        return _mapper.Map<EntityReference>(p);                        
                     }).ToList(),
-                    PropertyOwnerList = propertyOwners.Select(po =>
+                    PropertyOwnerRefList = propertyOwners.Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = po.Name
-                        };
+                        return _mapper.Map<EntityReference>(po);                    
                     }).ToList(),
                 };                
 
@@ -303,10 +266,10 @@ namespace CFTenantPortal.Controllers
                 }).ToList();
 
                 // Add none for optional
-                model.EmployeeList.Insert(0, EntityReference.None);
-                model.PropertyGroupList.Insert(0, EntityReference.None);
-                model.PropertyList.Insert(0, EntityReference.None);
-                model.PropertyOwnerList.Insert(0, EntityReference.None);
+                model.EmployeeRefList.Insert(0, EntityReference.None);
+                model.PropertyGroupRefList.Insert(0, EntityReference.None);
+                model.PropertyRefList.Insert(0, EntityReference.None);
+                model.PropertyOwnerRefList.Insert(0, EntityReference.None);
 
                 return View(model);
             }
@@ -333,35 +296,33 @@ namespace CFTenantPortal.Controllers
                     {
 
                     },
-                    DocumentList = new DocumentListVM() { Documents = new List<DocumentBasicVM>() },                  
+                    DocumentList = new DocumentListVM() 
+                    { 
+                        Documents = new List<DocumentBasicVM>(),
+                        Filter = new DocumentFilterVM()
+                    },                  
                     //Issues = new List<IssueBasicVM>(),
                     IssueList = new IssueListVM()
                     {
                         AllowCreate = false,
-                        Issues = new List<IssueBasicVM>()
+                        Issues = new List<IssueBasicVM>(),
+                        Filter = new IssueFilterVM()                        
                     },
                     MessageList = new MessageListVM()
                     {
-                        Messages = new List<MessageBasicVM>()
+                        Messages = new List<MessageBasicVM>(),
+                        Filter = new MessageFilterVM()
                     },
                     AccountTransactions = new List<AccountTransactionBasicVM>(),
                     PropertyGroupId = propertyGroups.OrderBy(pg => pg.Name).First().Id,
-                    PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
+                    PropertyGroupRefList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = pg.Id,
-                            Name = pg.Name
-                        };
+                        return _mapper.Map<EntityReference>(pg);
                     }).ToList(),
                     PropertyOwnerId = propertyOwners.OrderBy(po => po.Name).First().Id,
-                    PropertyOwnerList = propertyOwners.OrderBy(po => po.Name).Select(po =>
+                    PropertyOwnerRefList = propertyOwners.OrderBy(po => po.Name).Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = po.Name
-                        };
+                        return _mapper.Map<EntityReference>(po);                        
                     }).ToList(),
                 };
 
@@ -406,31 +367,34 @@ namespace CFTenantPortal.Controllers
                     PropertyOwnerId = property.OwnerId,
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = documents
+                        Documents = documents,                                                 
+                        Filter = new DocumentFilterVM()
+                        {
+                            PropertyId = property.Id
+                        }
                     },
                     IssueList = new IssueListVM()
                     {
-                        AllowCreate = true
+                        AllowCreate = true,
+                        Filter = new IssueFilterVM()
+                        {
+                            TestPropertyId = property.Id
+                        }
                     },
                     MessageList = new MessageListVM()
                     {
-
+                        Filter = new MessageFilterVM()
+                        {
+                            PropertyId = property.Id
+                        }
                     },
-                    PropertyGroupList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
+                    PropertyGroupRefList = propertyGroups.OrderBy(pg => pg.Name).Select(pg =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = pg.Id,
-                            Name = pg.Name
-                        };
+                        return _mapper.Map<EntityReference>(pg);                        
                     }).ToList(),
-                    PropertyOwnerList = propertyOwners.OrderBy(po => po.Name).Select(po =>
+                    PropertyOwnerRefList = propertyOwners.OrderBy(po => po.Name).Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = $"{po.Name} ({po.Email})"
-                        };
+                        return _mapper.Map<EntityReference>(po);                        ;
                     }).ToList()
                 };
 
@@ -547,37 +511,25 @@ namespace CFTenantPortal.Controllers
                 {
                     DocumentIds = new List<string>(),
                     Documents = new List<DocumentBasicVM>(),
-                    IssueList= new List<EntityReference>(),        
-                    MessageTypeList = messageTypes.Select(mt =>
+                    IssueRefList= new List<EntityReference>(),        
+                    MessageTypeRefList = messageTypes.Select(mt =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = mt.Id,
-                            Name = mt.Description
-                        };
+                        return _mapper.Map<EntityReference>(mt);                        
                     }).ToList(),
-                    PropertyList = properties.Select(p =>
+                    PropertyRefList = properties.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Address.ToSummary()
-                        };
+                        return _mapper.Map<EntityReference>(p);
                     }).ToList(),
-                    PropertyOwnerList = propertyOwners.Select(po =>
+                    PropertyOwnerRefList = propertyOwners.Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = po.Name
-                        };
+                        return _mapper.Map<EntityReference>(po);
                     }).ToList(),
                 };
 
                 // Add None for optional properties
-                model.IssueList.Insert(0, EntityReference.None);
-                model.PropertyList.Insert(0, EntityReference.None);
-                model.PropertyOwnerList.Insert(0, EntityReference.None);
+                model.IssueRefList.Insert(0, EntityReference.None);
+                model.PropertyRefList.Insert(0, EntityReference.None);
+                model.PropertyOwnerRefList.Insert(0, EntityReference.None);
 
                 return View(model);
             }
@@ -602,41 +554,29 @@ namespace CFTenantPortal.Controllers
                     Documents = documents,
                     Id = message.Id,
                     IssueId = message.IssueId,
-                    IssueList  = new List<EntityReference>(),
+                    IssueRefList  = new List<EntityReference>(),
                     MessageTypeId = message.MessageTypeId,
-                    MessageTypeList = messageTypes.Select(mt =>
+                    MessageTypeRefList = messageTypes.Select(mt =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = mt.Id,
-                            Name = mt.Description
-                        };
+                        return _mapper.Map<EntityReference>(mt);                        
                     }).ToList(),
                     PropertyId = message.PropertyId,
-                    PropertyList = properties.Select(p =>
+                    PropertyRefList = properties.Select(p =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = p.Id,
-                            Name = p.Address.ToSummary()
-                        };
+                        return _mapper.Map<EntityReference>(p);                        
                     }).ToList(),
                     PropertyOwnerId = message.PropertyOwnerId,
-                    PropertyOwnerList = propertyOwners.Select(po =>
+                    PropertyOwnerRefList = propertyOwners.Select(po =>
                     {
-                        return new EntityReference()
-                        {
-                            Id = po.Id,
-                            Name = po.Name
-                        };
+                        return _mapper.Map<EntityReference>(po);                        
                     }).ToList(),
                     Text = message.Text
                 };
 
                 // Add None for optional properties
-                model.IssueList.Insert(0, EntityReference.None);
-                model.PropertyList.Insert(0, EntityReference.None);
-                model.PropertyOwnerList.Insert(0, EntityReference.None);
+                model.IssueRefList.Insert(0, EntityReference.None);
+                model.PropertyRefList.Insert(0, EntityReference.None);
+                model.PropertyOwnerRefList.Insert(0, EntityReference.None);
 
                 return View(model);
             }
@@ -860,23 +800,15 @@ namespace CFTenantPortal.Controllers
                 Filter = new PropertyFilterVM()
                 {                   
                     PropertyGroupId = String.IsNullOrEmpty(filterVM.PropertyGroupId) ? EntityReference.None.Id : filterVM.PropertyGroupId,
-                    PropertyGroupList = propertyGroups.Select(pg => new EntityReference()
-                    {
-                        Id = pg.Id,
-                        Name = pg.Name
-                    }).ToList(),
+                    PropertyGroupRefList = propertyGroups.Select(pg => _mapper.Map<EntityReference>(pg)).ToList(),
                     PropertyOwnerId = String.IsNullOrEmpty(filterVM.PropertyOwnerId) ? EntityReference.None.Id : filterVM.PropertyOwnerId,
-                    PropertyOwnerList = propertyOwners.Select(po => new EntityReference()
-                    {
-                        Id = po.Id,
-                        Name = po.Name
-                    }).ToList()
+                    PropertyOwnerRefList = propertyOwners.Select(po => _mapper.Map<EntityReference>(po)).ToList()                    
                 }
             };
 
             // Add None to lists
-            model.Filter.PropertyGroupList.Insert(0, EntityReference.None);            
-            model.Filter.PropertyOwnerList.Insert(0, EntityReference.None);          
+            model.Filter.PropertyGroupRefList.Insert(0, EntityReference.None);            
+            model.Filter.PropertyOwnerRefList.Insert(0, EntityReference.None);          
 
             // Set property filter
             var propertyFilter = new PropertyFilter()
@@ -919,7 +851,8 @@ namespace CFTenantPortal.Controllers
             var model = new PropertyOwnerListVM() 
             { 
                 AllowCreate = true,
-                HeaderText = "Property Owners" 
+                HeaderText = "Property Owners",
+                Filter = new PropertyOwnerFilterVM()
             };
 
             model.PropertyOwners = _propertyOwnerService.GetAll().Select(po =>
@@ -931,16 +864,6 @@ namespace CFTenantPortal.Controllers
                     Name = po.Name,
                     AllowDelete = true
                 };
-
-                /*
-                return new PropertyOwnerVM()
-                {
-                    Id = po.Id,
-                    Email = po.Email,
-                    Name = po.Name,
-                    AllowDelete = true
-                };
-                */
             }).ToList();
 
             return View(model);
@@ -964,7 +887,8 @@ namespace CFTenantPortal.Controllers
                     Address = new AddressVM(),
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = new List<DocumentBasicVM>()  
+                        Documents = new List<DocumentBasicVM>(),
+                        Filter = new DocumentFilterVM()
                     },
                     PropertyList = new PropertyListVM()
                     {
@@ -973,7 +897,8 @@ namespace CFTenantPortal.Controllers
                     },
                     MessageList = new MessageListVM()
                     {
-                        Messages = new List<MessageBasicVM>()
+                        Messages = new List<MessageBasicVM>(),
+                        Filter = new MessageFilterVM()                        
                     }
                 };
 
@@ -1016,7 +941,11 @@ namespace CFTenantPortal.Controllers
                     },
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = documents
+                        Documents = documents,
+                        Filter = new DocumentFilterVM()
+                        {
+                            PropertyOwnerId = propertyOwner.Id
+                        }
                     },
                     PropertyList = new PropertyListVM()
                     {
@@ -1024,7 +953,10 @@ namespace CFTenantPortal.Controllers
                     },
                     MessageList = new MessageListVM()
                     {
-                        
+                        Filter = new MessageFilterVM()
+                        {
+                            PropertyOwnerId = propertyOwner.Id
+                        }
                     }
                 };
 
@@ -1074,7 +1006,8 @@ namespace CFTenantPortal.Controllers
             var model = new PropertyGroupListVM() 
             { 
                 AllowCreate = true,
-                HeaderText = "Property Groups" 
+                HeaderText = "Property Groups",
+                Filter = new PropertyGroupFilterVM()
             };   // Default header
 
             model.PropertyGroups = _propertyGroupService.GetAll().Select(p =>
@@ -1116,12 +1049,14 @@ namespace CFTenantPortal.Controllers
                     Description = "New",
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = new List<DocumentBasicVM>()
+                        Documents = new List<DocumentBasicVM>(),
+                        Filter = new DocumentFilterVM()
                     },
                     IssueList = new IssueListVM()
                     {
                         AllowCreate = false,
-                        Issues = new List<IssueBasicVM>()
+                        Issues = new List<IssueBasicVM>(),
+                        Filter = new IssueFilterVM()                       
                     },
                     PropertyList = new PropertyListVM()
                     {
@@ -1160,11 +1095,19 @@ namespace CFTenantPortal.Controllers
                     Description = propertyGroup.Description,
                     DocumentList = new DocumentListVM()
                     {
-                        Documents = documents
+                        Documents = documents,
+                        Filter = new DocumentFilterVM()
+                        {
+                            PropertyGroupId = propertyGroup.Id
+                        }
                     },
                     IssueList = new IssueListVM()
                     {
-                        AllowCreate = true
+                        AllowCreate = true,
+                        Filter = new IssueFilterVM()
+                        {
+                            TestPropertyGroupId = propertyGroup.Id
+                        }
                     },
                     PropertyList = new PropertyListVM()
                     {
@@ -1238,37 +1181,21 @@ namespace CFTenantPortal.Controllers
                                     DateTimeOffset.UtcNow.AddDays(1) :
                                     filterVM.EndCreatedDateTime,
                     AuditEventTypeId = filterVM.AuditEventTypeId,
-                    AuditEventTypeList = auditEventTypes.Select(aet => new EntityReference()
-                    {
-                        Id = aet.Id,
-                        Name = aet.Description
-                    }).ToList(),
+                    AuditEventTypeRefList = auditEventTypes.Select(aet => _mapper.Map<EntityReference>(aet)).ToList(),
                     PropertyId = String.IsNullOrEmpty(filterVM.PropertyId) ? EntityReference.None.Id : filterVM.PropertyId,
-                    PropertyList = properties.Select(p => new EntityReference()
-                    {
-                        Id = p.Id,
-                        Name = p.Address.ToSummary()
-                    }).ToList(),
+                    PropertyRefList = properties.Select(p => _mapper.Map<EntityReference>(p)).ToList(),
                     PropertyGroupId = String.IsNullOrEmpty(filterVM.PropertyGroupId) ? EntityReference.None.Id : filterVM.PropertyGroupId,
-                    PropertyGroupList = propertyGroups.Select(pg => new EntityReference()
-                    {
-                        Id = pg.Id,
-                        Name = pg.Name
-                    }).ToList(),
+                    PropertyGroupRefList = propertyGroups.Select(pg => _mapper.Map<EntityReference>(pg)).ToList(),
                     PropertyOwnerId = String.IsNullOrEmpty(filterVM.PropertyOwnerId) ? EntityReference.None.Id : filterVM.PropertyOwnerId,
-                    PropertyOwnerList = propertyOwners.Select(po => new EntityReference()
-                    {
-                        Id= po.Id,
-                        Name = po.Name
-                    }).ToList()
+                    PropertyOwnerRefList = propertyOwners.Select(po => _mapper.Map<EntityReference>(po)).ToList()
                 }
             };
 
             // Set None for list options
-            model.Filter.AuditEventTypeList.Insert(0, EntityReference.None);
-            model.Filter.PropertyGroupList.Insert(0, EntityReference.None);
-            model.Filter.PropertyList.Insert(0, EntityReference.None);
-            model.Filter.PropertyOwnerList.Insert(0, EntityReference.None);
+            model.Filter.AuditEventTypeRefList.Insert(0, EntityReference.None);
+            model.Filter.PropertyGroupRefList.Insert(0, EntityReference.None);
+            model.Filter.PropertyRefList.Insert(0, EntityReference.None);
+            model.Filter.PropertyOwnerRefList.Insert(0, EntityReference.None);
 
             // Set event filter            
             var auditEventFilter = new AuditEventFilter()
@@ -1320,7 +1247,10 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult AllIssueTypeList()
         {
-            var model = new IssueTypeListVM() { HeaderText = "Issue Types" };   // Default header
+            var model = new IssueTypeListVM() 
+            { 
+                HeaderText = "Issue Types"
+            };   // Default header
 
             model.IssueTypes = _issueTypeService.GetAll().Select(it =>
             {
@@ -1339,7 +1269,8 @@ namespace CFTenantPortal.Controllers
             var model = new EmployeeListVM()
             {
                 AllowCreate = true,
-                HeaderText = "Employees"
+                HeaderText = "Employees",
+                Filter = new EmployeeFilterVM()
             };
 
             model.Employees = _employeeService.GetAll().Select(e =>
@@ -1374,23 +1305,15 @@ namespace CFTenantPortal.Controllers
                 {
                     Reference = filterVM.Reference,
                     IssueStatusId = String.IsNullOrEmpty(filterVM.IssueStatusId) ? EntityReference.None.Id : filterVM.IssueStatusId,
-                    IssueStatusList = issueStatuses.Select(pg => new EntityReference()
-                    {
-                        Id = pg.Id,
-                        Name = pg.Description
-                    }).ToList(),
+                    IssueStatusRefList = issueStatuses.Select(pg => _mapper.Map<EntityReference>(pg)).ToList(),
                     IssueTypeId = String.IsNullOrEmpty(filterVM.IssueTypeId) ? EntityReference.None.Id : filterVM.IssueTypeId,
-                    IssueTypeList = issueTypes.Select(po => new EntityReference()
-                    {
-                        Id = po.Id,
-                        Name = po.Description
-                    }).ToList()
+                    IssueTypeRefList = issueTypes.Select(po => _mapper.Map<EntityReference>(po)).ToList()
                 }
             };
 
             // Add None to lists
-            model.Filter.IssueStatusList.Insert(0, EntityReference.None);
-            model.Filter.IssueTypeList.Insert(0, EntityReference.None);
+            model.Filter.IssueStatusRefList.Insert(0, EntityReference.None);
+            model.Filter.IssueTypeRefList.Insert(0, EntityReference.None);
 
             var issueFilter = new IssueFilter()
             {
@@ -1782,34 +1705,35 @@ namespace CFTenantPortal.Controllers
         /// <param name="propertyList"></param>
         /// <param name="format">Export format</param>
         /// <returns></returns>
-        public IActionResult ExportAuditEventsForm(AuditEventListVM auditEventList, string format)
+        public IActionResult ExportAuditEventsForm(AuditEventFilterVM? filter = null)
         {
             // Set filter
-            var filter = new AuditEventFilter()
+            var auditEventFilter = new AuditEventFilter()
             { 
-               AuditEventTypeIds = String.IsNullOrEmpty(auditEventList.Filter.AuditEventTypeId) ||
-                                        auditEventList.Filter.AuditEventTypeId.Equals(EntityReference.None.Id) ?
-                                            new() : new() { auditEventList.Filter.AuditEventTypeId },
-                PropertyGroupIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyGroupId) ||
-                                        auditEventList.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
-                                            new() : new() { auditEventList.Filter.PropertyGroupId },
-                PropertyIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyId) ||
-                                        auditEventList.Filter.PropertyId.Equals(EntityReference.None.Id) ?
-                                            new() : new() { auditEventList.Filter.PropertyId },
-                PropertyOwnerIds = String.IsNullOrEmpty(auditEventList.Filter.PropertyOwnerId) ||
-                                        auditEventList.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
-                                            new() : new() { auditEventList.Filter.PropertyOwnerId },
-                StartCreatedDateTime = auditEventList.Filter.StartCreatedDateTime,
-                EndCreatedDateTime = auditEventList.Filter.EndCreatedDateTime,                
+               AuditEventTypeIds = String.IsNullOrEmpty(filter.AuditEventTypeId) ||
+                                          filter.AuditEventTypeId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { filter.AuditEventTypeId },
+                PropertyGroupIds = String.IsNullOrEmpty(filter.PropertyGroupId) ||
+                                        filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { filter.PropertyGroupId },
+                PropertyIds = String.IsNullOrEmpty(filter.PropertyId) ||
+                                        filter.PropertyId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { filter.PropertyId },
+                PropertyOwnerIds = String.IsNullOrEmpty(filter.PropertyOwnerId) ||
+                                        filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                                            new() : new() { filter.PropertyOwnerId },
+                StartCreatedDateTime = filter.StartCreatedDateTime,
+                EndCreatedDateTime = filter.EndCreatedDateTime,                
                 PageNo = 1,
                 PageItems = 10000000
             };
 
             // Get audit events           
-            var auditEvents = _auditEventService.GetByFilterAsync(filter).Result;
+            var auditEvents = _auditEventService.GetByFilterAsync(auditEventFilter).Result;
 
             int xxx = 1000;
 
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportAuditEventsToCSV(auditEvents);
@@ -1818,32 +1742,73 @@ namespace CFTenantPortal.Controllers
             throw new ArgumentException("Invalid format");
         }
 
+
+        /// <summary>
+        /// Processes form to export documents
+        /// </summary>        
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportDocumentsForm(DocumentFilterVM? filter = null)
+        {
+            // Get documents           
+            var documents = _documentService.GetAll().ToList();
+
+            const string format = "CSV";
+            switch (format)
+            {
+                case "CSV": return ExportDocumentsToCSV(documents);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
+
+        /// <summary>
+        /// Processes form to export messages
+        /// </summary>        
+        /// <param name="format">Export format</param>
+        /// <returns></returns>
+        public IActionResult ExportMessageForm(MessageFilterVM? filter = null)
+        {
+            // Get messages           
+            var messages = _messageService.GetAll().ToList();
+
+            const string format = "CSV";
+            switch (format)
+            {
+                case "CSV": return ExportMessagesToCSV(messages);
+            }
+
+            throw new ArgumentException("Invalid format");
+        }
+
         /// <summary>
         /// Processes form to export properties
         /// </summary>
         /// <param name="propertyList"></param>
         /// <param name="format">Export format</param>
         /// <returns></returns>
-        public IActionResult ExportPropertiesForm(PropertyListVM propertyList, string format)
+        public IActionResult ExportPropertiesForm(PropertyFilterVM? filter= null)
         {
             // Set property filter
-            var filter = new PropertyFilter()
+            var propertyFilter = new PropertyFilter()
             {
-                PropertyGroupIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyGroupId) ||
-                                    propertyList.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
-                            new() : new() { propertyList.Filter.PropertyGroupId },
-                PropertyOwnerIds = String.IsNullOrWhiteSpace(propertyList.Filter.PropertyOwnerId) ||
-                                    propertyList.Filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
-                            new() : new() { propertyList.Filter.PropertyOwnerId },
+                PropertyGroupIds = String.IsNullOrWhiteSpace(filter.PropertyGroupId) ||
+                                    filter.PropertyGroupId.Equals(EntityReference.None.Id) ?
+                            new() : new() { filter.PropertyGroupId },
+                PropertyOwnerIds = String.IsNullOrWhiteSpace(filter.PropertyOwnerId) ||
+                                     filter.PropertyOwnerId.Equals(EntityReference.None.Id) ?
+                            new() : new() { filter.PropertyOwnerId },
                 PageNo = 1,
                 PageItems = 10000000
             };
 
             // Get properties           
-            var properties = _propertyService.GetByFilterAsync(filter).Result;
+            var properties = _propertyService.GetByFilterAsync(propertyFilter).Result;
 
             int xxx = 1000;
-            
+
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportPropertiesToCSV(properties);
@@ -1852,52 +1817,48 @@ namespace CFTenantPortal.Controllers
             throw new ArgumentException("Invalid format");
         }
 
-        /// <summary>
-        /// Processes form to export properties
-        /// </summary>
-        /// <param name="propertyList"></param>
-        /// <param name="format">Export format</param>
-        /// <returns></returns>
-        public IActionResult ExportIssuesForm(IssueListVM propertyList, string format)
+        public IActionResult ExportIssuesForm(IssueFilterVM? filter)
         {
             // Set issue filter
-            var filter = new IssueFilter()
+            var issueFilter = new IssueFilter()
             {
-                References = String.IsNullOrEmpty(propertyList.Filter.Reference) ?
-                                new() : new() { propertyList.Filter.Reference },
-                IssueStatusIds = String.IsNullOrWhiteSpace(propertyList.Filter.IssueStatusId) ||
-                                    propertyList.Filter.IssueStatusId.Equals(EntityReference.None.Id) ?
-                            new() : new() { propertyList.Filter.IssueStatusId },
-                IssueTypeIds = String.IsNullOrWhiteSpace(propertyList.Filter.IssueTypeId) ||
-                                    propertyList.Filter.IssueTypeId.Equals(EntityReference.None.Id) ?
-                            new() : new() { propertyList.Filter.IssueTypeId },
+                References = String.IsNullOrEmpty(filter.Reference) ?
+                                new() : new() { filter.Reference },
+                IssueStatusIds = String.IsNullOrWhiteSpace(filter.IssueStatusId) ||
+                                    filter.IssueStatusId.Equals(EntityReference.None.Id) ?
+                            new() : new() { filter.IssueStatusId },
+                IssueTypeIds = String.IsNullOrWhiteSpace(filter.IssueTypeId) ||
+                                    filter.IssueTypeId.Equals(EntityReference.None.Id) ?
+                            new() : new() { filter.IssueTypeId },
                 PageNo = 1,
                 PageItems = 10000000
             };
 
             // Get properties           
-            var issues = _issueService.GetByFilterAsync(filter).Result;
+            var issues = _issueService.GetByFilterAsync(issueFilter).Result;
 
             int xxx = 1000;
 
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportIssuesToCSV(issues);
             }
 
             throw new ArgumentException("Invalid format");
-        }
+        }     
 
         /// <summary>
         /// Processes form to export property groups
         /// </summary>        
         /// <param name="format">Export format</param>
         /// <returns></returns>
-        public IActionResult ExportPropertyGroupsForm(string format)
+        public IActionResult ExportPropertyGroupsForm(PropertyGroupFilterVM? filter = null)
         {
             // Get properties           
             var propertyGroups = _propertyGroupService.GetAll().ToList();
-            
+
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportPropertyGroupsToCSV(propertyGroups);
@@ -1911,11 +1872,12 @@ namespace CFTenantPortal.Controllers
         /// </summary>        
         /// <param name="format">Export format</param>
         /// <returns></returns>
-        public IActionResult ExportPropertyOwnersForm(string format)
+        public IActionResult ExportPropertyOwnersForm(PropertyOwnerFilterVM? filter= null)
         {
             // Get property owners         
             var propertyOwners = _propertyOwnerService.GetAll().ToList();
 
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportPropertyOwnersToCSV(propertyOwners);
@@ -1929,11 +1891,12 @@ namespace CFTenantPortal.Controllers
         /// </summary>        
         /// <param name="format">Export format</param>
         /// <returns></returns>
-        public IActionResult ExportEmployeesForm(string format)
+        public IActionResult ExportEmployeesForm(EmployeeFilterVM? filter = null)
         {
             // Get employees
             var employees = _employeeService.GetAll().ToList();
 
+            const string format = "CSV";
             switch (format)
             {
                 case "CSV": return ExportEmployeesToCSV(employees);
@@ -1944,116 +1907,186 @@ namespace CFTenantPortal.Controllers
 
         private IActionResult ExportAuditEventsToCSV(List<AuditEvent> auditEvents)
         {
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new AuditEventCSVExport();
-            export.WriteAsync(auditEvents, exportSettings).Wait();
+                // Export
+                var export = new AuditEventCSVExport();
+                export.WriteAsync(auditEvents, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "AuditEvents.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"AuditEvents{exportSettings.DefaultExtension}");
+            }
+        }
+
+        private IActionResult ExportDocumentsToCSV(List<Document> documents)
+        {
+            using (var session = new DisposableActionsSession())
+            {
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
+
+                // Export
+                var export = new DocumentCSVExport();
+                export.WriteAsync(documents, exportSettings).Wait();
+
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+                return File(fileContent, "text/csv", $"Documents{exportSettings.DefaultExtension}");
+            }
+        }
+
+        private IActionResult ExportMessagesToCSV(List<Message> messages)
+        {
+            using (var session = new DisposableActionsSession())
+            {
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
+
+                // Export
+                var export = new MessageCSVExport();
+                export.WriteAsync(messages, exportSettings).Wait();
+
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
+                return File(fileContent, "text/csv", $"Messages{exportSettings.DefaultExtension}");
+            }
         }
 
         private IActionResult ExportEmployeesToCSV(List<Employee> employees)
         {
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new EmployeeCSVExport();
-            export.WriteAsync(employees, exportSettings).Wait();
+                // Export
+                var export = new EmployeeCSVExport();
+                export.WriteAsync(employees, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "Employees.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"Employees{exportSettings.DefaultExtension}.csv");
+            }
         }
 
         private IActionResult ExportPropertyGroupsToCSV(List<PropertyGroup> propertyGroups)
         {
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new PropertyGroupCSVExport();
-            export.WriteAsync(propertyGroups, exportSettings).Wait();
+                // Export
+                var export = new PropertyGroupCSVExport();
+                export.WriteAsync(propertyGroups, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "PropertyGroups.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"PropertyGroups{exportSettings.DefaultExtension}");
+            }
         }
 
         private IActionResult ExportPropertyOwnersToCSV(List<PropertyOwner> propertyOwners)
         {
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new PropertyOwnerCSVExport();
-            export.WriteAsync(propertyOwners, exportSettings).Wait();
+                // Export
+                var export = new PropertyOwnerCSVExport();
+                export.WriteAsync(propertyOwners, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "PropertyOwners.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"PropertyOwners{exportSettings.DefaultExtension}");
+            }
         }
 
         private IActionResult ExportPropertiesToCSV(List<Property> properties)
-        {           
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+        {
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new PropertyCSVExport();
-            export.WriteAsync(properties, exportSettings).Wait();
+                // Export
+                var export = new PropertyCSVExport();
+                export.WriteAsync(properties, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "Properties.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"Properties{exportSettings.DefaultExtension}");
+            }
         }
 
         private IActionResult ExportIssuesToCSV(List<Issue> issues)
         {
-            // Set CSV settings
-            var exportSettings = new CSVExportSettings()
+            using (var session = new DisposableActionsSession())
             {
-                File = Path.GetTempFileName(),
-                ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
-                Encoding = SystemConfig.DefaultCSVExportSettings.Encoding
-            };
+                // Set CSV settings
+                var exportSettings = new CSVExportSettings()
+                {
+                    File = Path.GetTempFileName(),
+                    ColumnDelimiter = SystemConfig.DefaultCSVExportSettings.ColumnDelimiter,
+                    Encoding = SystemConfig.DefaultCSVExportSettings.Encoding,
+                    DefaultExtension = SystemConfig.DefaultCSVExportSettings.DefaultExtension
+                };
+                session.AddAction(() => { IOUtilities.DeleteFiles(new[] { exportSettings.File }); });
 
-            // Export
-            var export = new IssueCSVExport();
-            export.WriteAsync(issues, exportSettings).Wait();
+                // Export
+                var export = new IssueCSVExport();
+                export.WriteAsync(issues, exportSettings).Wait();
 
-            var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);
-            System.IO.File.Delete(exportSettings.File);
-            return File(fileContent, "text/csv", "Issues.csv");
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                return File(fileContent, "text/csv", $"Issues{exportSettings.DefaultExtension}");
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

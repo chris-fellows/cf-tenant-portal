@@ -10,7 +10,8 @@ namespace CFTenantPortal.Web.Models
         public static CSVExportSettings DefaultCSVExportSettings => new CSVExportSettings()
         {            
             ColumnDelimiter = (Char)9,
-            Encoding = System.Text.Encoding.UTF8
+            Encoding = System.Text.Encoding.UTF8,
+            DefaultExtension = ".txt"
         };        
     }
 }

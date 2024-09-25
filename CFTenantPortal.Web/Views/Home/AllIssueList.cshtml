@@ -12,9 +12,7 @@
     <button id="filtertablink" class="pagetablinks" onclick="openPageTab('filtertablink', 'filtertab')">Filter</button>
 </div>
 
-<div id="maintab" class="pagetabcontent">
-    <button id="ExportCSVButton" class="btn btn-primary">Export to CSV</button>
-
+<div id="maintab" class="pagetabcontent">    
     @(await Component.InvokeAsync("IssueListComp", new { issueList = Model }))    
 </div>
 
@@ -25,17 +23,16 @@
 
         @Html.LabelFor(m => m.Filter.IssueStatusId)
         @Html.DropDownListFor(m => m.Filter.IssueStatusId,
-                 new SelectList(@Model.Filter.IssueStatusList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.IssueStatusRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.Filter.IssueTypeId)
         @Html.DropDownListFor(m => m.Filter.IssueTypeId,
-                 new SelectList(@Model.Filter.IssueTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.IssueTypeRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         <button class="btn btn-primary" type="submit">Search</button>
-        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterIssuesForm")>Reset</button>
-        <button id="ExportCSVButtonHidden" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportIssuesForm", new { format = "CSV" }) hidden>Export to CSV</button>
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterIssuesForm")>Reset</button>                        
     </form>    
 </div>
 
@@ -46,9 +43,9 @@
             $("#maintablink").click();    // Default to first tab
         });
 
-        $("#ExportCSVButton").click(function (e) {
+        $("#ExportButtonOld").click(function (e) {
             e.preventDefault();
-            $("#ExportCSVButtonHidden").click();
+            $("#ExportButtonHiddenOld").click();
         });
     </script>
 }

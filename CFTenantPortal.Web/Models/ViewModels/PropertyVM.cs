@@ -35,10 +35,10 @@ namespace CFTenantPortal.Models
         public List<AccountTransactionBasicVM> AccountTransactions { get; set; }
 
         [ValidateNever]
-        public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyGroupRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyOwnerRefList { get; set; } = new List<EntityReference>();
 
         public bool AllowSave { get; set; }
     }

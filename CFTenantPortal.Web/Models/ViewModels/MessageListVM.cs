@@ -5,5 +5,7 @@
         public string HeaderText { get; set; } = String.Empty;
 
         public List<MessageBasicVM> Messages { get; set; } = new List<MessageBasicVM>();
+
+        public MessageFilterVM Filter { get; set; }
     }
 }

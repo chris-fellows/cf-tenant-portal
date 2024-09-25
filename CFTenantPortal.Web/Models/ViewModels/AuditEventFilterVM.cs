@@ -25,15 +25,15 @@ namespace CFTenantPortal.Models
         public string PropertyOwnerId { get; set; } = String.Empty;        
 
         [ValidateNever]
-        public List<EntityReference> AuditEventTypeList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> AuditEventTypeRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyGroupList { get; set; } = new List<EntityReference>();
+        public List<EntityReference> PropertyGroupRefList { get; set; } = new List<EntityReference>();
 
         [ValidateNever]
-        public List<EntityReference> PropertyOwnerList { get; set; } = new List<EntityReference>();        
+        public List<EntityReference> PropertyOwnerRefList { get; set; } = new List<EntityReference>();        
     }
 }

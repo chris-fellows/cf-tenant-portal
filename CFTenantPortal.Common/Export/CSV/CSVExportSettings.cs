@@ -12,5 +12,7 @@ namespace CFTenantPortal.Export.CSV
         public char ColumnDelimiter { get; set; } = (char)9;
 
         public Encoding Encoding { get; set; } = Encoding.UTF8;
+
+        public string DefaultExtension { get; set; } = ".txt";
     }
 }

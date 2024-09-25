@@ -1,5 +1,9 @@
 ﻿@model CFTenantPortal.Models.AuditEventListVM
 
+<form asp-action="XXExportAuditEventsForm">
+    <button id="ExportAuditEventsButton" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportAuditEventsForm", Model.Filter )>Export</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

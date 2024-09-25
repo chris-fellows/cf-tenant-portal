@@ -6,8 +6,4 @@
 
 <h3>@Model.HeaderText</h3>
 
-<form asp-action="ExportForm">
-    <button class="btn btn-primary" type="submit" formaction=@Url.Action("ExportPropertyOwnersForm", new { format = "CSV" })>Export to CSV</button>
-</form>
-
 @(await Component.InvokeAsync("PropertyOwnerListComp", new { propertyOwnerList = Model }))

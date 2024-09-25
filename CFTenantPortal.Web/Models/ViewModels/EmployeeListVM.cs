@@ -6,6 +6,8 @@
 
         public List<EmployeeBasicVM> Employees { get; set; }
 
+        public EmployeeFilterVM Filter { get; set; }
+
         public bool AllowCreate { get; set; }
     }
 }

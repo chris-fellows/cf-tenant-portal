@@ -13,8 +13,6 @@
 </div>
 
 <div id="maintab" class="pagetabcontent">
-    <button id="ExportCSVButton" class="btn btn-primary">Export to CSV</button>
-
     @(await Component.InvokeAsync("PropertyListComp", new { propertyList = Model }))    
 </div>
 
@@ -22,17 +20,16 @@
     <form asp-action="FilterPropertiesForm">        
         @Html.LabelFor(m => m.Filter.PropertyGroupId)
         @Html.DropDownListFor(m => m.Filter.PropertyGroupId,
-                 new SelectList(@Model.Filter.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.PropertyGroupRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.Filter.PropertyOwnerId)
         @Html.DropDownListFor(m => m.Filter.PropertyOwnerId,
-                 new SelectList(@Model.Filter.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.PropertyOwnerRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         <button class="btn btn-primary" type="submit">Search</button>        
-        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>
-        <button id="ExportCSVButtonHidden" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportPropertiesForm", new { format = "CSV" }) hidden>Export to CSV</button>        
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>        
     </form>    
 </div>
 
@@ -43,9 +40,9 @@
             $("#maintablink").click();    // Default to first tab
         });
 
-        $("#ExportCSVButton").click(function (e) {            
+        $("#ExportButtonOld").click(function (e) {            
             e.preventDefault();                        
-            $("#ExportCSVButtonHidden").click();            
+            $("#ExportButtonHiddenOld").click();            
         });
     </script>
 }

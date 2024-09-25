@@ -6,6 +6,11 @@
         <a asp-action="Property">Create New</a>
     </p>
 }
+
+<form asp-action="XXExportPropertiesForm">
+    <button id="ExportPropertiesButton" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportPropertiesForm", Model.Filter )>Export</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>

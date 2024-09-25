@@ -12,9 +12,7 @@
     <button id="filtertablink" class="pagetablinks" onclick="openPageTab('filtertablink', 'filtertab')">Filter</button>
 </div>
 
-<div id="maintab" class="pagetabcontent">
-    <button id="ExportCSVButton" class="btn btn-primary">Export to CSV</button>
-
+<div id="maintab" class="pagetabcontent">    
     @(await Component.InvokeAsync("AuditEventListComp", new { auditEventList = Model }))
 </div>
 
@@ -30,27 +28,26 @@
 
         @Html.LabelFor(m => m.Filter.AuditEventTypeId)
         @Html.DropDownListFor(m => m.Filter.AuditEventTypeId,
-                 new SelectList(@Model.Filter.AuditEventTypeList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.AuditEventTypeRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.Filter.PropertyId)
         @Html.DropDownListFor(m => m.Filter.PropertyId,
-                 new SelectList(@Model.Filter.PropertyList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.PropertyRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.Filter.PropertyGroupId)
         @Html.DropDownListFor(m => m.Filter.PropertyGroupId,
-                 new SelectList(@Model.Filter.PropertyGroupList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.PropertyGroupRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
 
         @Html.LabelFor(m => m.Filter.PropertyOwnerId)
         @Html.DropDownListFor(m => m.Filter.PropertyOwnerId,
-                 new SelectList(@Model.Filter.PropertyOwnerList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
+                 new SelectList(@Model.Filter.PropertyOwnerRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
         <br />
         
         <button class="btn btn-primary" type="submit">Search</button>        
-        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterAuditEventsForm")>Reset</button>
-        <button id="ExportCSVButtonHidden" class="btn btn-secondary" type="submit" formaction=@Url.Action("ExportAuditEventsForm", new { format = "CSV" }) hidden>Export to CSV</button>
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterAuditEventsForm")>Reset</button>        
     </form>    
 </div>
 
@@ -61,9 +58,9 @@
             $("#maintablink").click();    // Default to first tab
         });
 
-        $("#ExportCSVButton").click(function (e) {
+        $("#ExportButtonOld").click(function (e) {
             e.preventDefault();
-            $("#ExportCSVButtonHidden").click();
+            $("#ExportButtonHiddenOld").click();
         });
     </script>
 }
