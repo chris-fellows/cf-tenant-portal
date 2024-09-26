@@ -3,11 +3,7 @@
 namespace CFTenantPortal.Interfaces
 {
     public interface IPropertyOwnerService : IEntityWithIDService<PropertyOwner, string>
-    {
-        //Task<List<PropertyOwner>> GetAll();
-
-        //Task<PropertyOwner> GetById(string id);
-
-        //Task Update(PropertyOwner propertyOwner);
+    {       
+        Task<PropertyOwner> GetByEmailAsync(string email);
     }
 }

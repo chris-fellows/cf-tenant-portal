@@ -17,6 +17,24 @@ namespace CFTenantPortal.Seed1
             });
 
             entities.Add(new SystemValueType()
+            {
+                Description = "Account Transaction Type Id",
+                ValueType = SystemValueTypes.AccountTransactionTypeId
+            });
+
+            entities.Add(new SystemValueType()
+            {
+                Description = "Audit Event Id",
+                ValueType = SystemValueTypes.AuditEventId
+            });
+
+            entities.Add(new SystemValueType()
+            {
+                Description = "Audit Event Type Id",
+                ValueType = SystemValueTypes.AuditEventTypeId
+            });
+            
+            entities.Add(new SystemValueType()
             {             
                 Description = "Document Id",
                 ValueType = SystemValueTypes.DocumentId
@@ -25,19 +43,25 @@ namespace CFTenantPortal.Seed1
             entities.Add(new SystemValueType()
             {            
                 Description = "Employee Id",
-                ValueType = SystemValueTypes.DocumentId
+                ValueType = SystemValueTypes.EmployeeId
             });
 
             entities.Add(new SystemValueType()
             {             
                 Description = "Issue Id",
                 ValueType = SystemValueTypes.IssueId
-            });
+            });          
 
             entities.Add(new SystemValueType()
             {             
                 Description = "Message Id",
                 ValueType = SystemValueTypes.MessageId
+            });
+
+            entities.Add(new SystemValueType()
+            {
+                Description = "Message Template Id",
+                ValueType = SystemValueTypes.MessageTemplateId
             });
 
             entities.Add(new SystemValueType()
@@ -62,6 +86,12 @@ namespace CFTenantPortal.Seed1
             {             
                 Description = "Property Owner Id",
                 ValueType = SystemValueTypes.PropertyOwnerId
+            });
+
+            entities.Add(new SystemValueType()
+            {
+                Description = "System Value Type Id",
+                ValueType = SystemValueTypes.SystemValueTypeId
             });
 
             entities.Add(new SystemValueType()

@@ -10,6 +10,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using CFTenantPortal.Web.Models;
 using CFUtilities.Utilities;
 using Microsoft.SqlServer.Server;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace CFTenantPortal.Controllers
 {
@@ -35,12 +39,14 @@ namespace CFTenantPortal.Controllers
         private readonly IIssueService _issueService;
         private readonly IIssueStatusService _issueStatusService;
         private readonly IIssueTypeService _issueTypeService;
+        private readonly ILoginService _loginService;
         private readonly IMapper _mapper;
         private readonly IMessageService _messageService;
         private readonly IMessageTypeService _messageTypeService;
         private readonly IPropertyGroupService _propertyGroupService;
         private readonly IPropertyOwnerService _propertyOwnerService;
-        private readonly IPropertyService _propertyService;
+        private readonly IPropertyService _propertyService;      
+        private readonly IRequestInfoService _requestInfoService;
         private readonly ISystemValueTypeService _systemValueTypeService;
         private readonly ILogger<HomeController> _logger;
 
@@ -54,12 +60,14 @@ namespace CFTenantPortal.Controllers
                 IIssueService issueService,
                 IIssueStatusService issueStatusService,
                 IIssueTypeService issueTypeService,
+                ILoginService securityService,
                 IMapper mapper,
                 IMessageService messageService,
                 IMessageTypeService messageTypeService,
                 IPropertyGroupService propertyGroupService,
                 IPropertyOwnerService propertyOwnerService,
-                IPropertyService propertyService,
+                IPropertyService propertyService,      
+                IRequestInfoService requestInfoService,
                 ISystemValueTypeService systemValueTypeService) 
         {
             _logger = logger;
@@ -72,17 +80,198 @@ namespace CFTenantPortal.Controllers
             _issueService = issueService;
             _issueStatusService = issueStatusService;
             _issueTypeService = issueTypeService;
+            _loginService = securityService;
             _mapper = mapper;
             _messageService = messageService;
             _messageTypeService = messageTypeService;
             _propertyGroupService = propertyGroupService;
             _propertyOwnerService = propertyOwnerService;
             _propertyService = propertyService;
+            _requestInfoService = requestInfoService;
             _systemValueTypeService = systemValueTypeService;
         }
 
-        public IActionResult Index()
+        //private bool IsLoggedIn
+        //{
+        //    get
+        //    {
+        //        return HttpContext.User.Identity != null &&
+        //            HttpContext.User.Identity.IsAuthenticated;
+
+        //        /*
+        //        if (HttpContext.Session != null)
+        //        {
+        //            return HttpContext.Session.Keys.Contains("UserId");
+        //        }
+        //        return false;
+        //        */
+        //    }
+        //}        
+
+        public IActionResult Login()
         {
+            return View();
+        }
+        
+        /// <summary>
+        /// Processes form to log out
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult LogoutForm()
+        {
+            var method = HttpContext.Request.Method;
+
+            if (_requestInfoService.IsLoggedIn)
+            {
+                // Get employee or property owner
+                var userId = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                var employee = _employeeService.GetByIdAsync(userId).Result;
+                var propertyOwner = employee == null ? _propertyOwnerService.GetByIdAsync(userId).Result : null;
+
+                // Set system value type for user (EmployeeId/PropertyOwnerId)
+                SystemValueType userSystemValueType = new();
+                if (employee != null)
+                {
+                    userSystemValueType = _systemValueTypeService.GetByEnum(SystemValueTypes.EmployeeId).Result;
+                }
+                else if (propertyOwner != null)
+                {
+                    userSystemValueType = _systemValueTypeService.GetByEnum(SystemValueTypes.PropertyOwnerId).Result;
+                }
+
+                // Sign out
+                HttpContext.SignOutAsync().Wait();
+                
+                // Create UserLoggedOut audit event
+                var auditEventType = _auditEventTypeService.GetByEnum(AuditEventTypes.UserLoggedOut).Result;
+                if (auditEventType != null)
+                {
+                    var auditEvent = new AuditEvent()
+                    {
+                        EventTypeId = auditEventType.Id,                        
+                        Parameters = new List<AuditEventParameter>()
+                        {
+                            new AuditEventParameter()
+                            {
+                                SystemValueTypeId = userSystemValueType.Id,
+                                Value = userId
+                            }
+                        }
+                    };
+
+                    _auditEventService.AddAsync(auditEvent).Wait();
+                }                             
+            }
+                        
+            return RedirectToAction(nameof(Index));
+        }
+        
+        /// <summary>
+        /// Processes form to log in
+        /// </summary>
+        /// <param name="login"></param>
+        /// <returns></returns>
+        public IActionResult LoginForm(LoginVM login)
+        {
+            var method = HttpContext.Request.Method;
+
+            // Check if logged in            
+            if (_requestInfoService.IsLoggedIn)
+            {
+                return RedirectToAction(nameof(Index));
+            }            
+
+            // https://stackoverflow.com/questions/73748488/passing-username-and-password-to-controller-method-asp-net-mvc
+            // https://learn.microsoft.com/en-us/aspnet/core/security/authentication/cookie?view=aspnetcore-8.0
+            if (ModelState.IsValid)
+            {
+                var authenticateResult = _loginService.AuthenticateAsync(login.Email, login.Password).Result;
+                if (authenticateResult != null)
+                {
+                    var claims = new List<Claim>();
+                    SystemValueType userSystemValueType = new();    // EmployeeId/PropertyOwnerId
+
+                    if (authenticateResult is Employee)
+                    {
+                        userSystemValueType = _systemValueTypeService.GetByEnum(SystemValueTypes.EmployeeId).Result;
+
+                        var employee = (Employee)authenticateResult;
+                        claims.Add(new Claim(ClaimTypes.NameIdentifier, Convert.ToString(employee.Id)));
+                        claims.Add(new Claim(ClaimTypes.Name, employee.Name));
+                        if (employee.Roles != null)
+                        {
+                            claims.AddRange(employee.Roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())));
+                        }
+
+                        /*
+                        var claims = new List<Claim>() {
+                            new Claim(ClaimTypes.NameIdentifier, Convert.ToString(employee.Id)),
+                                new Claim(ClaimTypes.Name, employee.Name)
+                        };
+                        */
+                        //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
+                        //{
+                        //    IsPersistent = user.RememberLogin
+                        //});
+                        //return LocalRedirect(user.ReturnUrl);                     
+                    }
+                    else if (authenticateResult is PropertyOwner)
+                    {
+                        userSystemValueType = _systemValueTypeService.GetByEnum(SystemValueTypes.PropertyOwnerId).Result;
+
+                        var propertyOwner = (PropertyOwner)authenticateResult;
+                        claims.Add(new Claim(ClaimTypes.NameIdentifier, Convert.ToString(propertyOwner.Id)));
+                        claims.Add(new Claim(ClaimTypes.Name, propertyOwner.Name));
+                        claims.Add(new Claim(ClaimTypes.Role, UserRoles.PropertyOwner.ToString())); // TODO: Add PropertyOwner.Roles
+                        //if (propertyOwner.Roles != null)
+                        //{
+                        //    claims.AddRange(propertyOwner.Roles.Select(role => new Claim(ClaimTypes.Role, role.ToString())));
+                        //}
+                    }
+
+                    // Create claims principle
+                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var principal = new ClaimsPrincipal(identity);
+
+                    // Sign in
+                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties()
+                    {
+                        IsPersistent = true
+                    }).Wait();
+
+                    // Create UserLoggedIn audit event
+                    var auditEventType = _auditEventTypeService.GetByEnum(AuditEventTypes.UserLoggedIn).Result;
+                    if (auditEventType != null)
+                    {
+                        var auditEvent = new AuditEvent()
+                        {
+                            EventTypeId = auditEventType.Id,
+                            Parameters = new List<AuditEventParameter>()
+                                {
+                                    new AuditEventParameter()
+                                    {
+                                        SystemValueTypeId = userSystemValueType.Id,
+                                        Value = claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value
+                                    }
+                                }
+                        };
+
+                        _auditEventService.AddAsync(auditEvent).Wait();
+                    }
+
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.Message = "Invalid email or password";
+                }     
+            }          
+
+            return RedirectToAction(nameof(Login));
+        }
+
+        public IActionResult Index()
+        {            
             return View();
         }
 

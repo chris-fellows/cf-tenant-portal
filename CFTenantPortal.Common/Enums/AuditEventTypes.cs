@@ -25,6 +25,8 @@
         PropertyGroupUpdated,
         PropertyOwnerAdded,
         PropertyOwnerDeleted,
-        PropertyOwnerUpdated
+        PropertyOwnerUpdated,
+        UserLoggedIn,
+        UserLoggedOut
     }
 }

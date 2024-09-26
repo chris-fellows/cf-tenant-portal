@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,16 @@ var dataLocationType = DataLocationTypes.MongoDB;
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 
+//// CMF Added all for session
+//builder.Services.AddDistributedMemoryCache();
+////builder.Services.AddMvc().AddSessionStateTempDataProvider();
+//builder.Services.AddSession(options =>
+//{
+//    options.IdleTimeout = TimeSpan.FromMinutes(120);
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.IsEssential = true;
+//});    // CMF Added for sessions
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -26,17 +38,33 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
 
 // Configure database config from appSettings.json
 builder.Services.Configure<DatabaseConfig>(builder.Configuration.GetSection(nameof(DatabaseConfig)));
 builder.Services.AddSingleton<IDatabaseConfig>(sp => sp.GetRequiredService<IOptions<DatabaseConfig>>().Value);
 
+// CMF Added for login
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+             .AddCookie(options =>
+             {
+                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                 options.SlidingExpiration = true;
+                 options.AccessDeniedPath = "/Forbidden/";
+             });
+
 // Set database admin service
 builder.Services.AddScoped<IDatabaseAdminService, DatabaseAdminService>();
 
 // Set data seedservice
 builder.Services.AddScoped<ISharedSeedDataService, SharedSeedDataService>();
+
+// Set login service
+builder.Services.AddScoped<ILoginService, LoginService>();
+
+// Set request info service
+builder.Services.AddScoped<IRequestInfoService, RequestInfoService>();
 
 switch(dataLocationType)
 {
@@ -122,6 +150,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();        // CMF Added for login
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -129,6 +158,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+//app.UseSession();       // CMF Added for sessions
 
 // Initialise
 using (var scope = app.Services.CreateScope())

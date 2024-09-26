@@ -5,7 +5,7 @@ using MongoDB.Bson;
 namespace CFTenantPortal.Models
 {
     /// <summary>
-    /// System value type
+    /// System value type    
     /// </summary>
     public class SystemValueType
     {

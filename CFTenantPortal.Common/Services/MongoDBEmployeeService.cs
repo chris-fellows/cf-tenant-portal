@@ -38,6 +38,11 @@ namespace CFTenantPortal.Services
             return _entities.DeleteOneAsync(id);
         }
 
+        public Task<Employee?> GetByEmailAsync(string email)
+        {
+            return _entities.Find(x => x.Email == email).FirstOrDefaultAsync();
+        }
+
         //public Task<List<Employee>> GetAll()
         //{
         //    return Task.FromResult(GetAllInternal());

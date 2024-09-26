@@ -9,5 +9,7 @@ namespace CFTenantPortal.Interfaces
         //Task<Employee> GetById(string id);
 
         //Task Update(Employee employee);
+
+        Task<Employee> GetByEmailAsync(string email);
     }
 }

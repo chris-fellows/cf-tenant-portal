@@ -14,7 +14,7 @@ namespace CFTenantPortal.Models
 
         public string Name { get; set; } = String.Empty;
 
-        public string Email { get; set; }
+        public string Email { get; set; } = String.Empty;
 
         public bool Active { get; set; } = true;
     }
