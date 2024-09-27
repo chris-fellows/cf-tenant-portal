@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CFTenantPortal.Models
 {
     public class IssueFilterVM
-    {
+    {       
         [Display(Name = "Reference")]
         public string Reference { get; set; } = String.Empty;
 

@@ -95,6 +95,12 @@ namespace CFTenantPortal.Services
             //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
             var filterDefinition = Builders<Issue>.Filter.Empty;
 
+            // Filter on free format text
+            if (!String.IsNullOrEmpty(issueFilter.Search))
+            {
+                filterDefinition = filterDefinition & Builders<Issue>.Filter.StringIn(x => x.Reference, issueFilter.Search);
+            }
+
             // Filter issue references
             if (issueFilter.References != null && issueFilter.References.Any())
             {

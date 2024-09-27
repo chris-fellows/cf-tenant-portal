@@ -185,8 +185,13 @@ namespace CFTenantPortal.Controllers
             // https://learn.microsoft.com/en-us/aspnet/core/security/authentication/cookie?view=aspnetcore-8.0
             if (ModelState.IsValid)
             {
+                // Check email & password
                 var authenticateResult = _loginService.AuthenticateAsync(login.Email, login.Password).Result;
-                if (authenticateResult != null)
+                if (authenticateResult is string)   // Failure (Invalid credentials, password reset active)
+                {                    
+                    ViewBag.Message = (string)authenticateResult;
+                }
+                else
                 {
                     var claims = new List<Claim>();
                     SystemValueType userSystemValueType = new();    // EmployeeId/PropertyOwnerId
@@ -260,11 +265,7 @@ namespace CFTenantPortal.Controllers
                     }
 
                     return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    ViewBag.Message = "Invalid email or password";
-                }     
+                }                
             }          
 
             return RedirectToAction(nameof(Login));
@@ -272,6 +273,11 @@ namespace CFTenantPortal.Controllers
 
         public IActionResult Index()
         {            
+            return View();
+        }
+
+        public IActionResult ForgotPassword()
+        {
             return View();
         }
 
@@ -977,7 +983,7 @@ namespace CFTenantPortal.Controllers
         /// </summary>
         /// <param name="filterVM"></param>
         /// <returns></returns>
-        public IActionResult AllPropertyList(PropertyFilterVM filterVM = null)
+        public IActionResult AllPropertyList(PropertyFilterVM filterVM = null, string? search = null)
         {
             var propertyGroups = _propertyGroupService.GetAll().ToList();
             var propertyOwners = _propertyOwnerService.GetAll().ToList();
@@ -1002,6 +1008,7 @@ namespace CFTenantPortal.Controllers
             // Set property filter
             var propertyFilter = new PropertyFilter()
             {
+                Search = search,
                 PropertyGroupIds = String.IsNullOrWhiteSpace(model.Filter.PropertyGroupId) || 
                                     model.Filter.PropertyGroupId.Equals(EntityReference.None.Id) ? 
                             new() : new() { model.Filter.PropertyGroupId },
@@ -1035,7 +1042,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult AllPropertyOwnerList()
+        public IActionResult AllPropertyOwnerList(string? search)
         {
             var model = new PropertyOwnerListVM() 
             { 
@@ -1044,16 +1051,21 @@ namespace CFTenantPortal.Controllers
                 Filter = new PropertyOwnerFilterVM()
             };
 
-            model.PropertyOwners = _propertyOwnerService.GetAll().Select(po =>
+            var propertyOwnerFilter = new PropertyOwnerFilter()
             {
-                return new PropertyOwnerBasicVM()
+                Search = search
+            };
+            
+                model.PropertyOwners = _propertyOwnerService.GetByFilterAsync(propertyOwnerFilter).Result.Select(po =>
                 {
-                    Id = po.Id,
-                    Email = po.Email,
-                    Name = po.Name,
-                    AllowDelete = true
-                };
-            }).ToList();
+                    return new PropertyOwnerBasicVM()
+                    {
+                        Id = po.Id,
+                        Email = po.Email,
+                        Name = po.Name,
+                        AllowDelete = true
+                    };
+                }).ToList();         
 
             return View(model);
         }
@@ -1190,7 +1202,7 @@ namespace CFTenantPortal.Controllers
             }
         }
 
-        public IActionResult AllPropertyGroupList()
+        public IActionResult AllPropertyGroupList(string? search)
         {
             var model = new PropertyGroupListVM() 
             { 
@@ -1199,24 +1211,23 @@ namespace CFTenantPortal.Controllers
                 Filter = new PropertyGroupFilterVM()
             };   // Default header
 
-            model.PropertyGroups = _propertyGroupService.GetAll().Select(p =>
+            var propertyGroupFilter = new PropertyGroupFilter()
             {
-                return new PropertyGroupBasicVM()
+                Search = search
+            };
+
+            
+                model.PropertyGroups = _propertyGroupService.GetByFilterAsync(propertyGroupFilter).Result.Select(p =>
                 {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description, 
-                    AllowDelete = true
-                };
-
-                //return new PropertyGroupVM()
-                //{
-                //    Id = p.Id,
-                //    Name = p.Name,
-                //    Description = p.Description
-                //};
-            }).ToList();
-
+                    return new PropertyGroupBasicVM()
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        AllowDelete = true
+                    };
+                }).ToList();
+         
             return View(model);
         }
 
@@ -1477,7 +1488,7 @@ namespace CFTenantPortal.Controllers
             return View(model);
         }
 
-        public IActionResult AllIssueList(IssueFilterVM filterVM = null)     // (string? issueTypeId)
+        public IActionResult AllIssueList(IssueFilterVM filterVM = null, string? search = null)
         {
             // Get properties (All properties/Specific group)
             var issueStatuses = _issueStatusService.GetAll();
@@ -1506,6 +1517,7 @@ namespace CFTenantPortal.Controllers
 
             var issueFilter = new IssueFilter()
             {
+                Search = search,
                 References = String.IsNullOrEmpty(model.Filter.Reference) ?
                                 new() : new() { model.Filter.Reference },
                 IssueStatusIds = String.IsNullOrWhiteSpace(model.Filter.IssueStatusId) ||
@@ -1532,7 +1544,7 @@ namespace CFTenantPortal.Controllers
             */
 
             // Get issues
-            var issues = _issueService.GetByFilterAsync(issueFilter).Result;
+            var issues = _issueService.GetByFilterAsync(issueFilter).Result;                             
                        
             // Get issue models
             model.Issues = issues.Select(i =>
@@ -2276,6 +2288,148 @@ namespace CFTenantPortal.Controllers
                 var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
                 return File(fileContent, "text/csv", $"Issues{exportSettings.DefaultExtension}");
             }
+        }
+
+        public IActionResult ResetPasswordSent()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Processes form to reset password
+        /// </summary>
+        /// <param name="forgotPassword"></param>
+        /// <returns></returns>
+        public IActionResult ForgotPasswordForm(ForgotPasswordVM forgotPassword)
+        {
+            // Get employee or property owner
+            var employee = _employeeService.GetByEmailAsync(forgotPassword.Email).Result;
+            var propertyOwner = (employee == null ? _propertyOwnerService.GetByEmailAsync(forgotPassword.Email).Result : null);
+
+            var passwordResetId = Guid.NewGuid().ToString();
+
+            // TODO: Send email
+            if (employee != null || propertyOwner != null)
+            {
+
+            }
+
+            // Update employee or property owner to indicate password reset active
+            if (employee != null)
+            {
+                employee.PasswordReset = new PasswordReset()
+                {
+                    Id = passwordResetId,
+                    EmailSendDateTime = DateTimeOffset.UtcNow,
+                    ExpiryDateTime = DateTimeOffset.UtcNow.AddMinutes(120)
+                };
+
+                _employeeService.UpdateAsync(employee).Wait();
+            }
+            else if (propertyOwner != null)
+            {
+                propertyOwner.PasswordReset = new PasswordReset()
+                {
+                    Id = passwordResetId,
+                    EmailSendDateTime = DateTimeOffset.UtcNow,
+                    ExpiryDateTime = DateTimeOffset.UtcNow.AddMinutes(120)
+                };
+
+                _propertyOwnerService.UpdateAsync(propertyOwner).Wait();
+            }
+            return RedirectToAction(nameof(ResetPasswordSent));
+        }
+
+        /// <summary>
+        /// Handles user clicking on 'Reset password' link in email
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public IActionResult ResetPasswordFromEmail(string id)
+        {
+            // TODO: Load Employee or PropertyOwner from reset Id
+
+            var employee = _employeeService.GetByIdAsync(id).Result;
+            var propertyOwner = (employee == null ? _propertyOwnerService.GetByIdAsync(id).Result : null);
+
+            if (employee != null)
+            {
+                if (employee.PasswordReset == null)   // No active reset
+                {
+
+                }
+                else if (employee.PasswordReset.Id == id)   // User clicked on link in latest reset email
+                {
+                    return RedirectToAction(nameof(ResetPassword), new { id = id });
+                }
+                else    // User clicked on link in old reset email
+                {
+                  
+                }
+            }
+            else if (propertyOwner != null)
+            {
+                if (propertyOwner.PasswordReset == null)    // No active reset
+                {
+
+                }
+                else if (propertyOwner.PasswordReset.Id == id)   // User clicked on link in latest reset email
+                {
+                    return RedirectToAction(nameof(ResetPassword), new { id = id });
+                }
+                else    // User clicked on link in old reset email
+                {
+
+                }
+            }
+
+            return RedirectToAction(nameof(ResetPassword), new { id = id });
+        }
+
+        public IActionResult ResetPassword(string id)
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Processes form to reset password
+        /// </summary>
+        /// <param name="resetPassword"></param>
+        /// <returns></returns>
+        public IActionResult ResetPasswordForm(ResetPasswordVM resetPassword)
+        {
+            // Get employee or property owner
+            var employee = _employeeService.GetByIdAsync(resetPassword.UserId).Result;
+            var propertyOwner = (employee == null ? _propertyOwnerService.GetByIdAsync(resetPassword.UserId).Result : null);
+
+            if (employee != null)
+            {                
+                // Check that reset hasn't expired
+                if (employee.PasswordReset!.ExpiryDateTime <= DateTimeOffset.UtcNow)
+                {
+
+                }
+
+                employee.Password = resetPassword.Password1;
+                employee.PasswordReset = null;
+
+                _employeeService.UpdateAsync(employee).Wait();
+            }
+            else if (propertyOwner != null)
+            {
+                // Check that reset hasn't expired
+                if (propertyOwner.PasswordReset!.ExpiryDateTime <= DateTimeOffset.UtcNow)
+                {
+
+                }
+
+                propertyOwner.Password = resetPassword.Password1;
+                propertyOwner.PasswordReset = null;
+
+                _propertyOwnerService.UpdateAsync(propertyOwner).Wait();
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -24,7 +24,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                             </li>           
-                            @if (User.IsInRole(CFTenantPortal.Enums.UserRoles.Employee.ToString()) || User.IsInRole(CFTenantPortal.Enums.UserRoles.EmployeeAdmin.ToString()))
+                            @if (true || User.IsInRole(CFTenantPortal.Enums.UserRoles.Employee.ToString()) || User.IsInRole(CFTenantPortal.Enums.UserRoles.EmployeeAdmin.ToString()))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AllIssueTypeList">Issue Types</a>

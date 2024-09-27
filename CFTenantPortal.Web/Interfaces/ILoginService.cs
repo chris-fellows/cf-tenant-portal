@@ -9,11 +9,11 @@ namespace CFTenantPortal.Interfaces
     public interface ILoginService
     {
         /// <summary>
-        /// Authenticates user. Returns either Employee, PropertyOwner or null (Invalid credentials)
+        /// Authenticates user
         /// </summary>
         /// <param name="email"></param>
         /// <param name="password"></param>
-        /// <returns></returns>
+        /// <returns>Employee, PropertyOwner or failure message</returns>
         Task<object> AuthenticateAsync(string email, string password);        
     }
 }

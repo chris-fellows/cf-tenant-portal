@@ -44,5 +44,10 @@ namespace CFTenantPortal.Models
         /// Password
         /// </summary>
         public string Password { get; set; } = String.Empty;
+
+        /// <summary>
+        /// Password reset details if reset requested
+        /// </summary>
+        public PasswordReset? PasswordReset { get; set; }
     }
 }

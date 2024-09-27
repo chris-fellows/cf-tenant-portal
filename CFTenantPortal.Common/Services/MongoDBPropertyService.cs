@@ -90,6 +90,12 @@ namespace CFTenantPortal.Services
             //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
             var filterDefinition = Builders<Property>.Filter.Empty;
 
+            // Filter on free format text
+            if (!String.IsNullOrEmpty(propertyFilter.Search))
+            {
+                filterDefinition = filterDefinition & Builders<Property>.Filter.StringIn(x => x.Address.ToSummary(), propertyFilter.Search);
+            }
+
             // Filter property groups
             if (propertyFilter.PropertyGroupIds != null && propertyFilter.PropertyGroupIds.Any())
             {

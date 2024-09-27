@@ -1,5 +1,6 @@
 ﻿using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
+using CFUtilities.Utilities;
 using MongoDB.Driver;
 using System.Net;
 
@@ -37,67 +38,56 @@ namespace CFTenantPortal.Services
         {
             return _entities.DeleteOneAsync(id);
         }
+        public async Task<List<PropertyGroup>> GetByFilterAsync(PropertyGroupFilter propertyGroupFilter)
+        {
+            // Get filter definition
+            var filterDefinition = GetFilterDefinition(propertyGroupFilter);
 
-        //public Task<List<PropertyGroup>> GetAll()
-        //{
-        //    return Task.FromResult(GetAllInternal());
-        //}
+            // Get filtered property owners page
+            var auditEvents = await _entities.Find(filterDefinition)
+                            //.SortBy(x => x.CreatedDateTime)
+                            .Skip(NumericUtilities.GetPageSkip(propertyGroupFilter.PageItems, propertyGroupFilter.PageNo))
+                            .Limit(propertyGroupFilter.PageItems)
+                            .ToListAsync();
 
-        //public Task<PropertyGroup> GetById(string id)
-        //{
-        //    return Task.FromResult(GetAllInternal().FirstOrDefault(pg => pg.Id == id));
-        //}
+            //var events = await _eventInstances.FindAsync(filter);
 
-        //public Task Update(PropertyGroup propertyGroup)
-        //{
-        //    return Task.CompletedTask;
-        //}
+            return auditEvents;
+        }
 
-        //private List<PropertyGroup> GetAllInternal()
-        //{
-        //    var propertyGroups = new List<PropertyGroup>();
+        /// <summary>
+        /// Returns MongoDB filter definition for AuditEventFilter       
+        /// </summary>
+        /// <param name="auditEventFilter"></param>
+        /// <returns></returns>
+        private static FilterDefinition<PropertyGroup> GetFilterDefinition(PropertyGroupFilter propertyGroupFilter)
+        {
+            // Set date range filter
+            //var filterDefinition = Builders<AuditEvent>.Filter.Gte(x => x.CreatedDateTime, auditEventFilter.StartCreatedDateTime.UtcDateTime);
+            //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
+            var filterDefinition = Builders<PropertyGroup>.Filter.Empty;
 
-        //    propertyGroups.Add(new PropertyGroup()
-        //    {
-        //        Id = "1",
-        //        Name = "Building 1",
-        //        Description = "Maidenhead, Berkshire",
-        //        DocumentIds = new List<string>() { "1" }
-        //    });
+            // Filter on free format text
+            if (!String.IsNullOrEmpty(propertyGroupFilter.Search))
+            {
+                filterDefinition = filterDefinition & Builders<PropertyGroup>.Filter.StringIn(x => x.Name, propertyGroupFilter.Search);
+            }
 
-        //    propertyGroups.Add(new PropertyGroup()
-        //    {
-        //        Id = "2",
-        //        Name = "Building 2",
-        //        Description = "Maidenhead, Berkshire",
-        //        DocumentIds = new List<string>() { "1" }
-        //    });
+            //// Filter property groups
+            //if (propertyFilter.PropertyGroupIds != null && propertyFilter.PropertyGroupIds.Any())
+            //{
+            //    filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.GroupId, propertyFilter.PropertyGroupIds.ToArray());
+            //}
 
-        //    propertyGroups.Add(new PropertyGroup()
-        //    {
-        //        Id = "3",
-        //        Name = "Building 3",
-        //        Description = "Maidenhead, Berkshire",
-        //        DocumentIds = new List<string>() { "1" }
-        //    });
+            //// Filter property owners
+            //if (propertyFilter.PropertyOwnerIds != null && propertyFilter.PropertyOwnerIds.Any())
+            //{
+            //    filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.OwnerId, propertyFilter.PropertyOwnerIds.ToArray());
+            //}
 
-        //    propertyGroups.Add(new PropertyGroup()
-        //    {
-        //        Id = "4",
-        //        Name = "Building 4",
-        //        Description = "Cookham, Berkshire",
-        //        DocumentIds = new List<string>() { "2" }
-        //    });
+            //var sort = Builders<EventInstance>.Sort.Ascending(x => x.CreatedDateTime);
 
-        //    propertyGroups.Add(new PropertyGroup()
-        //    {
-        //        Id = "5",
-        //        Name = "Building 5",
-        //        Description = "Cookham, Berkshire",
-        //        DocumentIds = new List<string>() { "2" }
-        //    });
-
-        //    return propertyGroups;
-        //}
+            return filterDefinition;
+        }
     }
 }

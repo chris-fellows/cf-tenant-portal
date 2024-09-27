@@ -1,5 +1,6 @@
 ﻿using CFTenantPortal.Interfaces;
 using CFTenantPortal.Models;
+using CFUtilities.Utilities;
 using MongoDB.Driver;
 using System.Net;
 
@@ -43,103 +44,56 @@ namespace CFTenantPortal.Services
             return _entities.Find(x => x.Email == email).FirstOrDefaultAsync();
         }
 
-        //public Task<List<PropertyOwner>> GetAll()
-        //{
-        //    return Task.FromResult(GetAllInternal());
-        //}
+        public async Task<List<PropertyOwner>> GetByFilterAsync(PropertyOwnerFilter propertyOwnerFilter)
+        {
+            // Get filter definition
+            var filterDefinition = GetFilterDefinition(propertyOwnerFilter);
 
-        //public Task<PropertyOwner> GetById(string id)
-        //{
-        //    return Task.FromResult(GetAllInternal().FirstOrDefault(po => po.Id == id));
-        //}
+            // Get filtered property owners page
+            var auditEvents = await _entities.Find(filterDefinition)
+                            //.SortBy(x => x.CreatedDateTime)
+                            .Skip(NumericUtilities.GetPageSkip(propertyOwnerFilter.PageItems, propertyOwnerFilter.PageNo))
+                            .Limit(propertyOwnerFilter.PageItems)
+                            .ToListAsync();
 
-        //public Task Update(PropertyOwner propertyOwner)
-        //{
-        //    return Task.CompletedTask;
-        //}
+            //var events = await _eventInstances.FindAsync(filter);
 
-        //private List<PropertyOwner> GetAllInternal()
-        //{
-        //    var propertyOwners = new List<PropertyOwner>();
+            return auditEvents;
+        }
 
-        //    propertyOwners.Add(new PropertyOwner()
-        //    {
-        //        Id = "1",
-        //        Name = "Owner 1",
-        //        Email = "owner1@myproperty.com",
-        //        Phone = "1234567890",
-        //        Address = new Address()
-        //        {
-        //            Line1 = "100 High Street",
-        //            County = "Berkshire",
-        //            Town = "Maidenhead",
-        //            Postcode = "SL1 8AX",
-        //        },
-        //        DocumentIds = new List<string>() { "2", "3" }
-        //    });
+        /// <summary>
+        /// Returns MongoDB filter definition for AuditEventFilter       
+        /// </summary>
+        /// <param name="auditEventFilter"></param>
+        /// <returns></returns>
+        private static FilterDefinition<PropertyOwner> GetFilterDefinition(PropertyOwnerFilter propertyOwnerFilter)
+        {
+            // Set date range filter
+            //var filterDefinition = Builders<AuditEvent>.Filter.Gte(x => x.CreatedDateTime, auditEventFilter.StartCreatedDateTime.UtcDateTime);
+            //filterDefinition = filterDefinition & Builders<AuditEvent>.Filter.Lte(x => x.CreatedDateTime, auditEventFilter.EndCreatedDateTime.UtcDateTime);
+            var filterDefinition = Builders<PropertyOwner>.Filter.Empty;
 
-        //    propertyOwners.Add(new PropertyOwner()
-        //    {
-        //        Id = "2",
-        //        Name = "Owner 2",
-        //        Email = "owner2@myproperty.com",
-        //        Phone = "1234567890",
-        //        Address = new Address()
-        //        {
-        //            Line1 = "100 High Street",
-        //            County = "Berkshire",
-        //            Town = "Maidenhead",
-        //            Postcode = "SL1 8AX",
-        //        },
-        //        DocumentIds = new List<string>() { "2", "3" }
-        //    });
+            // Filter on free format text
+            if (!String.IsNullOrEmpty(propertyOwnerFilter.Search))
+            {
+                filterDefinition = filterDefinition & Builders<PropertyOwner>.Filter.StringIn(x => x.Address.ToSummary(), propertyOwnerFilter.Search);
+            }
 
-        //    propertyOwners.Add(new PropertyOwner()
-        //    {
-        //        Id = "3",
-        //        Name = "Owner 3",
-        //        Email = "owner3@myproperty.com",
-        //        Phone = "1234567890",
-        //        Address = new Address()
-        //        {
-        //            Line1 = "100 High Street",
-        //            County = "Berkshire",
-        //            Town = "Maidenhead",
-        //            Postcode = "SL1 8AX",
-        //        }
-        //    });
+            //// Filter property groups
+            //if (propertyFilter.PropertyGroupIds != null && propertyFilter.PropertyGroupIds.Any())
+            //{
+            //    filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.GroupId, propertyFilter.PropertyGroupIds.ToArray());
+            //}
 
-        //    propertyOwners.Add(new PropertyOwner()
-        //    {
-        //        Id = "4",
-        //        Name = "Owner 4",
-        //        Email = "owner4@myproperty.com",
-        //        Phone = "1234567890",
-        //        Address = new Address()
-        //        {
-        //            Line1 = "100 High Street",
-        //            County = "Berkshire",
-        //            Town = "Maidenhead",
-        //            Postcode = "SL1 8AX",
-        //        }
-        //    });
+            //// Filter property owners
+            //if (propertyFilter.PropertyOwnerIds != null && propertyFilter.PropertyOwnerIds.Any())
+            //{
+            //    filterDefinition = filterDefinition & Builders<Property>.Filter.In(x => x.OwnerId, propertyFilter.PropertyOwnerIds.ToArray());
+            //}
 
-        //    propertyOwners.Add(new PropertyOwner()
-        //    {
-        //        Id = "5",
-        //        Name = "Owner 5",
-        //        Email = "owner5@myproperty.com",
-        //        Phone = "1234567890",
-        //        Address = new Address()
-        //        {
-        //            Line1 = "100 High Street",
-        //            County = "Berkshire",
-        //            Town = "Maidenhead",
-        //            Postcode = "SL1 8AX",
-        //        }
-        //    });
+            //var sort = Builders<EventInstance>.Sort.Ascending(x => x.CreatedDateTime);
 
-        //    return propertyOwners;
-        //}
+            return filterDefinition;
+        }
     }
 }

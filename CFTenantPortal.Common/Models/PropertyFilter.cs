@@ -8,6 +8,8 @@ namespace CFTenantPortal.Models
 {
     public class PropertyFilter
     {
+        public string? Search { get; set; }
+
         public List<string> PropertyGroupIds { get; set; }
         
         public List<string> PropertyOwnerIds { get; set; }

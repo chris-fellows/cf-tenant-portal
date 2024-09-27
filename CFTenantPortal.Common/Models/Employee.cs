@@ -24,6 +24,11 @@ namespace CFTenantPortal.Models
 
         public List<UserRoles> Roles { get; set; }
 
+        /// <summary>
+        /// Password reset details if reset requested
+        /// </summary>
+        public PasswordReset? PasswordReset { get; set; }
+
         public bool Active { get; set; } = true;
     }
 }

@@ -6,6 +6,13 @@
 
 <h3>@Model.HeaderText</h3>
 
+<form asp-controller="Home" asp-action="AllIssueList">
+    <p>
+        <label>Search: <input type="text" name="Search" /></label>
+        <input type="submit" class="btn btn-secondary" value="Filter" />
+    </p>
+</form>
+
 <!--Tab list-->
 <div class="pagetab">
     <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>

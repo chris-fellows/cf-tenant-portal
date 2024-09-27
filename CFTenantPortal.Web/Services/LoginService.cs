@@ -16,31 +16,40 @@ namespace CFTenantPortal.Services
     
         public async Task<object> AuthenticateAsync(string email, string password)
         {
-            if (String.IsNullOrEmpty(email)) return null;
+            const string defaultMessage = "Invalid email or password";
+
+            if (String.IsNullOrEmpty(email)) return defaultMessage;
 
             // Check if employee
             var employee = await _employeeService.GetByEmailAsync(email);
             if (employee != null)
             {
-                if (employee.Active && employee.Password.Equals(password))
+                if (employee.PasswordReset != null)
+                {
+                    return "Cannot log in because the password is being reset";
+                }
+                else if (employee.Active && employee.Password.Equals(password))
                 {
                     return employee;
                 }
-                return null;
+                return defaultMessage;
             }
 
-            // Check if property owner
-            // TODO: Add PropertyOwner.Active
+            // Check if property owner           
             var propertyOwner = await _propertyOwnerService.GetByEmailAsync(email);
             if (propertyOwner != null) 
             {
-                if (!propertyOwner.Password.Equals(password))
+                if (propertyOwner.PasswordReset != null)
+                {
+                    return "Cannot log in because the password is being reset";
+                }
+                else if (!propertyOwner.Password.Equals(password))
                 {
                     return propertyOwner;
                 }
             }
 
-            return null;
+            return defaultMessage;
         }      
     }
 }
