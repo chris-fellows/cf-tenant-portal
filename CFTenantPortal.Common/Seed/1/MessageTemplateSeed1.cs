@@ -60,10 +60,5 @@ namespace CFTenantPortal.Seed1
 
             return Task.FromResult(entities);
         }
-
-        public Task WriteAllAsync(List<MessageTemplate> entities)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

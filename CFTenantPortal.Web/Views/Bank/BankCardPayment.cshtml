@@ -1,0 +1,54 @@
+﻿@model CFTenantPortal.Models.BankCardPaymentVM
+
+@{
+    ViewData["Title"] = "Bank Card Payment";
+}
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="BankCardPaymentForm">
+    @Html.ValidationSummary(true)
+
+    @if (ViewBag.Message != null)
+    {
+        <p style="border: 1px solid red">
+            @ViewBag.Message
+        </p>
+    }
+
+    <table>
+        <tr>
+            <td>@Html.LabelFor(a => a.AccountName)</td>
+            <td>@Html.TextBoxFor(a => a.AccountName)</td>
+            <td>@Html.ValidationMessageFor(a => a.AccountName)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(a => a.Number)</td>
+            <td>@Html.TextBoxFor(a => a.Number)</td>
+            <td>@Html.ValidationMessageFor(a => a.Number)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(a => a.Expiry)</td>
+            <td>@Html.TextBoxFor(a => a.Expiry)</td>
+            <td>@Html.ValidationMessageFor(a => a.Expiry)</td>
+        </tr>
+
+        <tr>
+            <td>@Html.LabelFor(a => a.Code)</td>
+            <td>@Html.TextBoxFor(a => a.Code)</td>
+            <td>@Html.ValidationMessageFor(a => a.Code)</td>
+        </tr>
+
+        <tr>
+            <td>@Model.Amount</td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Pay" /></td>
+            <td></td>
+        </tr>
+    </table>
+</form>
+

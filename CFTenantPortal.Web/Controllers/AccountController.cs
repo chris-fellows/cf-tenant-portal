@@ -12,6 +12,9 @@ using System.Diagnostics;
 
 namespace CFTenantPortal.Controllers
 {
+    /// <summary>
+    /// Account controller. E.g. Login.
+    /// </summary>
     public class AccountController : Controller
     {
         private readonly IAuditEventService _auditEventService;

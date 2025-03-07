@@ -5,6 +5,7 @@
     /// </summary>
     public enum AccountTransactionTypes
     {        
+        ManagemmentFeesRequest,
         Rollup = 0
     }
 }

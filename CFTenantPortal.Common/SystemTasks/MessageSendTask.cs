@@ -1,4 +1,6 @@
-﻿namespace CFTenantPortal.SystemTasks
+﻿using CFTenantPortal.Interfaces;
+
+namespace CFTenantPortal.SystemTasks
 {
     /// <summary>
     /// Sends messages
@@ -20,6 +22,11 @@
         public Task ExecuteAsync(CancellationToken cancellationToken, IServiceProvider serviceProvider, Dictionary<string, object> parameters)
         {
             return Task.CompletedTask;
+        }
+
+        private async Task SendEmail(IEmailService emailService)
+        {
+
         }
     }
 }

@@ -1772,11 +1772,10 @@ namespace CFTenantPortal.Controllers
             var auditEvents = _auditEventService.GetByFilterAsync(auditEventFilter).Result;
 
             int xxx = 1000;
-
-            const string format = "CSV";
-            switch (format)
+            
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportAuditEventsToCSV(auditEvents);
+                case ExportFormats.CSV: return ExportAuditEventsToCSV(auditEvents);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1792,11 +1791,10 @@ namespace CFTenantPortal.Controllers
         {
             // Get documents           
             var documents = _documentService.GetAll().ToList();
-
-            const string format = "CSV";
-            switch (format)
+            
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportDocumentsToCSV(documents);
+                case ExportFormats.CSV: return ExportDocumentsToCSV(documents);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1813,10 +1811,9 @@ namespace CFTenantPortal.Controllers
             // Get messages           
             var messages = _messageService.GetAll().ToList();
 
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportMessagesToCSV(messages);
+                case ExportFormats.CSV: return ExportMessagesToCSV(messages);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1846,12 +1843,9 @@ namespace CFTenantPortal.Controllers
             // Get properties           
             var properties = _propertyService.GetByFilterAsync(propertyFilter).Result;
 
-            int xxx = 1000;
-
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportPropertiesToCSV(properties);
+                case ExportFormats.CSV: return ExportPropertiesToCSV(properties);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1879,10 +1873,9 @@ namespace CFTenantPortal.Controllers
 
             int xxx = 1000;
 
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportIssuesToCSV(issues);
+                case  ExportFormats.CSV: return ExportIssuesToCSV(issues);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1898,10 +1891,9 @@ namespace CFTenantPortal.Controllers
             // Get properties           
             var propertyGroups = _propertyGroupService.GetAll().ToList();
 
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportPropertyGroupsToCSV(propertyGroups);
+                case ExportFormats.CSV: return ExportPropertyGroupsToCSV(propertyGroups);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1917,10 +1909,9 @@ namespace CFTenantPortal.Controllers
             // Get property owners         
             var propertyOwners = _propertyOwnerService.GetAll().ToList();
 
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportPropertyOwnersToCSV(propertyOwners);
+                case ExportFormats.CSV: return ExportPropertyOwnersToCSV(propertyOwners);
             }
 
             throw new ArgumentException("Invalid format");
@@ -1936,10 +1927,9 @@ namespace CFTenantPortal.Controllers
             // Get employees
             var employees = _employeeService.GetAll().ToList();
 
-            const string format = "CSV";
-            switch (format)
+            switch (SystemConfig.DefaultExportFormat)
             {
-                case "CSV": return ExportEmployeesToCSV(employees);
+                case ExportFormats.CSV: return ExportEmployeesToCSV(employees);
             }
 
             throw new ArgumentException("Invalid format");
@@ -2101,7 +2091,8 @@ namespace CFTenantPortal.Controllers
                 var export = new PropertyCSVExport();
                 export.WriteAsync(properties, exportSettings).Wait();
 
-                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                
+                var fileContent = System.IO.File.ReadAllBytes(exportSettings.File);                 
+
                 return File(fileContent, "text/csv", $"Properties{exportSettings.DefaultExtension}");
             }
         }

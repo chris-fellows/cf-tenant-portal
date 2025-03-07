@@ -64,6 +64,15 @@ builder.Services.AddScoped<ISharedSeedDataService, SharedSeedDataService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IPasswordService, PBKDF2PasswordService>();
 
+// Set bank payment gateway service
+builder.Services.AddScoped<IBankPaymentGatewayService>((scope) =>
+{
+    //var service2 = new SwiftBankPaymentGatewayService();
+    var service = new TestBankPaymentGatewayService();
+    service.AddCardNumber("1111111111111111");
+    return service;
+});
+
 // Set request info service
 builder.Services.AddScoped<IRequestInfoService, RequestInfoService>();
 
@@ -78,6 +87,8 @@ switch(dataLocationType)
         builder.Services.AddScoped<IAccountTransactionTypeService, MongoDBAccountTransactionTypeService>();
         builder.Services.AddScoped<IAuditEventService, MongoDBAuditEventService>();
         builder.Services.AddScoped<IAuditEventTypeService, MongoDBAuditEventTypeService>();
+        builder.Services.AddScoped<IBankPaymentService, MongoDBBankPaymentService>();
+        builder.Services.AddScoped<IContentTemplateService, MongoDBContentTemplateService>();
         builder.Services.AddScoped<IDocumentService, MongoDBDocumentService>();
         builder.Services.AddScoped<IEmployeeService, MongoDBEmployeeService>();
         builder.Services.AddScoped<IIssueService, MongoDBIssueService>();
@@ -104,14 +115,14 @@ builder.Services.AddSingleton<ISystemTasks>((scope) =>
         {
                 ExecuteFrequency = TimeSpan.FromHours(24)
         }),
-            new MessageSendTask(new SystemTaskSchedule()
+        new MessageSendTask(new SystemTaskSchedule()
         {
                 ExecuteFrequency = TimeSpan.FromMinutes(15)
         }),
-                new MonitoringTask(new SystemTaskSchedule()
+        new MonitoringTask(new SystemTaskSchedule()
         {
                 ExecuteFrequency = TimeSpan.FromMinutes(15)
-        })
+        })      
     };
 
     systemTasks.RemoveAll(st => st == null);   // Allow configurable list of tasks (E.g. Not used in test mode)
