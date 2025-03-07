@@ -6,6 +6,8 @@
 
 <h3>@Model.HeaderText</h3>
 
+@(await Component.InvokeAsync("PopupMessageComp"))
+
 <form asp-controller="Home" asp-action="AllPropertyList">
     <p>
         <label>Search: <input type="text" name="Search" /></label>
@@ -36,9 +38,11 @@
         <br />
 
         <button class="btn btn-primary" type="submit">Search</button>        
-        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>        
+        <button class="btn btn-secondary" type="submit" formaction=@Url.Action("ResetFilterPropertiesForm")>Reset</button>               
     </form>    
 </div>
+
+<input type="button" value="Test" onclick="ShowTestPopupMessage();"/>
 
 @section Scripts
 {
@@ -51,5 +55,24 @@
             e.preventDefault();                        
             $("#ExportButtonHiddenOld").click();            
         });
+
+        function ShowTestPopupMessage() {
+
+            ShowPopupMessage("Do you want to save?",
+                "Yes", function () {
+                    HidePopupMessage();
+                    window.alert("You clicked Yes");
+                },
+                "No", function () {
+                    HidePopupMessage();
+                    window.alert("You clicked No");
+                },
+                "Cancel", function () {
+                    HidePopupMessage();
+                    window.alert("You clicked Cancel");
+                });
+
+            return true;
+        }    
     </script>
 }

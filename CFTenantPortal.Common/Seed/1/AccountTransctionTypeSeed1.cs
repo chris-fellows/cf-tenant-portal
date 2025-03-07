@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class AccountTransactionTypeSeed1 : IEntityList<AccountTransactionType>
+    public class AccountTransactionTypeSeed1 : IEntityReader<AccountTransactionType>
     {
         public Task<List<AccountTransactionType>> ReadAllAsync()
         {
@@ -43,11 +43,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<AccountTransactionType> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

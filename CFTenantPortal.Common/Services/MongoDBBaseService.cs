@@ -41,7 +41,7 @@ namespace CFTenantPortal.Services
             return new Tuple<MongoClient, IMongoCollection<TEntityType>>(client, collection);
         }
 
-        public async Task ImportAsync(IEntityList<TEntityType> entityList)
+        public async Task ImportAsync(IEntityReader<TEntityType> entityList)
         {
             var entities = entityList.ReadAllAsync().Result;
             if (!entities.Any()) return;
@@ -62,10 +62,9 @@ namespace CFTenantPortal.Services
             }
         }
 
-        public Task ExportAsync(IEntityList<TEntityType> eventTypeList)
+        public async Task ExportAsync(IEntityWriter<TEntityType> entityList)
         {
-            eventTypeList.WriteAllAsync(GetAll().ToList());
-            return Task.CompletedTask;
+            await entityList.WriteAllAsync(GetAll().ToList());            
         }
 
         public IEnumerable<TEntityType> GetAll()
@@ -83,16 +82,16 @@ namespace CFTenantPortal.Services
         //    return _entities.Find(x => x.Name == name).FirstOrDefaultAsync();
         //}
 
-        public Task<TEntityType> AddAsync(TEntityType eventType)
+        public async Task<TEntityType> AddAsync(TEntityType eventType)
         {
-            _entities.InsertOneAsync(eventType);
-            return Task.FromResult(eventType);
+            await _entities.InsertOneAsync(eventType);
+            return eventType;
         }
 
-        public Task<TEntityType> UpdateAsync(TEntityType eventType)
+        public async Task<TEntityType> UpdateAsync(TEntityType eventType)
         {            
             //_entities.UpdateOneAsync(eventType);
-            return Task.FromResult(eventType);
+            return await Task.FromResult(eventType);
         }
 
         public async Task DeleteAllAsync()
@@ -100,9 +99,9 @@ namespace CFTenantPortal.Services
             await _entities.DeleteManyAsync(Builders<TEntityType>.Filter.Empty);
         }
 
-        public Task DeleteByIdAsync(string id)
+        public async Task DeleteByIdAsync(string id)
         {
-            return _entities.DeleteOneAsync(id);
+            await _entities.DeleteOneAsync(id);
         }
     }
 }

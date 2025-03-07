@@ -41,5 +41,7 @@ namespace CFTenantPortal.Models
         public List<EntityReference> PropertyOwnerRefList { get; set; } = new List<EntityReference>();
 
         public bool AllowSave { get; set; }
+
+        public bool AllowSendMessage { get; set; }
     }
 }

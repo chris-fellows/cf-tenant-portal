@@ -9,40 +9,40 @@ namespace CFTenantPortal.Models
 {
     public class SharedSeed
     {
-        public IEntityList<AccountTransaction> AccountTransactions { get; set; }
-        public IEntityList<AccountTransactionType> AccountTransactionTypes { get; set; }
+        public IEntityReader<AccountTransaction> AccountTransactions { get; set; }
+        public IEntityReader<AccountTransactionType> AccountTransactionTypes { get; set; }
 
-        public IEntityList<AuditEvent> AuditEvents { get; set; }
+        public IEntityReader<AuditEvent> AuditEvents { get; set; }
 
-        public IEntityList<AuditEventType> AuditEventTypes { get; set; }
+        public IEntityReader<AuditEventType> AuditEventTypes { get; set; }
 
-        public IEntityList<Document> Documents { get; set; }
+        public IEntityReader<Document> Documents { get; set; }
 
-        public IEntityList<Employee> Employees { get; set; }
+        public IEntityReader<Employee> Employees { get; set; }
 
-        public IEntityList<Issue> Issues { get; set; }
+        public IEntityReader<Issue> Issues { get; set; }
 
-        public IEntityList<IssueStatus> IssueStatuses { get; set; }
+        public IEntityReader<IssueStatus> IssueStatuses { get; set; }
 
-        public IEntityList<IssueType> IssueTypes { get; set; }
+        public IEntityReader<IssueType> IssueTypes { get; set; }
 
-        public IEntityList<IssueType> entityList { get; set; }
+        public IEntityReader<IssueType> entityList { get; set; }
 
-        public IEntityList<Message> Messages { get; set; }
+        public IEntityReader<Message> Messages { get; set; }
 
-        public IEntityList<MessageTemplate> MessageTemplates { get; set; }
-        public IEntityList<MessageType> MessageTypes { get; set; }
+        public IEntityReader<MessageTemplate> MessageTemplates { get; set; }
+        public IEntityReader<MessageType> MessageTypes { get; set; }
 
-        public IEntityList<Property> Properties { get; set; }
+        public IEntityReader<Property> Properties { get; set; }
 
-        public IEntityList<PropertyFeatureType> PropertyFeatureTypes { get; set; }
+        public IEntityReader<PropertyFeatureType> PropertyFeatureTypes { get; set; }
 
-        public IEntityList<PropertyGroup> PropertyGroups { get; set; }
+        public IEntityReader<PropertyGroup> PropertyGroups { get; set; }
 
-        public IEntityList<PropertyOwner> PropertyOwners { get; set; }
+        public IEntityReader<PropertyOwner> PropertyOwners { get; set; }
 
-        public IEntityList<SystemValueType> SystemValueTypes { get; set; }
+        public IEntityReader<SystemValueType> SystemValueTypes { get; set; }
 
-        public IEntityList<User> Users { get; set; }    
+        public IEntityReader<User> Users { get; set; }    
     }
 }

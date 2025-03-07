@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class DocumentSeed1 : IEntityList<Document>
+    public class DocumentSeed1 : IEntityReader<Document>
     {
         public Task<List<Document>> ReadAllAsync()
         {
@@ -45,11 +45,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<Document> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

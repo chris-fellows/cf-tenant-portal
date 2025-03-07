@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class PropertyOwnerSeed1 : IEntityList<PropertyOwner>
+    public class PropertyOwnerSeed1 : IEntityReader<PropertyOwner>
     {
         private readonly IDocumentService _documentService;
 
@@ -100,12 +100,17 @@ namespace CFTenantPortal.Seed1
                 }
             });
 
-            return Task.FromResult(entities);
-        }
+            /*
+            // Store encrypted password & salt            
+            foreach(var propertyOwner in entities)
+            {
+                var data = passwordService.Encrypt(propertyOwner.Password);
+                propertyOwner.Password = data[0];
+                propertyOwner.Salt = data[1];
+            }
+            */
 
-        public Task WriteAllAsync(List<PropertyOwner> entities)
-        {
-            return Task.CompletedTask;
-        }
+            return Task.FromResult(entities);
+        }       
     }
 }

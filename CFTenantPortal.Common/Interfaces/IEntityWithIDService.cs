@@ -12,14 +12,14 @@
         /// </summary>
         /// <param name="eventTypeList"></param>
         /// <returns></returns>
-        Task ImportAsync(IEntityList<TEntityType> entityList);
+        Task ImportAsync(IEntityReader<TEntityType> entityList);
 
         /// <summary>
         /// Exports to list
         /// </summary>
         /// <param name="eventTypeList"></param>
         /// <returns></returns>
-        Task ExportAsync(IEntityList<TEntityType> entityList);
+        Task ExportAsync(IEntityWriter<TEntityType> entityList);
 
         /// <summary>
         /// Gets all

@@ -6,6 +6,16 @@
 
 <h3>@Model.HeaderText</h3>
 
+@if (@Model.AllowSendMessage)
+{
+    @Html.ActionLink(
+                      "Send Message",                        // Button text
+                      "SendMessage",                         // controller action
+                      "Home",                                // controller
+                      new { issueId = Model.Id },         // action parameters aka route values
+                      new { @class = "btn btn-secondary" })
+}
+
 <!--Tab list-->
 <div class="pagetab">
     <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>

@@ -23,9 +23,9 @@ namespace CFTenantPortal.Services
         //}
 
 
-        public Task<SystemValueType?> GetByIdAsync(string id)
+        public async Task<SystemValueType?> GetByIdAsync(string id)
         {
-            return _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return await _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
         //public Task<AccountTransaction?> GetByNameAsync(string name)
@@ -33,9 +33,9 @@ namespace CFTenantPortal.Services
         //    return _entities.Find(x => x.Name == name).FirstOrDefaultAsync();
         //}
 
-        public Task DeleteByIdAsync(string id)
+        public async Task DeleteByIdAsync(string id)
         {
-            return _entities.DeleteOneAsync(id);
+            await _entities.DeleteOneAsync(id);
         }
 
         //public Task<List<SystemValueType>> GetAll()
@@ -48,9 +48,9 @@ namespace CFTenantPortal.Services
         //    return Task.FromResult(GetAllInternal().FirstOrDefault(e => e.Id == id));
         //}
 
-        public Task<SystemValueType> GetByEnum(SystemValueTypes systemValueType)
+        public async Task<SystemValueType> GetByEnum(SystemValueTypes systemValueType)
         {
-            return Task.FromResult(GetAll().FirstOrDefault(e => e.ValueType == systemValueType));
+            return await Task.FromResult(GetAll().FirstOrDefault(e => e.ValueType == systemValueType));
         }
 
         //private List<SystemValueType> GetAllInternal()

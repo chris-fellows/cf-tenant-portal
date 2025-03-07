@@ -4,7 +4,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class AuditEventTypeSeed1 : IEntityList<AuditEventType>
+    public class AuditEventTypeSeed1 : IEntityReader<AuditEventType>
     {
         public Task<List<AuditEventType>> ReadAllAsync()
         {
@@ -149,11 +149,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<AuditEventType> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

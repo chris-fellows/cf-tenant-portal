@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class MessageSeed1 : IEntityList<Message>
+    public class MessageSeed1 : IEntityReader<Message>
     {
         private readonly IDocumentService _documentService;
         private readonly IMessageTypeService _messageTypeService;

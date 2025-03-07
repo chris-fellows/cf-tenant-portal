@@ -3,7 +3,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class PropertyFeatureTypeSeed1 : IEntityList<PropertyFeatureType>
+    public class PropertyFeatureTypeSeed1 : IEntityReader<PropertyFeatureType>
     {
         public Task<List<PropertyFeatureType>> ReadAllAsync()
         {

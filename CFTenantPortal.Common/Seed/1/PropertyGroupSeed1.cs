@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class PropertyGroupSeed1 : IEntityList<PropertyGroup>
+    public class PropertyGroupSeed1 : IEntityReader<PropertyGroup>
     {
         private readonly IDocumentService _documentService;
 

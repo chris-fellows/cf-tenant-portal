@@ -1,20 +1,14 @@
-﻿@model CFTenantPortal.Models.MessageVM
+﻿@model CFTenantPortal.Models.SendMessageVM
 
 @{
-    ViewData["Title"] = "Message";
+    ViewData["Title"] = "Send Message";
 }
+
+@(await Component.InvokeAsync("PopupMessageComp"))
 
 <h3>@Model.HeaderText</h3>
 
-<!--Tab list-->
-<div class="pagetab">
-    <button id="maintablink" class="pagetablinks" onclick="openPageTab('maintablink', 'maintab')">Main</button>
-    <button id="documentstablink" class="pagetablinks" onclick="openPageTab('documentstablink', 'documentstab')">Documents</button>
-</div>
-
-<div id="maintab" class="pagetabcontent">
-    <form asp-action="CreateEditMessageForm">
-        @Html.HiddenFor(m => m.Id)
+    <form asp-action="SendMessageForm">   
         @Html.LabelFor(m => m.MessageTypeId)
         @Html.DropDownListFor(m => m.MessageTypeId,
                  new SelectList(@Model.MessageTypeRefList, nameof(EntityReference.Id), nameof(EntityReference.Name)))
@@ -38,18 +32,21 @@
         @Html.LabelFor(m => m.Text)
         <input class="form-control" type="text" asp-for="@Model.Text" />
 
-    </form>
-</div>
-
-<div id="documentstab" class="pagetabcontent">
-    @(await Component.InvokeAsync("DocumentListComp", new { documents = Model.Documents }))
-</div>
+        <button class="btn btn-primary" type="button" onclick="ConfirmAndSubmit();">Send</button>
+</form>
 
 @section Scripts
 {
     <script>
-        $(window).on('load', function () {
-            $("#maintablink").click();    // Default to first tab
-        });
+        function ConfirmAndSubmit() {
+            ShowPopupMessage("Do you want to send the message?",
+                "Yes", function () {
+                    HidePopupMessage();
+                    $("#SendMessageForm").submit();
+                },
+                "No", function () {
+                    HidePopupMessage();                    
+                });              
+        }
     </script>
 }

@@ -3,12 +3,13 @@ using CFTenantPortal.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class EmployeeSeed1 : IEntityList<Employee>
+    public class EmployeeSeed1 : IEntityReader<Employee>
     {
         public Task<List<Employee>> ReadAllAsync()
         {
@@ -38,12 +39,17 @@ namespace CFTenantPortal.Seed1
                 Password = "xxx"
             });
 
-            return Task.FromResult(entities);
-        }
+            /*
+            // Store encrypted password & salt            
+            foreach(var employee in entities)
+            {
+                var data = passwordService.Encrypt(employee.Password);
+                employee.Password = data[0];
+                employee.Salt = data[1];
+            }
+            */
 
-        public Task WriteAllAsync(List<Employee> entities)
-        {
-            return Task.CompletedTask;
+            return Task.FromResult(entities);
         }
     }
 }

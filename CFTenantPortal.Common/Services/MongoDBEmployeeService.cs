@@ -23,9 +23,9 @@ namespace CFTenantPortal.Services
         //}
 
 
-        public Task<Employee?> GetByIdAsync(string id)
+        public async Task<Employee?> GetByIdAsync(string id)
         {
-            return _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return await _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
         //public Task<AccountTransaction?> GetByNameAsync(string name)
@@ -33,14 +33,16 @@ namespace CFTenantPortal.Services
         //    return _entities.Find(x => x.Name == name).FirstOrDefaultAsync();
         //}
 
-        public Task DeleteByIdAsync(string id)
+        public async Task DeleteByIdAsync(string id)
         {
-            return _entities.DeleteOneAsync(id);
+            await _entities.DeleteOneAsync(id);
         }
 
-        public Task<Employee?> GetByEmailAsync(string email)
+        public async Task<Employee?> GetByEmailAsync(string email)
         {
-            return _entities.Find(x => x.Email == email).FirstOrDefaultAsync();
+            var employee = await _entities.Find(x => x.Email == email).FirstOrDefaultAsync();
+            return employee;
+            //return _entities.Find(x => x.Email == email).FirstOrDefaultAsync();
         }
 
         //public Task<List<Employee>> GetAll()

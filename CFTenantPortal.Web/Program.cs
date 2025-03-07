@@ -62,6 +62,7 @@ builder.Services.AddScoped<ISharedSeedDataService, SharedSeedDataService>();
 
 // Set login service
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IPasswordService, PBKDF2PasswordService>();
 
 // Set request info service
 builder.Services.AddScoped<IRequestInfoService, RequestInfoService>();

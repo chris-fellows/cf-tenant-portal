@@ -3,7 +3,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class IssueSeed1 : IEntityList<Issue>
+    public class IssueSeed1 : IEntityReader<Issue>
     {
         private readonly IDocumentService _documentService;
         private readonly IIssueStatusService _issueStatusService;
@@ -118,11 +118,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<Issue> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

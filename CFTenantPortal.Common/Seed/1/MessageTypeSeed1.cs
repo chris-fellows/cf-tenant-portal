@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class MessageTypeSeed1 : IEntityList<MessageType>
+    public class MessageTypeSeed1 : IEntityReader<MessageType>
     {
         public Task<List<MessageType>> ReadAllAsync()
         {

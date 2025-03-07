@@ -12,9 +12,9 @@ namespace CFTenantPortal.Services
     
         }
 
-        public Task<AuditEventType?> GetByIdAsync(string id)
+        public async Task<AuditEventType?> GetByIdAsync(string id)
         {
-            return _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return await _entities.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
         //public Task<AccountTransaction?> GetByNameAsync(string name)
@@ -22,9 +22,9 @@ namespace CFTenantPortal.Services
         //    return _entities.Find(x => x.Name == name).FirstOrDefaultAsync();
         //}
 
-        public Task DeleteByIdAsync(string id)
+        public async Task DeleteByIdAsync(string id)
         {
-            return _entities.DeleteOneAsync(id);
+            await _entities.DeleteOneAsync(id);
         }
 
         //public Task<List<AuditEventType>> GetAll()
@@ -37,9 +37,9 @@ namespace CFTenantPortal.Services
         //    return Task.FromResult(GetAllInternal().FirstOrDefault(e => e.Id == id));
         //}
 
-        public Task<AuditEventType> GetByEnum(AuditEventTypes auditEventType)
+        public async Task<AuditEventType> GetByEnum(AuditEventTypes auditEventType)
         {
-            return Task.FromResult(GetAll().FirstOrDefault(e => e.EventType == auditEventType));
+            return await Task.FromResult(GetAll().FirstOrDefault(e => e.EventType == auditEventType));
         }
 
         //private List<AuditEventType> GetAllInternal()

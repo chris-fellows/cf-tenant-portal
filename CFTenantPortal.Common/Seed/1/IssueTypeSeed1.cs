@@ -3,7 +3,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class IssueTypeSeed1 : IEntityList<IssueType>
+    public class IssueTypeSeed1 : IEntityReader<IssueType>
     {
         public Task<List<IssueType>> ReadAllAsync()
         {

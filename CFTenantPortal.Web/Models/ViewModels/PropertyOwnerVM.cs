@@ -42,5 +42,7 @@ namespace CFTenantPortal.Models
         public bool AllowSave { get; set; }
 
         //public bool AllowDelete { get; set; }
+
+        public bool AllowSendMessage { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CFTenantPortal.Seed1
 {
-    public class AccountTransactionSeed1 : IEntityList<AccountTransaction>
+    public class AccountTransactionSeed1 : IEntityReader<AccountTransaction>
     {
         private readonly IAccountTransactionTypeService _accountTransactionTypeService;
         private readonly IPropertyService _propertyService;
@@ -82,11 +82,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<AccountTransaction> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

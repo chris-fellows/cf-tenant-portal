@@ -3,7 +3,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class PropertySeed1 : IEntityList<Property>
+    public class PropertySeed1 : IEntityReader<Property>
     {
         private readonly IDocumentService _documentService;
         private readonly IPropertyFeatureTypeService _propertyFeatureTypeService;

@@ -3,7 +3,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class IssueStatusSeed1 : IEntityList<IssueStatus>
+    public class IssueStatusSeed1 : IEntityReader<IssueStatus>
     {
         public Task<List<IssueStatus>> ReadAllAsync()
         {
@@ -30,11 +30,6 @@ namespace CFTenantPortal.Seed1
             });
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<IssueStatus> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

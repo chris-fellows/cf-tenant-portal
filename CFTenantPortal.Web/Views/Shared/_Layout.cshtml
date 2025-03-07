@@ -56,18 +56,18 @@
                             }
                             <li class="nav-item">
                                 <small>@this.Context.User.Identity.Name</small>
-                                <form method="post" asp-action="LogoutFormXXX">
+                                <form method="post" asp-action="LogoutForm" asp-controller="Account">
                                     <button type="submit">LOGOUT</button>
                                 </form>
-                                <form method="post" asp-action="LogoutForm">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="LogoutForm">Log out</a>
+                                <form method="post" asp-action="LogoutForm" asp-controller="Account">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="LogoutForm">Log out</a>
                                 </form>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Log in</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Log in</a>
                             </li>
                         }
                     </ul>

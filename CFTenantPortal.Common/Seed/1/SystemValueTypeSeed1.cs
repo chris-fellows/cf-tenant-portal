@@ -4,7 +4,7 @@ using CFTenantPortal.Models;
 
 namespace CFTenantPortal.Seed1
 {
-    public class SystemValueTypeSeed1 : IEntityList<SystemValueType>
+    public class SystemValueTypeSeed1 : IEntityReader<SystemValueType>
     {
         public Task<List<SystemValueType>> ReadAllAsync()
         {

@@ -5,7 +5,7 @@ using static System.Formats.Asn1.AsnWriter;
 
 namespace CFTenantPortal.Seed1
 {
-    public class AuditEventSeed1 : IEntityList<AuditEvent>
+    public class AuditEventSeed1 : IEntityReader<AuditEvent>
     {
         public Task<List<AuditEvent>> ReadAllAsync()
         {
@@ -110,11 +110,6 @@ namespace CFTenantPortal.Seed1
 
 
             return Task.FromResult(entities);
-        }
-
-        public Task WriteAllAsync(List<AuditEvent> entities)
-        {
-            return Task.CompletedTask;
         }
     }
 }

@@ -1,0 +1,46 @@
+﻿<dialog id="popupdialog1" class="">
+    <span id="popupdialog1prompt">Popup text</span>
+    <input id="popupdialog1button1" type="button" value="Text1" />
+    <input id="popupdialog1button2" type="button" value="Text2" />
+    <input id="popupdialog1button3" type="button" value="Text3" />
+</dialog>
+
+    <script>        
+        function ShowPopupMessage(text,
+                                button1Text, button1Action,
+                                button2Text, button2Action,
+                                button3Text, button3Action) {
+
+            $("#popupdialog1prompt").text(text);
+
+            if (button1Text == null) {   // Hide button 1
+                $("#popupdialog1button1").hide();
+            } else {    // Show button 1
+                $("#popupdialog1button1").prop("value", button1Text);
+                $("#popupdialog1button1").show();
+                $("#popupdialog1button1").click(button1Action);
+            }
+
+            if (button2Text == null) {   // Hide button 2
+                $("#popupdialog1button2").hide();
+            } else {    // Show button 2
+                $("#popupdialog1button2").prop("value", button2Text);
+                $("#popupdialog1button2").show();
+                $("#popupdialog1button2").click(button2Action);
+            }
+
+            if (button3Text == null) {   // Hide button 2
+                $("#popupdialog1button3").hide();
+            } else {    // Show button 3
+                $("#popupdialog1button3").prop("value", button2Text);
+                $("#popupdialog1button3").show();
+                $("#popupdialog1button3").click(button3Action);
+            }
+            
+            document.getElementById("popupdialog1").showModal();
+        }
+
+        function HidePopupMessage() {
+            document.getElementById("popupdialog1").close();
+        }
+    </script>
